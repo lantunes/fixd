@@ -26,7 +26,7 @@ First you'll need to clone this project and build it, and use the resulting jar.
 only two dependencies: SLF4J, and the Simple Framework (http://www.simpleframework.org).
 Fixd will eventually move to Maven central.
 
-Next, you should declare a **org.bigtesting.fixd.ServerFixture** field, like *server*, and 
+Next, you should declare an **org.bigtesting.fixd.ServerFixture** field, like "server", and 
 initialize it before each test:
 
 ```java
