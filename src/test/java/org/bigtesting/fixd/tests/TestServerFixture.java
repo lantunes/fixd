@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import org.bigtesting.fixd.Method;
 import org.bigtesting.fixd.PathParamSessionHandler;
 import org.bigtesting.fixd.ServerFixture;
+import org.bigtesting.fixd.capture.CapturedRequest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -228,6 +229,34 @@ public class TestServerFixture {
         
         f.cancel(false);
         assertEquals("[message: hello0, message: hello1]", broadcasts.toString());
+    }
+    
+    @Test
+    public void recordsRequests() throws Exception {
+        
+        server.handle(Method.GET, "/say-hello")
+              .with(200, "text/plain", "Hello!");
+        
+        server.handle(Method.PUT, "/name/:name")
+              .with(200, "text/plain", "OK");
+        
+        new AsyncHttpClient()
+            .prepareGet("http://localhost:8080/say-hello")
+            .execute().get();
+        
+        new AsyncHttpClient()
+            .preparePut("http://localhost:8080/name/Tim")
+            .execute().get();
+        
+        assertEquals(2, server.capturedRequests().size());
+        
+        CapturedRequest firstRequest = server.request();
+        assertNotNull(firstRequest);
+        assertEquals("GET /say-hello HTTP/1.1", firstRequest.getRequestLine());
+        
+        CapturedRequest secondRequest = server.request();
+        assertNotNull(secondRequest);
+        assertEquals("PUT /name/Tim HTTP/1.1", secondRequest.getRequestLine());
     }
     
     @After

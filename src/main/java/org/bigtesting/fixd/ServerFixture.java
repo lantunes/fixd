@@ -18,7 +18,9 @@ package org.bigtesting.fixd;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.Collection;
 
+import org.bigtesting.fixd.capture.CapturedRequest;
 import org.simpleframework.http.core.ContainerServer;
 import org.simpleframework.transport.Server;
 import org.simpleframework.transport.connect.Connection;
@@ -72,5 +74,15 @@ public class ServerFixture {
         RequestHandler handler = new RequestHandler();
         container.addHandler(handler, method, resource, contentType);
         return handler;
+    }
+    
+    public Collection<CapturedRequest> capturedRequests() {
+        
+        return container.getCapturedRequests();
+    }
+    
+    public CapturedRequest request() {
+        
+        return container.nextCapturedRequest();
     }
 }

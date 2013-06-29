@@ -19,7 +19,9 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -30,6 +32,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import org.bigtesting.fixd.capture.CapturedRequest;
+import org.bigtesting.fixd.capture.impl.SimpleCapturedRequest;
 import org.bigtesting.fixd.routing.RegexRouteMap;
 import org.bigtesting.fixd.routing.Route;
 import org.bigtesting.fixd.routing.RouteMap;
@@ -65,6 +69,8 @@ public class FixtureContainer implements Container {
     
     private final BlockingQueue<Broadcast> broadcasts = new LinkedBlockingQueue<Broadcast>();
     
+    private final Queue<CapturedRequest> capturedRequests = new LinkedList<CapturedRequest>();
+    
     public FixtureContainer(int aysncThreadPoolSize) {
         asyncExecutor = Executors.newFixedThreadPool(aysncThreadPoolSize);
     }
@@ -85,9 +91,21 @@ public class FixtureContainer implements Container {
         return key;
     }
     
+    public Queue<CapturedRequest> getCapturedRequests() {
+        
+        return capturedRequests;
+    }
+    
+    public CapturedRequest nextCapturedRequest() {
+        
+        return capturedRequests.poll();
+    }
+    
     public void handle(Request request, Response response) {
 
         try {
+            
+            capturedRequests.add(new SimpleCapturedRequest(request));
             
             String responseContentType = "text/plain";
             String responseBody = "";
@@ -163,6 +181,8 @@ public class FixtureContainer implements Container {
             sendAndCommitResponse(response, "text/plain", "");
         }
     }
+    
+    /*----------------------------------------------------------*/
     
     private Session getSessionIfExists(Request request) {
         

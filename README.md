@@ -57,6 +57,8 @@ Response resp = new AsyncHttpClient()
 assertEquals("Hello", resp.getResponseBody().trim());
 ```
 
+### Path Parameters
+
 You can also use path parameters as part of your request, and access them in the 
 body of your response:
 
@@ -71,6 +73,34 @@ Response resp = new AsyncHttpClient()
        
 assertEquals("Hello Tim", resp.getResponseBody().trim());
 ```
+
+### Capturing Requests
+
+You can capture requests, and make assertions on the captured requests:
+
+```java
+server.handle(Method.GET, "/say-hello")
+      .with(200, "text/plain", "Hello!");
+        
+server.handle(Method.PUT, "/name/:name")
+      .with(200, "text/plain", "OK");
+
+new AsyncHttpClient()
+    .prepareGet("http://localhost:8080/say-hello")
+    .execute().get();
+
+new AsyncHttpClient()
+    .preparePut("http://localhost:8080/name/Tim")
+    .execute().get();
+
+CapturedRequest firstRequest = server.request();
+assertEquals("GET /say-hello HTTP/1.1", firstRequest.getRequestLine());
+
+CapturedRequest secondRequest = server.request();
+assertEquals("PUT /name/Tim HTTP/1.1", secondRequest.getRequestLine());
+```
+
+### URI Pattern Matching
 
 Path parameters can be required to conform to certain rules, specified through Regex 
 expressions:
@@ -91,6 +121,8 @@ resp          = new AsyncHttpClient()
                 .get();
 assertEquals(404, resp.getStatusCode());
 ``` 
+
+### Sessions for Stateful Requests
 
 You can create sessions for requests, and access the session variables in the body of
 your response:
@@ -121,6 +153,8 @@ The **PathParamSessionHandler** above takes the value of the *name* path paramet
 creates an entry in the session called *name*. The *{}* syntax in the body of the response
 means: get the current session for this client, and get the value for the *name* property.
 
+### Delaying a Response
+
 You can delay a response, as well:
 
 ```java
@@ -142,6 +176,8 @@ try {
 
 The call to **after()** in the snippet above means: return the response after 100 seconds have
 elapsed, which is more than the 1 second this client is willing to wait.
+
+### Periodic Asynchronous Responses
 
 You can asynchronously send a response at a fixed time interval, as below:
 
@@ -173,6 +209,8 @@ assertEquals("[message: hello, message: hello]", chunks.toString());
 
 The call to **every()** in the snippet above means: return the response every second, a maximum
 of 2 times.
+
+### Subscribe-Broadcast
 
 You can also asynchronously send a response in a subscribe-broadcast scenario:
 
@@ -226,6 +264,8 @@ be available for "/broadcast".
 The call to **upon()** in the snippet above means: upon receiving a GET request
 for "/broadcast/:message", send a response to the suspended client which contains
 the value of the *message* path parameter in the body.
+
+### Tear Down
 
 Finally, remember to stop the server fixture after each test:
 
