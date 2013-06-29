@@ -160,7 +160,7 @@ Future<Integer> f = new AsyncHttpClient()
        return r.getStatusCode();
      }
                 
-     public STATE onBodyPartReceived(HttpResponseBodyPart bodyPart) throws Exception {                                
+     public STATE onBodyPartReceived(HttpResponseBodyPart bodyPart) throws Exception {
        String chunk = new String(bodyPart.getBodyPartBytes()).trim();
        if (chunk.length() != 0) chunks.add(chunk);
        return STATE.CONTINUE;
@@ -191,7 +191,7 @@ Future<Integer> f = new AsyncHttpClient()
        return r.getStatusCode();
      }
                  
-     public STATE onBodyPartReceived(HttpResponseBodyPart bodyPart) throws Exception {                                  
+     public STATE onBodyPartReceived(HttpResponseBodyPart bodyPart) throws Exception {
        String chunk = new String(bodyPart.getBodyPartBytes()).trim();
        if (chunk.length() != 0) broadcasts.add(chunk);
        return STATE.CONTINUE;
