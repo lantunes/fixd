@@ -157,20 +157,20 @@ public class TestServerFixture {
         
         final List<String> chunks = new ArrayList<String>();
         Future<Integer> f = new AsyncHttpClient()
-                            .prepareGet("http://localhost:8080/echo/hello")
-                            .execute(
-                              new AsyncCompletionHandler<Integer>() {
-                                  
-                                public Integer onCompleted(Response r) throws Exception {
-                                  return r.getStatusCode();
-                                }
-                                    
-                                public STATE onBodyPartReceived(HttpResponseBodyPart bodyPart) throws Exception {                                  
-                                  String chunk = new String(bodyPart.getBodyPartBytes()).trim();
-                                  if (chunk.length() != 0) chunks.add(chunk);
-                                  return STATE.CONTINUE;
-                                }
-                            });
+            .prepareGet("http://localhost:8080/echo/hello")
+            .execute(
+              new AsyncCompletionHandler<Integer>() {
+                  
+                public Integer onCompleted(Response r) throws Exception {
+                  return r.getStatusCode();
+                }
+                    
+                public STATE onBodyPartReceived(HttpResponseBodyPart bodyPart) throws Exception {                                  
+                  String chunk = new String(bodyPart.getBodyPartBytes()).trim();
+                  if (chunk.length() != 0) chunks.add(chunk);
+                  return STATE.CONTINUE;
+                }
+            });
         
         assertEquals(200, (int)f.get());
         assertEquals("[message: hello, message: hello]", chunks.toString());
@@ -196,20 +196,20 @@ public class TestServerFixture {
         
         final List<String> broadcasts = new ArrayList<String>();
         Future<Integer> f = new AsyncHttpClient()
-                            .prepareGet("http://localhost:8080/subscribe")
-                            .execute(
-                              new AsyncCompletionHandler<Integer>() {
-                                  
-                                public Integer onCompleted(Response r) throws Exception {
-                                  return r.getStatusCode();
-                                }
-                                    
-                                public STATE onBodyPartReceived(HttpResponseBodyPart bodyPart) throws Exception {                                  
-                                  String chunk = new String(bodyPart.getBodyPartBytes()).trim();
-                                  if (chunk.length() != 0) broadcasts.add(chunk);
-                                  return STATE.CONTINUE;
-                                }
-                            });
+            .prepareGet("http://localhost:8080/subscribe")
+            .execute(
+              new AsyncCompletionHandler<Integer>() {
+                  
+                public Integer onCompleted(Response r) throws Exception {
+                  return r.getStatusCode();
+                }
+                    
+                public STATE onBodyPartReceived(HttpResponseBodyPart bodyPart) throws Exception {                                  
+                  String chunk = new String(bodyPart.getBodyPartBytes()).trim();
+                  if (chunk.length() != 0) broadcasts.add(chunk);
+                  return STATE.CONTINUE;
+                }
+            });
         
         /* sometimes the first broadcast request is made
          * before the subscribing client has finished its request */
