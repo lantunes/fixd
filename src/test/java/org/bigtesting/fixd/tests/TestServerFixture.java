@@ -240,6 +240,8 @@ public class TestServerFixture {
         server.handle(Method.PUT, "/name/:name")
               .with(200, "text/plain", "OK");
         
+        assertEquals(0, server.capturedRequests().size());
+        
         new AsyncHttpClient()
             .prepareGet("http://localhost:8080/say-hello")
             .execute().get();
