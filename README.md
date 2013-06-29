@@ -1,5 +1,5 @@
-## Fixd
-=======
+# Fixd
+------
 
 Fixd is an HTTP server fixture for testing web clients. Unlike a mock web server, it 
 is backed by a fully functional HTTP server, bound to a port of your choosing. Its 
@@ -19,8 +19,8 @@ With Fixd, you can:
 * setup asynchronous HTTP subscribe-broadcast scenarios 
 * delay responses for tests that require a delayed response
 
-# Getting Started
-=================
+## Getting Started
+------------------
 
 First you'll need to clone this project and build it, and use the resulting jar. It has
 only two dependencies: SLF4J, and the Simple Framework (http://www.simpleframework.org).
@@ -140,7 +140,7 @@ try {
 } catch (Exception e) {}
 ```
 
-The call to **after** in the snippet above means: return the response after 100 seconds have
+The call to **after()** in the snippet above means: return the response after 100 seconds have
 elapsed, which is more than the 1 second this client is willing to wait.
 
 You can asynchronously send a response at a fixed time interval, as below:
@@ -152,26 +152,26 @@ server.handle(Method.GET, "/echo/:message")
         
 final List<String> chunks = new ArrayList<String>();
 Future<Integer> f = new AsyncHttpClient()
-                     .prepareGet("http://localhost:8080/echo/hello")
-                     .execute(
-                       new AsyncCompletionHandler<Integer>() {
-                                
-                         public Integer onCompleted(Response r) throws Exception {
-                           return r.getStatusCode();
-                         }
-                                    
-                         public STATE onBodyPartReceived(HttpResponseBodyPart bodyPart) throws Exception {                                
-                           String chunk = new String(bodyPart.getBodyPartBytes()).trim();
-                           if (chunk.length() != 0) chunks.add(chunk);
-                           return STATE.CONTINUE;
-                         }
-                     });
+ .prepareGet("http://localhost:8080/echo/hello")
+ .execute(
+   new AsyncCompletionHandler<Integer>() {
+            
+     public Integer onCompleted(Response r) throws Exception {
+       return r.getStatusCode();
+     }
+                
+     public STATE onBodyPartReceived(HttpResponseBodyPart bodyPart) throws Exception {                                
+       String chunk = new String(bodyPart.getBodyPartBytes()).trim();
+       if (chunk.length() != 0) chunks.add(chunk);
+       return STATE.CONTINUE;
+     }
+ });
         
 assertEquals(200, (int)f.get());
 assertEquals("[message: hello, message: hello]", chunks.toString());
 ```
 
-The call to **every** in the snippet above means: return the response every second, a maximum
+The call to **every()** in the snippet above means: return the response every second, a maximum
 of 2 times.
 
 You can also asynchronously send a response in a subscribe-broadcast scenario:
@@ -183,20 +183,20 @@ server.handle(Method.GET, "/subscribe")
         
 final List<String> broadcasts = new ArrayList<String>();
 Future<Integer> f = new AsyncHttpClient()
-                    .prepareGet("http://localhost:8080/subscribe")
-                    .execute(
-                      new AsyncCompletionHandler<Integer>() {
-                                 
-                        public Integer onCompleted(Response r) throws Exception {
-                          return r.getStatusCode();
-                        }
-                                    
-                        public STATE onBodyPartReceived(HttpResponseBodyPart bodyPart) throws Exception {                                  
-                          String chunk = new String(bodyPart.getBodyPartBytes()).trim();
-                          if (chunk.length() != 0) broadcasts.add(chunk);
-                          return STATE.CONTINUE;
-                        }
-                    });
+ .prepareGet("http://localhost:8080/subscribe")
+ .execute(
+   new AsyncCompletionHandler<Integer>() {
+              
+     public Integer onCompleted(Response r) throws Exception {
+       return r.getStatusCode();
+     }
+                 
+     public STATE onBodyPartReceived(HttpResponseBodyPart bodyPart) throws Exception {                                  
+       String chunk = new String(bodyPart.getBodyPartBytes()).trim();
+       if (chunk.length() != 0) broadcasts.add(chunk);
+       return STATE.CONTINUE;
+     }
+ });
         
 /* sometimes the first broadcast request is made
 * before the subscribing client has finished its request */
@@ -223,6 +223,10 @@ suspended client will receive a message which includes the value of the *message
 For this to work, a client must first make a request to "/subscribe", otherwise no handler will
 be available for "/broadcast".
 
+The call to **upon()** in the snippet above means: upon receiving a GET request
+for "/broadcast/:message", send a response to the suspended client which contains
+the value of the *message* path parameter in the body.
+
 Finally, remember to stop the server fixture after each test:
 
 ```java
@@ -232,4 +236,4 @@ public void afterEachTest() throws Exception {
 }
 ```
 
-For more examples, have a look at the ServerFixture test class: [TestServerFixture](https://github.com/lantunes/fixd/blob/master/src/test/java/org/bigtesting/fixd/tests/TestSeverFixture.java)
+For more examples, have a look at the ServerFixture test class: [TestServerFixture](https://github.com/lantunes/fixd/blob/master/src/test/java/org/bigtesting/fixd/tests/TestServerFixture.java)
