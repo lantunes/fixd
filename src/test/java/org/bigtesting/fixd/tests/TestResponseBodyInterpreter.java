@@ -401,6 +401,77 @@ public class TestResponseBodyInterpreter {
         assertEquals("Message: Hello World!", interpreted);
     }
     
+    @Test
+    public void testRequestBodySubstituedInPresenceOfOtherBrackets() throws Exception {
+        
+        Request request = mockRequest();
+        when(request.getInputStream()).thenReturn(body("Hello World!"));
+        
+        String interpreted = ResponseBodyInterpreter.interpret(
+                "Message: [ [request.body] ] [", 
+                "/", emptyPathParamList(), null, request);
+        
+        assertEquals("Message: [ Hello World! ] [", interpreted);
+    }
+    
+    @Test
+    public void testRequestBodySubstituedInPresenceOfOtherBrackets_NoSpaces() throws Exception {
+        
+        Request request = mockRequest();
+        when(request.getInputStream()).thenReturn(body("Hello World!"));
+        
+        String interpreted = ResponseBodyInterpreter.interpret(
+                "Message: [[request.body]] [", 
+                "/", emptyPathParamList(), null, request);
+        
+        assertEquals("Message: [Hello World!] [", interpreted);
+    }
+    
+    @Test
+    public void testRequestBodySubstituedInPresenceOfOtherBracketEnclosedTerms() throws Exception {
+        
+        Request request = mockRequest();
+        when(request.getInputStream()).thenReturn(body("Tim"));
+        
+        String interpreted = ResponseBodyInterpreter.interpret(
+                "Hello [there] [request.body]", 
+                "/", emptyPathParamList(), null, request);
+        
+        assertEquals("Hello [there] Tim", interpreted);
+    }
+    
+    @Test
+    public void testRequestBodySubstituedWithBracketEnclosedValue() throws Exception {
+        
+        Request request = mockRequest();
+        when(request.getInputStream()).thenReturn(body("[Tim]"));
+        
+        String interpreted = ResponseBodyInterpreter.interpret(
+                "Hello [request.body]", 
+                "/", emptyPathParamList(), null, request);
+        
+        assertEquals("Hello [Tim]", interpreted);
+    }
+    
+    @Test
+    public void testPathParamAndSessionAndRequestUsedTogether() throws Exception {
+        
+        Request request = mockRequest();
+        when(request.getInputStream()).thenReturn(body("Doe"));
+        
+        Session session = new Session();
+        session.set("salutation", "Mr.");
+        
+        List<PathParameterElement> elements = emptyPathParamList();
+        elements.add(new PathParameterElement("name", 1));
+        
+        String interpreted = ResponseBodyInterpreter.interpret(
+                "Hello {salutation} :name [request.body]", 
+                "/name/John", elements, session, request);
+        
+        assertEquals("Hello Mr. John Doe", interpreted);
+    }
+    
     /*------------------------------------------------*/
     
     private List<PathParameterElement> emptyPathParamList() {
