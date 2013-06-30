@@ -17,11 +17,9 @@ package org.bigtesting.fixd;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.bigtesting.fixd.routing.Route.PathParameterElement;
-import org.bigtesting.fixd.routing.RouteHelper;
+import org.bigtesting.fixd.util.ResponseBodyInterpreter;
 
 /**
  * 
@@ -29,8 +27,6 @@ import org.bigtesting.fixd.routing.RouteHelper;
  */
 public class RequestHandler {
 
-    private static final Pattern SESSION_VALUE_PATTERN = Pattern.compile("\\{([^}]*)\\}");
-    
     private int statusCode = -1;
     private String contentType;
     private String body;
@@ -109,37 +105,7 @@ public class RequestHandler {
 
     String body(String path, List<PathParameterElement> pathParams, Session session) {
         
-        /* handle any values that start with ':' */
-        String responseBody = body;
-        String[] pathTokens = RouteHelper.getPathElements(path);
-        for (PathParameterElement param : pathParams) {
-            responseBody = responseBody.replaceAll(":" + param.name(), pathTokens[param.index()]);
-        }
-        
-        if (session != null) {
-            //TODO this should be moved into its own class with tests
-            /* 
-             * handle any values that are enclosed in '{}'
-             * - replacement values can consist of "{}"
-             */
-            Matcher m = SESSION_VALUE_PATTERN.matcher(responseBody);
-            StringBuilder result = new StringBuilder();
-            int start = 0;
-            while (m.find()) {
-                String key = m.group(1);
-                Object val = session.get(key);
-                if (val != null) {
-                    String stringVal = val.toString();
-                    result.append(responseBody.substring(start, m.start()));
-                    result.append(stringVal);
-                    start = m.end();
-                }
-            }
-            result.append(responseBody.substring(start));
-            responseBody = result.toString();
-        }
-        
-        return responseBody;
+        return ResponseBodyInterpreter.interpret(body, path, pathParams, session);
     }
     
     SessionHandler sessionHandler() {

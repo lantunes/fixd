@@ -18,6 +18,7 @@ package org.bigtesting.fixd.routing;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -43,8 +44,9 @@ public class RouteHelper {
     /*
      * set of regex special chars to escape
      */
-    private static final Set<Character> specialChars = new HashSet<Character>(Arrays.asList(
-            '[',']','(',')','{','}','+','*','^','?','$','.','\\'));
+    private static final Set<Character> REGEX_SPECIAL_CHARS = Collections.unmodifiableSet(
+            new HashSet<Character>(Arrays.asList(
+            '[',']','(',')','{','}','+','*','^','?','$','.','\\')));
     
     public static String[] getPathElements(String path) {
         if (path == null) throw new IllegalArgumentException("path cannot be null");
@@ -68,7 +70,7 @@ public class RouteHelper {
                 inCustomRegion = false;
             }
             
-            if (specialChars.contains(ch) && !inCustomRegion) {
+            if (REGEX_SPECIAL_CHARS.contains(ch) && !inCustomRegion) {
                 sb.append('\\');
             }
             
