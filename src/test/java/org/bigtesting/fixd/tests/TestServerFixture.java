@@ -66,6 +66,10 @@ public class TestServerFixture {
         server.handle(Method.GET, "/")
               .with(200, "text/plain", "Hello");
         
+        /* 
+         * we're using the ning.com AsyncHttpClient, check it out: 
+         * https://github.com/AsyncHttpClient/async-http-client 
+         */
         Response resp = new AsyncHttpClient()
                         .prepareGet("http://localhost:8080/")
                         .execute()
