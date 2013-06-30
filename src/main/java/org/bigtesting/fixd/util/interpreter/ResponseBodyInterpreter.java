@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bigtesting.fixd.util;
+package org.bigtesting.fixd.util.interpreter;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bigtesting.fixd.Session;
 import org.bigtesting.fixd.routing.Route.PathParameterElement;
 import org.bigtesting.fixd.routing.RouteHelper;
+import org.simpleframework.http.Request;
 
 /**
  * 
@@ -30,15 +33,25 @@ import org.bigtesting.fixd.routing.RouteHelper;
 public class ResponseBodyInterpreter {
     
     private static final Pattern SESSION_VALUE_PATTERN = Pattern.compile("\\{([^{}]*)\\}");
+    
+    private static final Pattern REQUEST_VALUE_PATTERN = Pattern.compile("\\[([^\\[\\]]*)\\]");
+    
+    private static final Map<String, RequestValueProvider<?>> requestValueProviders = 
+            new HashMap<String, RequestValueProvider<?>>();
+    static {
+        requestValueProviders.put("request.body", new RequestBodyValueProvider());
+    }
 
     public static String interpret(String body, String path, 
-            List<PathParameterElement> pathParams, Session session) {
+            List<PathParameterElement> pathParams, Session session, Request request) {
         
         body = interpretPathParamValues(body, path, pathParams);
         
         if (session != null) {
             body = interpretSessionValues(body, session);
         }
+        
+        body = interpretRequestValues(body, request);
         
         return body;
     }
@@ -62,14 +75,39 @@ public class ResponseBodyInterpreter {
      * handle any values that are enclosed in '{}'
      * - replacement values can consist of "{}"
      */
-    private static String interpretSessionValues(String body, Session session) {
+    private static String interpretSessionValues(String body, final Session session) {
         
-        Matcher m = SESSION_VALUE_PATTERN.matcher(body);
+        return substituteGroups(body, SESSION_VALUE_PATTERN, new ValueProvider() {
+            public Object getValue(String captured) {
+                return session.get(captured);
+            }
+        });
+    }
+    
+    private static String interpretRequestValues(String body, final Request request) {
+        
+        return substituteGroups(body, REQUEST_VALUE_PATTERN, new ValueProvider() {
+            public Object getValue(String captured) {
+                
+                RequestValueProvider<?> requestValueProvider = 
+                        requestValueProviders.get(captured);
+                if (requestValueProvider != null) {
+                    return requestValueProvider.getValue(request);
+                }
+                return null;
+            }
+        });
+    }
+    
+    private static String substituteGroups(String body, Pattern pattern, 
+            ValueProvider valueProvider) {
+        
+        Matcher m = pattern.matcher(body);
         StringBuilder result = new StringBuilder();
         int start = 0;
         while (m.find()) {
-            String key = m.group(1);
-            Object val = session.get(key);
+            String captured = m.group(1);
+            Object val = valueProvider.getValue(captured);
             if (val != null) {
                 String stringVal = val.toString();
                 result.append(body.substring(start, m.start()));
@@ -79,5 +117,9 @@ public class ResponseBodyInterpreter {
         }
         result.append(body.substring(start));
         return result.toString();
+    }
+    
+    private static interface ValueProvider {
+        Object getValue(String captured);
     }
 }

@@ -19,7 +19,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.bigtesting.fixd.routing.Route.PathParameterElement;
-import org.bigtesting.fixd.util.ResponseBodyInterpreter;
+import org.bigtesting.fixd.util.interpreter.ResponseBodyInterpreter;
+import org.simpleframework.http.Request;
 
 /**
  * 
@@ -103,9 +104,11 @@ public class RequestHandler {
         return contentType;
     }
 
-    String body(String path, List<PathParameterElement> pathParams, Session session) {
+    String body(String path, List<PathParameterElement> pathParams, 
+            Session session, Request request) {
         
-        return ResponseBodyInterpreter.interpret(body, path, pathParams, session);
+        return ResponseBodyInterpreter.interpret(body, path, 
+                pathParams, session, request);
     }
     
     SessionHandler sessionHandler() {

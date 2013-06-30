@@ -74,6 +74,23 @@ Response resp = new AsyncHttpClient()
 assertEquals("Hello Tim", resp.getResponseBody().trim());
 ```
 
+### Request Values
+
+You can access request values in the body of your response:
+
+```java
+server.handle(Method.PUT, "/name")
+      .with(200, "text/plain", "Hello [request.body]");
+   
+Response resp = new AsyncHttpClient()
+                .preparePut("http://localhost:8080/name")
+                .setBody("Tim")
+                .execute()
+                .get();
+   
+assertEquals("Hello Tim", resp.getResponseBody().trim());
+```
+
 ### Capturing Requests
 
 You can capture requests, and make assertions on the captured requests:

@@ -119,7 +119,7 @@ public class FixtureContainer implements Container {
             
             if (uponHandlers.contains(resolved.key)) {
                 
-                broadcasts.add(new Broadcast(resolved.route, 
+                broadcasts.add(new Broadcast(request, resolved.route, 
                         request.getPath().getPath()));
                 /* continue handling the request, as an 
                  * upon handler won't itself contain an Upon,
@@ -148,7 +148,7 @@ public class FixtureContainer implements Container {
                 Session session = getSessionIfExists(request);
                 String path = request.getPath().getPath();
                 String handlerBody = resolved.handler.body(path, 
-                        resolved.route.pathParameterElements(), session);
+                        resolved.route.pathParameterElements(), session, request);
                 if (handlerBody != null && handlerBody.trim().length() != 0) {
                     responseBody = handlerBody;
                 }
@@ -289,12 +289,13 @@ public class FixtureContainer implements Container {
     
     private class AsyncTask implements Runnable {
 
-        private Response response; 
+        private Response response;
         private RequestHandler handler;
         private String responseContentType; 
         private String responseBody;
         
-        public AsyncTask(Response response, RequestHandler handler, 
+        public AsyncTask(Response response, 
+                RequestHandler handler, 
                 String responseContentType, String responseBody) {
             
             this.response = response;
@@ -335,12 +336,13 @@ public class FixtureContainer implements Container {
                     
                     delayIfRequired(handler);
                     
+                    Request request = broadcast.getRequest();
                     Route route = broadcast.getRoute();
                     String path = broadcast.getPath();
                     
                     /* no support for session variables for now */
                     String handlerBody = handler.body(path, 
-                            route.pathParameterElements(), null);
+                            route.pathParameterElements(), null, request);
                     
                     sendResponse(response, responseContentType, handlerBody);
                     
@@ -402,12 +404,18 @@ public class FixtureContainer implements Container {
     
     private class Broadcast {
         
+        private final Request request;
         private final Route route;
         private final String path;
         
-        public Broadcast(Route route, String path) {
+        public Broadcast(Request request, Route route, String path) {
+            this.request = request;
             this.route = route;
             this.path = path;
+        }
+        
+        public Request getRequest() {
+            return request;
         }
         
         public Route getRoute() {
@@ -421,7 +429,7 @@ public class FixtureContainer implements Container {
     
     private class StopBroadcasting extends Broadcast {
         public StopBroadcasting() {
-            super(null, null);
+            super(null, null, null);
         }
     }
 }

@@ -108,6 +108,21 @@ public class TestServerFixture {
     }
     
     @Test
+    public void testSimplePutWithRequestBody() throws Exception {
+
+        server.handle(Method.PUT, "/name")
+              .with(200, "text/plain", "Hello [request.body]");
+       
+        Response resp = new AsyncHttpClient()
+                        .preparePut("http://localhost:8080/name")
+                        .setBody("Tim")
+                        .execute()
+                        .get();
+       
+        assertEquals("Hello Tim", resp.getResponseBody().trim());
+    }
+    
+    @Test
     public void testStatefulRequests() throws Exception {
         
         server.handle(Method.PUT, "/name/:name")
@@ -184,12 +199,6 @@ public class TestServerFixture {
          * NOTE: for this to work, a client must first make
          * a request to "/subscribe", otherwise no handler will
          * be available for "/broadcast"
-         * 
-         * TODO
-         * ability to include request body in response body, i.e.:
-         * server.handle(Method.GET, "/subscribe")
-         *    .with(200, "text/html", html(body(h1("message: [request.body]"))))
-         *    .upon(Method.GET, "/broadcast");
          */
         server.handle(Method.GET, "/subscribe")
               .with(200, "text/plain", "message: :message")
@@ -220,6 +229,55 @@ public class TestServerFixture {
             
             new AsyncHttpClient()
                 .prepareGet("http://localhost:8080/broadcast/hello" + i)
+                .execute().get();
+            
+            /* sometimes the last broadcast request is not
+             * finished before f.cancel() is called */
+            Thread.sleep(50);
+        }
+        
+        f.cancel(false);
+        assertEquals("[message: hello0, message: hello1]", broadcasts.toString());
+    }
+    
+    @Test
+    public void testUponUsingRequestBody() throws Exception {
+        
+        /*
+         * NOTE: for this to work, a client must first make
+         * a request to "/subscribe", otherwise no handler will
+         * be available for "/broadcast"
+         */
+        server.handle(Method.GET, "/subscribe")
+              .with(200, "text/plain", "message: [request.body]")
+              .upon(Method.PUT, "/broadcast");
+        
+        final List<String> broadcasts = new ArrayList<String>();
+        Future<Integer> f = new AsyncHttpClient()
+            .prepareGet("http://localhost:8080/subscribe")
+            .execute(
+              new AsyncCompletionHandler<Integer>() {
+                  
+                public Integer onCompleted(Response r) throws Exception {
+                  return r.getStatusCode();
+                }
+                    
+                public STATE onBodyPartReceived(HttpResponseBodyPart bodyPart) throws Exception {                                  
+                  String chunk = new String(bodyPart.getBodyPartBytes()).trim();
+                  if (chunk.length() != 0) broadcasts.add(chunk);
+                  return STATE.CONTINUE;
+                }
+            });
+        
+        /* sometimes the first broadcast request is made
+         * before the subscribing client has finished its request */
+        Thread.sleep(50);
+        
+        for (int i = 0; i < 2; i++) {
+            
+            new AsyncHttpClient()
+                .preparePut("http://localhost:8080/broadcast")
+                .setBody("hello" + i)
                 .execute().get();
             
             /* sometimes the last broadcast request is not

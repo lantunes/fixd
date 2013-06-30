@@ -16,14 +16,18 @@
 package org.bigtesting.fixd.tests;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.bigtesting.fixd.Session;
 import org.bigtesting.fixd.routing.Route.PathParameterElement;
-import org.bigtesting.fixd.util.ResponseBodyInterpreter;
+import org.bigtesting.fixd.util.interpreter.ResponseBodyInterpreter;
 import org.junit.Test;
+import org.simpleframework.http.Request;
 
 /**
  * 
@@ -36,7 +40,7 @@ public class TestResponseBodyInterpreter {
         
         assertEquals("Hello World!", 
                 ResponseBodyInterpreter.interpret("Hello World!", "/", 
-                        emptyPathParamList(), null));
+                        emptyPathParamList(), null, mockRequest()));
     }
     
     @Test
@@ -47,7 +51,7 @@ public class TestResponseBodyInterpreter {
         
         assertEquals("Hello World!", 
                 ResponseBodyInterpreter.interpret("Hello World!", "/", 
-                        emptyPathParamList(), session));
+                        emptyPathParamList(), session, mockRequest()));
     }
     
     @Test
@@ -57,7 +61,8 @@ public class TestResponseBodyInterpreter {
         elements.add(new PathParameterElement("name", 1));
         
         String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello :name", "/name/Tim", elements, null);
+                "Hello :name", "/name/Tim", 
+                elements, null, mockRequest());
         
         assertEquals("Hello Tim", interpreted);
     }
@@ -69,7 +74,8 @@ public class TestResponseBodyInterpreter {
         elements.add(new PathParameterElement("name", 1));
         
         String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello : :name :", "/name/Tim", elements, null);
+                "Hello : :name :", "/name/Tim", 
+                elements, null, mockRequest());
         
         assertEquals("Hello : Tim :", interpreted);
     }
@@ -81,7 +87,8 @@ public class TestResponseBodyInterpreter {
         elements.add(new PathParameterElement("name", 1));
         
         String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello ::name", "/name/Tim", elements, null);
+                "Hello ::name", "/name/Tim", 
+                elements, null, mockRequest());
         
         assertEquals("Hello :Tim", interpreted);
     }
@@ -93,7 +100,8 @@ public class TestResponseBodyInterpreter {
         elements.add(new PathParameterElement("name", 1));
         
         String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello ::name:", "/name/Tim", elements, null);
+                "Hello ::name:", "/name/Tim", 
+                elements, null, mockRequest());
         
         assertEquals("Hello :Tim:", interpreted);
     }
@@ -105,7 +113,8 @@ public class TestResponseBodyInterpreter {
         elements.add(new PathParameterElement("name", 1));
         
         String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello :someTerm :name", "/name/Tim", elements, null);
+                "Hello :someTerm :name", "/name/Tim", 
+                elements, null, mockRequest());
         
         assertEquals("Hello :someTerm Tim", interpreted);
     }
@@ -117,7 +126,8 @@ public class TestResponseBodyInterpreter {
         elements.add(new PathParameterElement("name", 1));
         
         String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello :name", "/name/:Tim", elements, null);
+                "Hello :name", "/name/:Tim", 
+                elements, null, mockRequest());
         
         assertEquals("Hello :Tim", interpreted);
     }
@@ -130,7 +140,8 @@ public class TestResponseBodyInterpreter {
         elements.add(new PathParameterElement("lastName", 2));
         
         String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello :firstName :lastName", "/name/John/Doe", elements, null);
+                "Hello :firstName :lastName", "/name/John/Doe", 
+                elements, null, mockRequest());
         
         assertEquals("Hello John Doe", interpreted);
     }
@@ -143,7 +154,8 @@ public class TestResponseBodyInterpreter {
         elements.add(new PathParameterElement("lastName", 2));
         
         String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello : :firstName : :lastName :", "/name/John/Doe", elements, null);
+                "Hello : :firstName : :lastName :", "/name/John/Doe", 
+                elements, null, mockRequest());
         
         assertEquals("Hello : John : Doe :", interpreted);
     }
@@ -156,7 +168,8 @@ public class TestResponseBodyInterpreter {
         elements.add(new PathParameterElement("lastName", 2));
         
         String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello :firstName :lastName", "/name/:John/:Doe", elements, null);
+                "Hello :firstName :lastName", "/name/:John/:Doe", 
+                elements, null, mockRequest());
         
         assertEquals("Hello :John :Doe", interpreted);
     }
@@ -169,7 +182,7 @@ public class TestResponseBodyInterpreter {
         
         String interpreted = ResponseBodyInterpreter.interpret(
                 "Hello {name}", 
-                "/", emptyPathParamList(), session);
+                "/", emptyPathParamList(), session, mockRequest());
         
         assertEquals("Hello Tim", interpreted);
     }
@@ -182,7 +195,7 @@ public class TestResponseBodyInterpreter {
         
         String interpreted = ResponseBodyInterpreter.interpret(
                 "Hello { {name} } {", 
-                "/", emptyPathParamList(), session);
+                "/", emptyPathParamList(), session, mockRequest());
         
         assertEquals("Hello { Tim } {", interpreted);
     }
@@ -195,7 +208,7 @@ public class TestResponseBodyInterpreter {
         
         String interpreted = ResponseBodyInterpreter.interpret(
                 "Hello {{name}} {", 
-                "/", emptyPathParamList(), session);
+                "/", emptyPathParamList(), session, mockRequest());
         
         assertEquals("Hello {Tim} {", interpreted);
     }
@@ -208,7 +221,7 @@ public class TestResponseBodyInterpreter {
         
         String interpreted = ResponseBodyInterpreter.interpret(
                 "Hello {there} {name}", 
-                "/", emptyPathParamList(), session);
+                "/", emptyPathParamList(), session, mockRequest());
         
         assertEquals("Hello {there} Tim", interpreted);
     }
@@ -221,7 +234,7 @@ public class TestResponseBodyInterpreter {
         
         String interpreted = ResponseBodyInterpreter.interpret(
                 "Hello {name}", 
-                "/", emptyPathParamList(), session);
+                "/", emptyPathParamList(), session, mockRequest());
         
         assertEquals("Hello {Tim}", interpreted);
     }
@@ -235,7 +248,7 @@ public class TestResponseBodyInterpreter {
         
         String interpreted = ResponseBodyInterpreter.interpret(
                 "Hello {firstName} {lastName}", 
-                "/", emptyPathParamList(), session);
+                "/", emptyPathParamList(), session, mockRequest());
         
         assertEquals("Hello John Doe", interpreted);
     }
@@ -249,7 +262,7 @@ public class TestResponseBodyInterpreter {
         
         String interpreted = ResponseBodyInterpreter.interpret(
                 "Hello { {firstName} } { {lastName} } {", 
-                "/", emptyPathParamList(), session);
+                "/", emptyPathParamList(), session, mockRequest());
         
         assertEquals("Hello { John } { Doe } {", interpreted);
     }
@@ -263,7 +276,7 @@ public class TestResponseBodyInterpreter {
         
         String interpreted = ResponseBodyInterpreter.interpret(
                 "Hello {{firstName}} {{lastName}} {", 
-                "/", emptyPathParamList(), session);
+                "/", emptyPathParamList(), session, mockRequest());
         
         assertEquals("Hello {John} {Doe} {", interpreted);
     }
@@ -277,7 +290,7 @@ public class TestResponseBodyInterpreter {
         
         String interpreted = ResponseBodyInterpreter.interpret(
                 "Hello {there} {firstName} {lastName}", 
-                "/", emptyPathParamList(), session);
+                "/", emptyPathParamList(), session, mockRequest());
         
         assertEquals("Hello {there} John Doe", interpreted);
     }
@@ -291,7 +304,7 @@ public class TestResponseBodyInterpreter {
         
         String interpreted = ResponseBodyInterpreter.interpret(
                 "Hello {firstName} {lastName}", 
-                "/", emptyPathParamList(), session);
+                "/", emptyPathParamList(), session, mockRequest());
         
         assertEquals("Hello {John} {Doe}", interpreted);
     }
@@ -308,7 +321,7 @@ public class TestResponseBodyInterpreter {
         
         String interpreted = ResponseBodyInterpreter.interpret(
                 "Hello :salutation {firstName} {lastName}", 
-                "/greet/Mr.", elements, session);
+                "/greet/Mr.", elements, session, mockRequest());
         
         assertEquals("Hello Mr. John Doe", interpreted);
     }
@@ -325,7 +338,7 @@ public class TestResponseBodyInterpreter {
         
         String interpreted = ResponseBodyInterpreter.interpret(
                 "Hello {salutation} :firstName :lastName", 
-                "/greet/John/Doe", elements, session);
+                "/greet/John/Doe", elements, session, mockRequest());
         
         assertEquals("Hello Mr. John Doe", interpreted);
     }
@@ -341,7 +354,7 @@ public class TestResponseBodyInterpreter {
         
         String interpreted = ResponseBodyInterpreter.interpret(
                 "Hello :{name}", 
-                "/name/John", elements, session);
+                "/name/John", elements, session, mockRequest());
         
         assertEquals("Hello John", interpreted);
     }
@@ -357,14 +370,48 @@ public class TestResponseBodyInterpreter {
         
         String interpreted = ResponseBodyInterpreter.interpret(
                 "Hello {:name}", 
-                "/name/John", elements, session);
+                "/name/John", elements, session, mockRequest());
         
         assertEquals("Hello {John}", interpreted);
+    }
+    
+    @Test
+    public void testRequestUnknownValuesIgnored() throws Exception {
+        
+        Request request = mockRequest();
+        when(request.getInputStream()).thenReturn(body("Hello World!"));
+        
+        String interpreted = ResponseBodyInterpreter.interpret(
+                "Message: [some.value]", 
+                "/", emptyPathParamList(), null, request);
+        
+        assertEquals("Message: [some.value]", interpreted);
+    }
+    
+    @Test
+    public void testRequestBodySubstituted() throws Exception {
+        
+        Request request = mockRequest();
+        when(request.getInputStream()).thenReturn(body("Hello World!"));
+        
+        String interpreted = ResponseBodyInterpreter.interpret(
+                "Message: [request.body]", 
+                "/", emptyPathParamList(), null, request);
+        
+        assertEquals("Message: Hello World!", interpreted);
     }
     
     /*------------------------------------------------*/
     
     private List<PathParameterElement> emptyPathParamList() {
         return new ArrayList<PathParameterElement>();
+    }
+    
+    private Request mockRequest() {
+        return mock(Request.class);
+    }
+    
+    private InputStream body(String content) {
+        return new ByteArrayInputStream(content.getBytes());
     }
 }

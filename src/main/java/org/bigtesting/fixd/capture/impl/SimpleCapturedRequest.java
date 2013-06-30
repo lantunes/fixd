@@ -15,14 +15,12 @@
  */
 package org.bigtesting.fixd.capture.impl;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.bigtesting.fixd.capture.CapturedRequest;
+import org.bigtesting.fixd.util.RequestUtils;
 import org.simpleframework.http.Request;
 
 /**
@@ -65,24 +63,7 @@ public class SimpleCapturedRequest implements CapturedRequest {
 
     public byte[] getBody() {
         
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        InputStream in = null;
-        try {
-            
-            in = request.getInputStream();
-            byte[] buffer = new byte[1024];
-            int len = 0;
-            while ((len = in.read(buffer)) != -1) {
-                out.write(buffer, 0, len);
-            }
-            
-        } catch (IOException e) {
-            throw new RuntimeException("error getting body", e);
-        } finally {
-            if (in != null) try {in.close();} catch (IOException e2) {}
-        }
-        
-        return out.toByteArray();
+        return RequestUtils.readBody(request);
     }
 
     public String getBody(String encoding) {
