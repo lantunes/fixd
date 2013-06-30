@@ -49,10 +49,6 @@ Then, we can write some tests. Here's a test demonstrating a simple GET:
 server.handle(Method.GET, "/")
       .with(200, "text/plain", "Hello");
         
-/* 
- * we're using the ning.com AsyncHttpClient, check it out: 
- * https://github.com/AsyncHttpClient/async-http-client 
- */
 Response resp = new AsyncHttpClient()
                 .prepareGet("http://localhost:8080/")
                 .execute()
@@ -170,7 +166,6 @@ server.handle(Method.PUT, "/name/:name")
 server.handle(Method.GET, "/name")
       .with(200, "text/html", "Name: {name}");
 
-/* we're using the HtmlUnit client for this test */
 WebClient client = new WebClient();
         
 Page page = client.getPage(new WebRequest(new URL(
@@ -312,3 +307,11 @@ public void afterEachTest() throws Exception {
 ```
 
 For more examples, have a look at the ServerFixture test class: [TestServerFixture](https://github.com/lantunes/fixd/blob/master/src/test/java/org/bigtesting/fixd/tests/TestServerFixture.java)
+
+#### NOTE:
+
+In the tests above, we're using the ning.com AsyncHttpClient. Check it out: 
+[https://github.com/AsyncHttpClient/async-http-client](https://github.com/AsyncHttpClient/async-http-client) 
+
+We're also using the HtmlUnit WebClient. Check it out:
+[http://htmlunit.sourceforge.net/](http://htmlunit.sourceforge.net/)
