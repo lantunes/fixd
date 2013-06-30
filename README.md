@@ -22,7 +22,7 @@ With Fixd, you can:
 ## Getting Started
 ------------------
 
-First you'll need to clone this project and build it, and use the resulting jar. It has
+First you'll need to clone this project and build it (mvn clean install), and use the resulting jar. It has
 only two dependencies: SLF4J, and the Simple Framework (http://www.simpleframework.org).
 Fixd will eventually move to Maven central.
 
