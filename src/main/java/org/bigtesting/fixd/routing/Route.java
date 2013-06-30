@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2013 Bigtesting.org
+ * Copyright (C) 2013 BigTesting.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,9 @@ public class Route {
     private final List<PathParameterElement> pathParamElements;
     
     public Route(String paramPath) {
+        if (paramPath == null) {
+            throw new IllegalArgumentException("path cannot be null");
+        }
         this.resourcePath = paramPath;
         this.pathParamElements = extractPathParamElements();
     }

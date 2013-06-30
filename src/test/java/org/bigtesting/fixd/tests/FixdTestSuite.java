@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2013 Bigtesting.org
+ * Copyright (C) 2013 BigTesting.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,10 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+    TestRegexRoute.class,
+    TestRegexRouteMap.class,
+    TestRoute.class,
+    TestRouteHelper.class,
     TestServerFixture.class
 })
 public class FixdTestSuite {

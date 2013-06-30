@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2013 Bigtesting.org
+ * Copyright (C) 2013 BigTesting.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bigtesting.fixd.routing.RouteHelper;
 import org.bigtesting.fixd.routing.Route.PathParameterElement;
+import org.bigtesting.fixd.routing.RouteHelper;
 
 /**
  * 

@@ -13,16 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bigtesting.fixd;
+package org.bigtesting.fixd.tests;
 
-import org.bigtesting.fixd.routing.Route;
-import org.simpleframework.http.Request;
+import org.bigtesting.fixd.routing.RegexRouteMap;
+import org.bigtesting.fixd.routing.RouteMap;
 
 /**
  * 
  * @author Luis Antunes
  */
-public interface SessionHandler {
+public class TestRegexRouteMap extends RouteMapContractTest {
 
-    void onCreate(Request request, Route route, Session session);
+    @Override
+    protected RouteMap newRouteMap() {
+        return new RegexRouteMap();
+    }
 }
