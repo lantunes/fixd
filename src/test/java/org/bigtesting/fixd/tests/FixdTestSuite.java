@@ -28,6 +28,7 @@ import org.junit.runners.Suite;
     TestRegexRouteMap.class,
     TestRoute.class,
     TestRouteHelper.class,
+    TestCapturedRequest.class,
     TestServerFixture.class
 })
 public class FixdTestSuite {
