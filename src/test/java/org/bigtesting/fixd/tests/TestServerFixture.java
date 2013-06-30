@@ -123,6 +123,35 @@ public class TestServerFixture {
     }
     
     @Test
+    public void testSimpleGetWithRequestParameter() throws Exception {
+
+        server.handle(Method.GET, "/greeting")
+              .with(200, "text/plain", "Hello [request?name]");
+       
+        Response resp = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/greeting?name=Tim")
+                        .execute()
+                        .get();
+       
+        assertEquals("Hello Tim", resp.getResponseBody().trim());
+    }
+    
+    @Test
+    public void testSimplePostWithRequestParameter() throws Exception {
+
+        server.handle(Method.POST, "/greeting", "application/x-www-form-urlencoded")
+              .with(200, "text/plain", "Hello [request?name]");
+       
+        Response resp = new AsyncHttpClient()
+                        .preparePost("http://localhost:8080/greeting")
+                        .addParameter("name", "Tim")
+                        .execute()
+                        .get();
+       
+        assertEquals("Hello Tim", resp.getResponseBody().trim());
+    }
+    
+    @Test
     public void testStatefulRequests() throws Exception {
         
         server.handle(Method.PUT, "/name/:name")

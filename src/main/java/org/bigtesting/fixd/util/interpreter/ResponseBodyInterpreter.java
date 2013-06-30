@@ -89,6 +89,10 @@ public class ResponseBodyInterpreter {
         return substituteGroups(body, REQUEST_VALUE_PATTERN, new ValueProvider() {
             public Object getValue(String captured) {
                 
+                if (captured.startsWith("request?")) {
+                    return request.getParameter(captured.replaceFirst("request\\?", ""));
+                }
+                
                 RequestValueProvider<?> requestValueProvider = 
                         requestValueProviders.get(captured);
                 if (requestValueProvider != null) {

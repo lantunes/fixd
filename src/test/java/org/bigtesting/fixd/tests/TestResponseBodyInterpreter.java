@@ -472,6 +472,19 @@ public class TestResponseBodyInterpreter {
         assertEquals("Hello Mr. John Doe", interpreted);
     }
     
+    @Test
+    public void testRequestParameterSubstituted() throws Exception {
+        
+        Request request = mockRequest();
+        when(request.getParameter("name")).thenReturn("Tim");
+        
+        String interpreted = ResponseBodyInterpreter.interpret(
+                "Hello [request?name]", 
+                "/", emptyPathParamList(), null, request);
+        
+        assertEquals("Hello Tim", interpreted);
+    }
+    
     /*------------------------------------------------*/
     
     private List<PathParameterElement> emptyPathParamList() {

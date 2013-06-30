@@ -91,6 +91,20 @@ Response resp = new AsyncHttpClient()
 assertEquals("Hello Tim", resp.getResponseBody().trim());
 ```
 
+...or, you can capture request parameters:
+
+```java
+server.handle(Method.GET, "/greeting")
+      .with(200, "text/plain", "Hello [request?name]");
+ 
+Response resp = new AsyncHttpClient()
+                .prepareGet("http://localhost:8080/greeting?name=Tim")
+                .execute()
+                .get();
+   
+assertEquals("Hello Tim", resp.getResponseBody().trim());
+```
+
 ### Capturing Requests
 
 You can capture requests, and make assertions on the captured requests:
