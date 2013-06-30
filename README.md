@@ -310,7 +310,7 @@ For more examples, have a look at the ServerFixture test class: [TestServerFixtu
 
 #### NOTE:
 
-In the tests above, we're using the ning.com AsyncHttpClient. Check it out: 
+In the examples above, we're using the ning.com AsyncHttpClient. Check it out: 
 [https://github.com/AsyncHttpClient/async-http-client](https://github.com/AsyncHttpClient/async-http-client) 
 
 We're also using the HtmlUnit WebClient. Check it out:
