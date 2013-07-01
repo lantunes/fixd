@@ -23,7 +23,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bigtesting.fixd.Session;
+import org.bigtesting.fixd.internal.Session;
 import org.bigtesting.fixd.routing.Route.PathParameterElement;
 import org.bigtesting.fixd.util.interpreter.ResponseBodyInterpreter;
 import org.junit.Test;

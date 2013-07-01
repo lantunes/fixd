@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bigtesting.fixd;
+package org.bigtesting.fixd.internal;
 
 import org.bigtesting.fixd.routing.Route;
 import org.simpleframework.http.Request;

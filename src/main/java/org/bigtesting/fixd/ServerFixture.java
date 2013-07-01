@@ -21,6 +21,10 @@ import java.net.SocketAddress;
 import java.util.Collection;
 
 import org.bigtesting.fixd.capture.CapturedRequest;
+import org.bigtesting.fixd.internal.FixtureContainer;
+import org.bigtesting.fixd.internal.Method;
+import org.bigtesting.fixd.internal.RequestHandler;
+import org.bigtesting.fixd.util.LoggingAgent;
 import org.simpleframework.http.core.ContainerServer;
 import org.simpleframework.transport.Server;
 import org.simpleframework.transport.connect.Connection;

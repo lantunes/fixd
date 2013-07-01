@@ -23,10 +23,10 @@ import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.bigtesting.fixd.Method;
 import org.bigtesting.fixd.PathParamSessionHandler;
 import org.bigtesting.fixd.ServerFixture;
 import org.bigtesting.fixd.capture.CapturedRequest;
+import org.bigtesting.fixd.internal.Method;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

@@ -13,26 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bigtesting.fixd;
-
-import java.util.HashMap;
-import java.util.Map;
+package org.bigtesting.fixd.internal;
 
 /**
  * 
  * @author Luis Antunes
  */
-public class Session {
+public enum Method {
 
-    private final Map<String, Object> values = new HashMap<String, Object>();
-    
-    public Object get(String key) {
-        
-        return values.get(key);
-    }
-    
-    public void set(String key, Object value) {
-        
-        values.put(key, value);
-    }
+    GET, POST, PUT, TRACE, OPTIONS, HEAD, DELETE
 }
