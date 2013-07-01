@@ -17,8 +17,11 @@ package org.bigtesting.fixd.core;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -26,8 +29,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -56,20 +60,29 @@ public class FixtureContainer implements Container {
     
     private static final String SESSION_COOKIE_NAME = "Simple-Session";
 
+    /* these collections are not thread-safe, as they should only be modified
+     * during the initial server setup */
     private final Map<HandlerKey, RequestHandler> handlerMap = 
             new HashMap<HandlerKey, RequestHandler>();
-    
+    private final Set<HandlerKey> uponHandlers = new HashSet<HandlerKey>();
     private final RouteMap routeMap = new RegexRouteMap();
     
-    private final Map<String, Session> sessions = new HashMap<String, Session>();
+    /*
+     * a ConcurrentHashMap, as opposed to synchronized map, is chosen here because,
+     * from the perspective of a client, an up-to-date view of the map is not 
+     * a requirement; i.e. a given client is not interested in sessions created
+     * for other clients 
+     */
+    private final Map<String, Session> sessions = 
+            new ConcurrentHashMap<String, Session>();
     
-    private final Executor asyncExecutor;
+    private final Queue<CapturedRequest> capturedRequests = 
+            new ConcurrentLinkedQueue<CapturedRequest>();
     
-    private final Set<HandlerKey> uponHandlers = new HashSet<HandlerKey>();
+    private final List<Queue<Broadcast>> subscribers = 
+            Collections.synchronizedList(new ArrayList<Queue<Broadcast>>());
     
-    private final BlockingQueue<Broadcast> broadcasts = new LinkedBlockingQueue<Broadcast>();
-    
-    private final Queue<CapturedRequest> capturedRequests = new ConcurrentLinkedQueue<CapturedRequest>();
+    private final ExecutorService asyncExecutor;
     
     public FixtureContainer(int aysncThreadPoolSize) {
         asyncExecutor = Executors.newFixedThreadPool(aysncThreadPoolSize);
@@ -128,8 +141,8 @@ public class FixtureContainer implements Container {
             
             if (requestIsForUponHandler(resolved)) {
                 
-                broadcasts.add(new Broadcast(request, resolved.route, 
-                        request.getPath().getPath()));
+                broadcastToSubscribers(request, resolved.route, 
+                        request.getPath().getPath());
                 /* continue handling the request, as it needs to 
                  * return a normal response */
             }
@@ -186,6 +199,15 @@ public class FixtureContainer implements Container {
     private boolean requestIsForUponHandler(ResolvedRequest resolved) {
         
         return uponHandlers.contains(resolved.key);
+    }
+    
+    private void broadcastToSubscribers(Request request, Route route, String path) {
+        
+        synchronized (subscribers) {
+            for (Queue<Broadcast> broadcasts : subscribers) {
+                broadcasts.add(new Broadcast(request, route, path));
+            }
+        }
     }
     
     private Session getSessionIfExists(Request request) {
@@ -298,6 +320,9 @@ public class FixtureContainer implements Container {
         private String responseContentType; 
         private String responseBody;
         
+        private final BlockingQueue<Broadcast> broadcasts = 
+                new LinkedBlockingQueue<Broadcast>();
+        
         public AsyncTask(Response response, 
                 RequestHandler handler, 
                 String responseContentType, String responseBody) {
@@ -329,6 +354,8 @@ public class FixtureContainer implements Container {
 
         private void handleBroadcasts() {
             
+            subscribers.add(broadcasts);
+            
             while(true) {
                 try {
                     
@@ -343,7 +370,7 @@ public class FixtureContainer implements Container {
                     Request request = broadcast.getRequest();
                     Route route = broadcast.getRoute();
                     String path = broadcast.getPath();
-                    
+
                     /* no support for session variables for now */
                     String handlerBody = handler.body(path, 
                             route.pathParameterElements(), null, request);
@@ -354,6 +381,8 @@ public class FixtureContainer implements Container {
                     logger.error("error waiting for, or handling, a broadcast", e);
                 }
             }
+            
+            subscribers.remove(broadcasts);
         }
         
         private void delayIfRequired(RequestHandler handler) {

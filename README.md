@@ -217,21 +217,9 @@ server.handle(Method.GET, "/echo/:message")
       .every(1, TimeUnit.SECONDS, 2);
         
 final List<String> chunks = new ArrayList<String>();
-Future<Integer> f = new AsyncHttpClient()
- .prepareGet("http://localhost:8080/echo/hello")
- .execute(
-   new AsyncCompletionHandler<Integer>() {
-            
-     public Integer onCompleted(Response r) throws Exception {
-       return r.getStatusCode();
-     }
-                
-     public STATE onBodyPartReceived(HttpResponseBodyPart bodyPart) throws Exception {
-       String chunk = new String(bodyPart.getBodyPartBytes()).trim();
-       if (chunk.length() != 0) chunks.add(chunk);
-       return STATE.CONTINUE;
-     }
- });
+ListenableFuture<Integer> f = new AsyncHttpClient()
+      .prepareGet("http://localhost:8080/echo/hello")
+      .execute(new AddToListOnBodyPartReceivedHandler(chunks));
         
 assertEquals(200, (int)f.get());
 assertEquals("[message: hello, message: hello]", chunks.toString());
@@ -250,21 +238,13 @@ server.handle(Method.GET, "/subscribe")
       .upon(Method.GET, "/broadcast/:message");
         
 final List<String> broadcasts = new ArrayList<String>();
-Future<Integer> f = new AsyncHttpClient()
- .prepareGet("http://localhost:8080/subscribe")
- .execute(
-   new AsyncCompletionHandler<Integer>() {
-              
-     public Integer onCompleted(Response r) throws Exception {
-       return r.getStatusCode();
-     }
-                 
-     public STATE onBodyPartReceived(HttpResponseBodyPart bodyPart) throws Exception {
-       String chunk = new String(bodyPart.getBodyPartBytes()).trim();
-       if (chunk.length() != 0) broadcasts.add(chunk);
-       return STATE.CONTINUE;
-     }
- });
+ListenableFuture<Integer> f = new AsyncHttpClient()
+      .prepareGet("http://localhost:8080/subscribe")
+      .execute(new AddToListOnBodyPartReceivedHandler(broadcasts));
+ 
+/* need some time for the above request to complete
+ * before the broadcast requests can start */
+Thread.sleep(50);
         
 for (int i = 0; i < 2; i++) {
             
@@ -273,11 +253,11 @@ for (int i = 0; i < 2; i++) {
       .execute().get();
             
   /* sometimes the last broadcast request is not
-  * finished before f.cancel() is called */
+  * finished before f.done() is called */
   Thread.sleep(50);
 }
         
-f.cancel(false);
+f.done(null);
 assertEquals("[message: hello0, message: hello1]", broadcasts.toString());
 ```
 
