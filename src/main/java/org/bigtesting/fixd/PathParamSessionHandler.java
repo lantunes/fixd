@@ -17,8 +17,8 @@ package org.bigtesting.fixd;
 
 import java.util.List;
 
-import org.bigtesting.fixd.internal.Session;
-import org.bigtesting.fixd.internal.SessionHandler;
+import org.bigtesting.fixd.core.Session;
+import org.bigtesting.fixd.core.SessionHandler;
 import org.bigtesting.fixd.routing.Route;
 import org.bigtesting.fixd.routing.Route.PathParameterElement;
 import org.bigtesting.fixd.routing.RouteHelper;

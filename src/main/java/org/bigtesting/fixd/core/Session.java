@@ -13,38 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bigtesting.fixd.internal;
+package org.bigtesting.fixd.core;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 
  * @author Luis Antunes
  */
-public class Upon {
+public class Session {
 
-    private Method method;
-    private String resource;
-    private String contentType;
+    private final Map<String, Object> values = new HashMap<String, Object>();
     
-    public Upon(Method method, String resource) {
-        this(method, resource, null);
-    }
-    
-    public Upon(Method method, String resource, String contentType) {
+    public Object get(String key) {
         
-        this.method = method;
-        this.resource = resource;
-        this.contentType = contentType;
-    }
-
-    public Method getMethod() {
-        return method;
+        return values.get(key);
     }
     
-    public String getResource() {
-        return resource;
-    }
-    
-    public String getContentType() {
-        return contentType;
+    public void set(String key, Object value) {
+        
+        values.put(key, value);
     }
 }
