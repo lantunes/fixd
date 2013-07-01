@@ -91,6 +91,15 @@ public class FixtureContainer implements Container {
         return key;
     }
     
+    public void addUponHandler(Upon upon) {
+       
+        RequestHandler uponHandler = 
+                new RequestHandler(this).with(200, "text/plain", "");
+        HandlerKey uponKey = addHandler(uponHandler, upon.getMethod(), 
+                upon.getResource(), upon.getContentType());
+        uponHandlers.add(uponKey);
+    }
+    
     public Queue<CapturedRequest> getCapturedRequests() {
         
         return capturedRequests;
@@ -117,22 +126,12 @@ public class FixtureContainer implements Container {
                 return;
             }
             
-            if (uponHandlers.contains(resolved.key)) {
+            if (requestIsForUponHandler(resolved)) {
                 
                 broadcasts.add(new Broadcast(request, resolved.route, 
                         request.getPath().getPath()));
-                /* continue handling the request, as an 
-                 * upon handler won't itself contain an Upon,
-                 * and it needs to return a normal response */
-            }
-            
-            Upon upon = resolved.handler.upon();
-            if (upon != null) {
-                RequestHandler uponHandler = 
-                        new RequestHandler().with(200, "text/plain", "");
-                HandlerKey uponKey = addHandler(uponHandler, upon.getMethod(), 
-                        upon.getResource(), upon.getContentType());
-                uponHandlers.add(uponKey);            
+                /* continue handling the request, as it needs to 
+                 * return a normal response */
             }
             
             /* set the content type */
@@ -181,8 +180,13 @@ public class FixtureContainer implements Container {
             sendAndCommitResponse(response, "text/plain", "");
         }
     }
-    
+
     /*----------------------------------------------------------*/
+    
+    private boolean requestIsForUponHandler(ResolvedRequest resolved) {
+        
+        return uponHandlers.contains(resolved.key);
+    }
     
     private Session getSessionIfExists(Request request) {
         

@@ -266,10 +266,6 @@ Future<Integer> f = new AsyncHttpClient()
      }
  });
         
-/* sometimes the first broadcast request is made
-* before the subscribing client has finished its request */
-Thread.sleep(50);
-        
 for (int i = 0; i < 2; i++) {
             
   new AsyncHttpClient()
@@ -288,8 +284,6 @@ assertEquals("[message: hello0, message: hello1]", broadcasts.toString());
 In the example above, a request made to "/subscribe" will suspend the response, and the client
 will await content from the server. When a separate request is made to "/broadcast", the 
 suspended client will receive a message which includes the value of the *message* path parameter.
-For this to work, a client must first make a request to "/subscribe", otherwise no handler will
-be available for "/broadcast".
 
 The call to **upon()** in the snippet above means: upon receiving a GET request
 for "/broadcast/:message", send a response to the suspended client which contains

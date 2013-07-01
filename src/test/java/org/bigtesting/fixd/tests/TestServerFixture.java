@@ -228,11 +228,6 @@ public class TestServerFixture {
     @Test
     public void testUpon() throws Exception {
         
-        /*
-         * NOTE: for this to work, a client must first make
-         * a request to "/subscribe", otherwise no handler will
-         * be available for "/broadcast"
-         */
         server.handle(Method.GET, "/subscribe")
               .with(200, "text/plain", "message: :message")
               .upon(Method.GET, "/broadcast/:message");
@@ -254,10 +249,6 @@ public class TestServerFixture {
                 }
             });
         
-        /* sometimes the first broadcast request is made
-         * before the subscribing client has finished its request */
-        Thread.sleep(50);
-        
         for (int i = 0; i < 2; i++) {
             
             new AsyncHttpClient()
@@ -276,11 +267,6 @@ public class TestServerFixture {
     @Test
     public void testUponUsingRequestBody() throws Exception {
         
-        /*
-         * NOTE: for this to work, a client must first make
-         * a request to "/subscribe", otherwise no handler will
-         * be available for "/broadcast"
-         */
         server.handle(Method.GET, "/subscribe")
               .with(200, "text/plain", "message: [request.body]")
               .upon(Method.PUT, "/broadcast");
@@ -301,10 +287,6 @@ public class TestServerFixture {
                   return STATE.CONTINUE;
                 }
             });
-        
-        /* sometimes the first broadcast request is made
-         * before the subscribing client has finished its request */
-        Thread.sleep(50);
         
         for (int i = 0; i < 2; i++) {
             

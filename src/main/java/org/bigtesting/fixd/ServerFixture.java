@@ -68,14 +68,14 @@ public class ServerFixture {
     
     public RequestHandler handle(Method method, String resource) {
         
-        RequestHandler handler = new RequestHandler();
+        RequestHandler handler = new RequestHandler(container);
         container.addHandler(handler, method, resource);
         return handler;
     }
     
     public RequestHandler handle(Method method, String resource, String contentType) {
         
-        RequestHandler handler = new RequestHandler();
+        RequestHandler handler = new RequestHandler(container);
         container.addHandler(handler, method, resource, contentType);
         return handler;
     }

@@ -41,6 +41,12 @@ public class RequestHandler {
     private TimeUnit timeoutUnit;
     private Upon upon;
     
+    private final FixtureContainer container;
+    
+    public RequestHandler(FixtureContainer container) {
+        this.container = container;
+    }
+    
     public RequestHandler with(int statusCode, String contentType, String body) {
         
         this.statusCode = statusCode;
@@ -85,12 +91,14 @@ public class RequestHandler {
     public RequestHandler upon(Method method, String resource) {
         
         this.upon = new Upon(method, resource);
+        container.addUponHandler(this.upon);
         return this;
     }
     
     public RequestHandler upon(Method method, String resource, String contentType) {
         
         this.upon = new Upon(method, resource, contentType);
+        container.addUponHandler(this.upon);
         return this;
     }
     
