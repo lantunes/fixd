@@ -15,8 +15,9 @@
  */
 package org.bigtesting.fixd.routing;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 
 /**
@@ -25,7 +26,8 @@ import java.util.regex.Matcher;
  */
 public class RegexRouteMap implements RouteMap {
 
-private final Set<RegexRoute> routes = new HashSet<RegexRoute>();
+    private final Set<RegexRoute> routes = 
+            Collections.newSetFromMap(new ConcurrentHashMap<RegexRoute, Boolean>());
     
     public void add(Route route) {
         routes.add(new RegexRoute(route));

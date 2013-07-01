@@ -19,8 +19,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -60,11 +58,12 @@ public class FixtureContainer implements Container {
     
     private static final String SESSION_COOKIE_NAME = "Simple-Session";
 
-    /* these collections are not thread-safe, as they should only be modified
-     * during the initial server setup */
     private final Map<HandlerKey, RequestHandler> handlerMap = 
-            new HashMap<HandlerKey, RequestHandler>();
-    private final Set<HandlerKey> uponHandlers = new HashSet<HandlerKey>();
+            new ConcurrentHashMap<HandlerKey, RequestHandler>();
+    
+    private final Set<HandlerKey> uponHandlers = 
+            Collections.newSetFromMap(new ConcurrentHashMap<HandlerKey, Boolean>());
+    
     private final RouteMap routeMap = new RegexRouteMap();
     
     /*
