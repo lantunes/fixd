@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -27,6 +26,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -69,7 +69,7 @@ public class FixtureContainer implements Container {
     
     private final BlockingQueue<Broadcast> broadcasts = new LinkedBlockingQueue<Broadcast>();
     
-    private final Queue<CapturedRequest> capturedRequests = new LinkedList<CapturedRequest>();
+    private final Queue<CapturedRequest> capturedRequests = new ConcurrentLinkedQueue<CapturedRequest>();
     
     public FixtureContainer(int aysncThreadPoolSize) {
         asyncExecutor = Executors.newFixedThreadPool(aysncThreadPoolSize);
