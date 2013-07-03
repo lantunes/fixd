@@ -17,6 +17,7 @@ package org.bigtesting.fixd.core;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 
@@ -34,5 +35,10 @@ public class Session {
     public void set(String key, Object value) {
         
         values.put(key, value);
+    }
+    
+    public Set<String> getAttributeNames() {
+        
+        return values.keySet();
     }
 }

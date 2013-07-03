@@ -30,6 +30,7 @@ import org.junit.runners.Suite;
     TestRouteHelper.class,
     TestCapturedRequest.class,
     TestResponseBodyInterpreter.class,
+    TestPathParamSessionHandler.class,
     TestServerFixture.class
 })
 public class FixdTestSuite {
