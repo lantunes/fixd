@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.bigtesting.fixd.PathParamSessionHandler;
+import org.bigtesting.fixd.RequestParamSessionHandler;
 import org.bigtesting.fixd.ServerFixture;
 import org.bigtesting.fixd.capture.CapturedRequest;
 import org.bigtesting.fixd.core.Method;
@@ -163,7 +164,7 @@ public class TestServerFixture {
               .withNewSession(new PathParamSessionHandler());
         
         server.handle(Method.GET, "/name")
-              .with(200, "text/html", "Name: {name}");
+              .with(200, "text/plain", "Name: {name}");
         
         WebClient client = new WebClient();
         
@@ -174,6 +175,29 @@ public class TestServerFixture {
         
         page      = client.getPage(new WebRequest(new URL(
                 "http://localhost:8080/name"), 
+                HttpMethod.GET));
+        assertEquals("Name: Tim", page.getWebResponse().getContentAsString().trim());
+    }
+    
+    @Test
+    public void testStatefulRequestsUsingRequestParams() throws Exception {
+        
+        server.handle(Method.POST, "/", "application/x-www-form-urlencoded")
+              .with(200, "text/plain", "OK")
+              .withNewSession(new RequestParamSessionHandler());
+        
+        server.handle(Method.GET, "/")
+              .with(200, "text/plain", "Name: {name}");
+        
+        WebClient client = new WebClient();
+        
+        Page page = client.getPage(new WebRequest(new URL(
+                "http://localhost:8080/?name=Tim"), 
+                HttpMethod.POST));
+        assertEquals(200, page.getWebResponse().getStatusCode());
+        
+        page      = client.getPage(new WebRequest(new URL(
+                "http://localhost:8080/"), 
                 HttpMethod.GET));
         assertEquals("Name: Tim", page.getWebResponse().getContentAsString().trim());
     }
