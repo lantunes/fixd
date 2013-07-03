@@ -158,6 +158,10 @@ public class RequestHandler {
         return periodTimes;
     }
     
+    boolean hasTimeout() {
+        return timeout != -1;
+    }
+    
     long timeout() {
         return timeout;
     }

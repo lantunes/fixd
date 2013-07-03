@@ -315,6 +315,26 @@ public class TestServerFixture {
     }
     
     @Test
+    public void testUponWithTimeout() throws Exception {
+        
+        server.handle(Method.GET, "/subscribe")
+              .with(200, "text/plain", "message: :message")
+              .upon(Method.GET, "/broadcast/:message")
+              .withTimeout(100, TimeUnit.MILLISECONDS);
+        
+        ListenableFuture<Response> f = new AsyncHttpClient()
+              .prepareGet("http://localhost:8080/subscribe")
+              .execute();
+        
+        /*
+         * If the process didn't timeout, the subscribe request
+         * would wait indefinitely, as no broadcast requests
+         * are being made.
+         */
+        assertEquals(408, f.get().getStatusCode());
+    }
+    
+    @Test
     public void recordsRequests() throws Exception {
         
         server.handle(Method.GET, "/say-hello")

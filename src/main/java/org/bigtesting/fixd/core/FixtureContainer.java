@@ -330,6 +330,8 @@ public class FixtureContainer implements Container {
         private final BlockingQueue<Broadcast> broadcasts = 
                 new LinkedBlockingQueue<Broadcast>();
         
+        private Timer broadcastSubscribeTimeoutTimer;
+        
         public AsyncTask(Response response, 
                 RequestHandler handler, 
                 String responseContentType, String responseBody) {
@@ -363,14 +365,19 @@ public class FixtureContainer implements Container {
             
             subscribers.add(broadcasts);
             
+            startTimeoutCountdownIfRequired();
+            
             while(true) {
                 try {
                     
                     Broadcast broadcast = broadcasts.take();
-                    if (broadcast instanceof StopBroadcasting) {
+                    if (broadcast instanceof SubscribeTimeout) {
+                        response.setStatus(Status.REQUEST_TIMEOUT);
                         response.getPrintStream().close();
                         break;
                     }
+                    
+                    restartTimeoutCountdownIfRequired();
                     
                     delayIfRequired(handler);
                     
@@ -440,6 +447,30 @@ public class FixtureContainer implements Container {
                 }
             }, 0, periodInMillis);
         }
+        
+        private void startTimeoutCountdownIfRequired() {
+            
+            if (handler.hasTimeout()) {
+                broadcastSubscribeTimeoutTimer = new Timer("TimeoutTask", true);
+                broadcastSubscribeTimeoutTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        broadcasts.add(new SubscribeTimeout());
+                        broadcastSubscribeTimeoutTimer.cancel();
+                        broadcastSubscribeTimeoutTimer.purge();
+                    }
+                }, handler.timeoutUnit().toMillis(handler.timeout()));
+            }
+        }
+        
+        private void restartTimeoutCountdownIfRequired() {
+            
+            if (broadcastSubscribeTimeoutTimer != null) {
+                broadcastSubscribeTimeoutTimer.cancel();
+                broadcastSubscribeTimeoutTimer.purge();
+            }
+            startTimeoutCountdownIfRequired();
+        }
     }
     
     private class Broadcast {
@@ -467,8 +498,8 @@ public class FixtureContainer implements Container {
         }
     }
     
-    private class StopBroadcasting extends Broadcast {
-        public StopBroadcasting() {
+    private class SubscribeTimeout extends Broadcast {
+        public SubscribeTimeout() {
             super(null, null, null);
         }
     }
