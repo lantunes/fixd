@@ -182,6 +182,7 @@ assertEquals("Name: Tim", page.getWebResponse().getContentAsString().trim());
 The **PathParamSessionHandler** above takes the value of the *name* path parameter and
 creates an entry in the session called *name*. The *{}* syntax in the body of the response
 means: get the current session for this client, and get the value for the *name* property.
+(NOTE: You can also use a **RequestParamSessionHandler**, which is also provided.)
 
 ### Delaying a Response
 
