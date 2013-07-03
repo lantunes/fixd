@@ -17,6 +17,7 @@ package org.bigtesting.fixd.core;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -177,6 +178,13 @@ public class FixtureContainer implements Container {
                 throw new RuntimeException("a response status code must be specified");
             }
             response.setCode(resolved.handler.statusCode());
+            
+            /* set any headers */
+            Set<SimpleImmutableEntry<String, String>> headers = 
+                    resolved.handler.headers();
+            for (SimpleImmutableEntry<String, String> header : headers) {
+                response.addValue(header.getKey(), header.getValue());
+            }
             
             /* handle the response */
             if (resolved.handler.isAsync()) {

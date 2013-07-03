@@ -15,7 +15,10 @@
  */
 package org.bigtesting.fixd.core;
 
+import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.bigtesting.fixd.routing.Route.PathParameterElement;
@@ -40,6 +43,8 @@ public class RequestHandler {
     private long timeout = -1;
     private TimeUnit timeoutUnit;
     private Upon upon;
+    private Set<SimpleImmutableEntry<String, String>> headers = 
+            new HashSet<SimpleImmutableEntry<String,String>>();
     
     private final FixtureContainer container;
     
@@ -58,6 +63,12 @@ public class RequestHandler {
     public RequestHandler withNewSession(SessionHandler sessionHandler) {
         
         this.sessionHandler = sessionHandler;
+        return this;
+    }
+    
+    public RequestHandler withHeader(String name, String value) {
+        
+        headers.add(new SimpleImmutableEntry<String, String>(name, value));
         return this;
     }
     
@@ -161,5 +172,9 @@ public class RequestHandler {
     
     boolean isSuspend() {
         return upon != null;
+    }
+    
+    Set<SimpleImmutableEntry<String, String>> headers() {
+        return new HashSet<SimpleImmutableEntry<String, String>>(headers);
     }
 }

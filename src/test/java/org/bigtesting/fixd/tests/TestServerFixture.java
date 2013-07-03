@@ -344,6 +344,32 @@ public class TestServerFixture {
         assertEquals("PUT /name/Tim HTTP/1.1", secondRequest.getRequestLine());
     }
     
+    @Test
+    public void addsHeader() throws Exception {
+        
+        server.handle(Method.GET, "/")
+              .with(302, "text/plain", "page moved")
+              .withHeader("Location", "http://localhost:8080/new-location");
+        
+        server.handle(Method.GET, "/new-location")
+              .with(200, "text/plain", "OK");
+        
+        new AsyncHttpClient()
+            .prepareGet("http://localhost:8080/")
+            .setFollowRedirects(true)
+            .execute().get();
+        
+        assertEquals(2, server.capturedRequests().size());
+        
+        CapturedRequest firstRequest = server.request();
+        assertNotNull(firstRequest);
+        assertEquals("GET / HTTP/1.1", firstRequest.getRequestLine());
+        
+        CapturedRequest secondRequest = server.request();
+        assertNotNull(secondRequest);
+        assertEquals("GET /new-location HTTP/1.1", secondRequest.getRequestLine());
+    }
+    
     @After
     public void afterEachTest() throws Exception {
         server.stop();
