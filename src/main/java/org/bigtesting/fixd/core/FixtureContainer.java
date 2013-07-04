@@ -37,6 +37,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.bigtesting.fixd.capture.CapturedRequest;
 import org.bigtesting.fixd.capture.impl.SimpleCapturedRequest;
+import org.bigtesting.fixd.request.impl.SimpleHttpRequest;
 import org.bigtesting.fixd.routing.RegexRouteMap;
 import org.bigtesting.fixd.routing.Route;
 import org.bigtesting.fixd.routing.RouteMap;
@@ -233,7 +234,7 @@ public class FixtureContainer implements Container {
             Route route, SessionHandler sessionHandler) {
         
         Session session = new Session();
-        sessionHandler.onCreate(request, route, session);
+        sessionHandler.onCreate(new SimpleHttpRequest(request), route, session);
         String sessionId = UUID.randomUUID().toString();
         sessions.put(sessionId, session);
         

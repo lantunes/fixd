@@ -13,16 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bigtesting.fixd.session;
+package org.bigtesting.fixd.request.impl;
+
+import java.util.Set;
 
 import org.bigtesting.fixd.request.HttpRequest;
-import org.bigtesting.fixd.routing.Route;
+import org.simpleframework.http.Request;
 
 /**
  * 
  * @author Luis Antunes
  */
-public interface SessionHandler {
+public class SimpleHttpRequest implements HttpRequest {
 
-    void onCreate(HttpRequest request, Route route, Session session);
+    private final Request request;
+    
+    public SimpleHttpRequest(Request request) {
+        
+        this.request = request;
+    }
+    
+    public String getPath() {
+        
+        return request.getPath().getPath();
+    }
+
+    public Set<String> getParameterNames() {
+        
+        return request.getQuery().keySet();
+    }
+
+    public String getParameter(String name) {
+        
+        return request.getParameter(name);
+    }
 }

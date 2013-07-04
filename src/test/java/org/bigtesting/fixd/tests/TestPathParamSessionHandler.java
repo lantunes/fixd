@@ -7,23 +7,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.bigtesting.fixd.request.HttpRequest;
 import org.bigtesting.fixd.routing.Route;
 import org.bigtesting.fixd.session.PathParamSessionHandler;
 import org.bigtesting.fixd.session.Session;
 import org.bigtesting.fixd.session.SessionHandler;
 import org.junit.Test;
-import org.simpleframework.http.Path;
-import org.simpleframework.http.Request;
 
 public class TestPathParamSessionHandler {
 
     @Test
     public void onCreateIsHandled() {
         
-        Request request = mock(Request.class);
-        Path path = mock(Path.class);
-        when(path.getPath()).thenReturn("/first-name/John/last-name/Doe");
-        when(request.getPath()).thenReturn(path);
+        HttpRequest request = mock(HttpRequest.class);
+        when(request.getPath()).thenReturn("/first-name/John/last-name/Doe");
         
         Session session = new Session();
         
@@ -43,10 +40,8 @@ public class TestPathParamSessionHandler {
     @Test
     public void onCreateIsHandledWithNoParams() {
         
-        Request request = mock(Request.class);
-        Path path = mock(Path.class);
-        when(path.getPath()).thenReturn("/");
-        when(request.getPath()).thenReturn(path);
+        HttpRequest request = mock(HttpRequest.class);
+        when(request.getPath()).thenReturn("/");
         
         Session session = new Session();
         

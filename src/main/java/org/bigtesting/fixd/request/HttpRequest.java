@@ -13,16 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bigtesting.fixd.session;
+package org.bigtesting.fixd.request;
 
-import org.bigtesting.fixd.request.HttpRequest;
-import org.bigtesting.fixd.routing.Route;
+import java.util.Set;
 
 /**
  * 
  * @author Luis Antunes
  */
-public interface SessionHandler {
+public interface HttpRequest {
 
-    void onCreate(HttpRequest request, Route route, Session session);
+    String getPath();
+    
+    Set<String> getParameterNames();
+    
+    String getParameter(String name);
 }

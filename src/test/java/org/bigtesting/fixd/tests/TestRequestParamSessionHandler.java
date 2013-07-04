@@ -10,26 +10,23 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.bigtesting.fixd.request.HttpRequest;
 import org.bigtesting.fixd.routing.Route;
 import org.bigtesting.fixd.session.RequestParamSessionHandler;
 import org.bigtesting.fixd.session.Session;
 import org.bigtesting.fixd.session.SessionHandler;
 import org.junit.Test;
-import org.simpleframework.http.Query;
-import org.simpleframework.http.Request;
 
 public class TestRequestParamSessionHandler {
 
     @Test
     public void onCreateIsHandled() {
         
-        Request request = mock(Request.class);
-        Query query = mock(Query.class);
+        HttpRequest request = mock(HttpRequest.class);
         Set<String> params = new HashSet<String>();
         params.add("firstName");
         params.add("lastName");
-        when(query.keySet()).thenReturn(params);
-        when(request.getQuery()).thenReturn(query);
+        when(request.getParameterNames()).thenReturn(params);
         when(request.getParameter("firstName")).thenReturn("John");
         when(request.getParameter("lastName")).thenReturn("Doe");
         
@@ -51,10 +48,8 @@ public class TestRequestParamSessionHandler {
     @Test
     public void onCreateIsHandledWithNoParams() {
         
-        Request request = mock(Request.class);
-        Query query = mock(Query.class);
-        when(query.keySet()).thenReturn(new HashSet<String>());
-        when(request.getQuery()).thenReturn(query);
+        HttpRequest request = mock(HttpRequest.class);
+        when(request.getParameterNames()).thenReturn(new HashSet<String>());
         when(request.getParameter(anyString())).thenReturn(null);
         
         Session session = new Session();
