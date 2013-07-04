@@ -22,6 +22,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.bigtesting.fixd.routing.Route.PathParameterElement;
+import org.bigtesting.fixd.session.Session;
+import org.bigtesting.fixd.session.SessionHandler;
 import org.bigtesting.fixd.util.interpreter.ResponseBodyInterpreter;
 import org.simpleframework.http.Request;
 

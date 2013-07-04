@@ -13,16 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bigtesting.fixd.core;
+package org.bigtesting.fixd.session;
+
+import java.util.List;
 
 import org.bigtesting.fixd.routing.Route;
+import org.bigtesting.fixd.routing.Route.PathParameterElement;
+import org.bigtesting.fixd.routing.RouteHelper;
 import org.simpleframework.http.Request;
 
 /**
  * 
  * @author Luis Antunes
  */
-public interface SessionHandler {
+public class PathParamSessionHandler implements SessionHandler {
 
-    void onCreate(Request request, Route route, Session session);
+    public void onCreate(Request request, Route route, Session session) {
+        
+        String path = request.getPath().getPath();
+        List<PathParameterElement> pathParams = route.pathParameterElements();
+        String[] pathTokens = RouteHelper.getPathElements(path);
+        
+        for (PathParameterElement pathParam : pathParams) {
+            session.set(pathParam.name(), pathTokens[pathParam.index()]);
+        }
+    }
 }

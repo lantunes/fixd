@@ -21,9 +21,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bigtesting.fixd.core.Session;
 import org.bigtesting.fixd.routing.Route.PathParameterElement;
 import org.bigtesting.fixd.routing.RouteHelper;
+import org.bigtesting.fixd.session.Session;
 import org.simpleframework.http.Request;
 
 /**

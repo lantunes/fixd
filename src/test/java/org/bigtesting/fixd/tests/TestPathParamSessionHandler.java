@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.bigtesting.fixd.PathParamSessionHandler;
-import org.bigtesting.fixd.core.Session;
-import org.bigtesting.fixd.core.SessionHandler;
 import org.bigtesting.fixd.routing.Route;
+import org.bigtesting.fixd.session.PathParamSessionHandler;
+import org.bigtesting.fixd.session.Session;
+import org.bigtesting.fixd.session.SessionHandler;
 import org.junit.Test;
 import org.simpleframework.http.Path;
 import org.simpleframework.http.Request;

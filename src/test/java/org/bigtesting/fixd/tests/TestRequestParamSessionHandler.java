@@ -10,10 +10,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.bigtesting.fixd.RequestParamSessionHandler;
-import org.bigtesting.fixd.core.Session;
-import org.bigtesting.fixd.core.SessionHandler;
 import org.bigtesting.fixd.routing.Route;
+import org.bigtesting.fixd.session.RequestParamSessionHandler;
+import org.bigtesting.fixd.session.Session;
+import org.bigtesting.fixd.session.SessionHandler;
 import org.junit.Test;
 import org.simpleframework.http.Query;
 import org.simpleframework.http.Request;

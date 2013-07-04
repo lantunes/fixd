@@ -1,9 +1,7 @@
-package org.bigtesting.fixd;
+package org.bigtesting.fixd.session;
 
 import java.util.Set;
 
-import org.bigtesting.fixd.core.Session;
-import org.bigtesting.fixd.core.SessionHandler;
 import org.bigtesting.fixd.routing.Route;
 import org.simpleframework.http.Request;
 

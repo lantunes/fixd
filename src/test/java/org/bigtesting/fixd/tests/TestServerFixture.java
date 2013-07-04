@@ -22,11 +22,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.bigtesting.fixd.PathParamSessionHandler;
-import org.bigtesting.fixd.RequestParamSessionHandler;
 import org.bigtesting.fixd.ServerFixture;
 import org.bigtesting.fixd.capture.CapturedRequest;
 import org.bigtesting.fixd.core.Method;
+import org.bigtesting.fixd.session.PathParamSessionHandler;
+import org.bigtesting.fixd.session.RequestParamSessionHandler;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

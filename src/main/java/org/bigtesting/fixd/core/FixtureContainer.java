@@ -40,6 +40,8 @@ import org.bigtesting.fixd.capture.impl.SimpleCapturedRequest;
 import org.bigtesting.fixd.routing.RegexRouteMap;
 import org.bigtesting.fixd.routing.Route;
 import org.bigtesting.fixd.routing.RouteMap;
+import org.bigtesting.fixd.session.Session;
+import org.bigtesting.fixd.session.SessionHandler;
 import org.simpleframework.http.ContentType;
 import org.simpleframework.http.Cookie;
 import org.simpleframework.http.Request;
