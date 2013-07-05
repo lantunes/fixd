@@ -15,6 +15,7 @@ With Fixd, you can:
 
 * create complex routing rules, based on HTTP method, content type, and URI patterns
 * use sessions for tests that require state between requests
+* capture requests and make assertions on them
 * configure asynchronous HTTP responses
 * setup asynchronous HTTP subscribe-broadcast scenarios 
 * delay responses for tests that require a delayed response
@@ -22,9 +23,17 @@ With Fixd, you can:
 ## Getting Started
 ------------------
 
-First you'll need to clone this project and build it (mvn clean install), and use the resulting jar. It has
+Download [the latest .jar](http://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=org.bigtesting&a=fixd&v=LATEST). It has
 only two dependencies: SLF4J, and the Simple Framework (http://www.simpleframework.org).
-Fixd will eventually move to Maven central.
+Or, add the following dependency to your pom.xml:
+
+```xml
+<dependency>
+    <groupId>org.bigtesting</groupId>
+    <artifactId>fixd</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
 
 Next, you should declare an **org.bigtesting.fixd.ServerFixture** field, like "server", and 
 initialize it before each test:
