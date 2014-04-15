@@ -27,6 +27,8 @@ import org.bigtesting.fixd.routing.Route.PathParameterElement;
 import org.bigtesting.fixd.session.Session;
 import org.bigtesting.fixd.util.interpreter.ResponseBodyInterpreter;
 import org.junit.Test;
+import org.simpleframework.http.Path;
+import org.simpleframework.http.Query;
 import org.simpleframework.http.Request;
 
 /**
@@ -483,6 +485,101 @@ public class TestResponseBodyInterpreter {
                 "/", emptyPathParamList(), null, request);
         
         assertEquals("Hello Tim", interpreted);
+    }
+    
+    @Test
+    public void testRequestMethodSubstituted() throws Exception {
+        
+        Request request = mockRequest();
+        when(request.getMethod()).thenReturn("GET");
+        
+        String interpreted = ResponseBodyInterpreter.interpret(
+                "Message: [request.method]", 
+                "/", emptyPathParamList(), null, request);
+        
+        assertEquals("Message: GET", interpreted);
+    }
+    
+    @Test
+    public void testRequestTimeSubstituted() throws Exception {
+        
+        Request request = mockRequest();
+        when(request.getRequestTime()).thenReturn(123L);
+        
+        String interpreted = ResponseBodyInterpreter.interpret(
+                "Message: [request.time]", 
+                "/", emptyPathParamList(), null, request);
+        
+        assertEquals("Message: 123", interpreted);
+    }
+    
+    @Test
+    public void testRequestPathSubstituted() throws Exception {
+        
+        Request request = mockRequest();
+        Path path = mock(Path.class);
+        when(path.getPath()).thenReturn("/abc");
+        when(request.getPath()).thenReturn(path);
+        
+        String interpreted = ResponseBodyInterpreter.interpret(
+                "Message: [request.path]", 
+                "/", emptyPathParamList(), null, request);
+        
+        assertEquals("Message: /abc", interpreted);
+    }
+    
+    @Test
+    public void testRequestQuerySubstituted() throws Exception {
+        
+        Request request = mockRequest();
+        Query query = mock(Query.class);
+        when(query.toString()).thenReturn("a=b&c=d");
+        when(request.getQuery()).thenReturn(query);
+        
+        String interpreted = ResponseBodyInterpreter.interpret(
+                "Message: [request.query]", 
+                "/", emptyPathParamList(), null, request);
+        
+        assertEquals("Message: a=b&c=d", interpreted);
+    }
+    
+    @Test
+    public void testRequestMajorSubstituted() throws Exception {
+        
+        Request request = mockRequest();
+        when(request.getMajor()).thenReturn(123);
+        
+        String interpreted = ResponseBodyInterpreter.interpret(
+                "Message: [request.major]", 
+                "/", emptyPathParamList(), null, request);
+        
+        assertEquals("Message: 123", interpreted);
+    }
+    
+    @Test
+    public void testRequestMinorSubstituted() throws Exception {
+        
+        Request request = mockRequest();
+        when(request.getMinor()).thenReturn(123);
+        
+        String interpreted = ResponseBodyInterpreter.interpret(
+                "Message: [request.minor]", 
+                "/", emptyPathParamList(), null, request);
+        
+        assertEquals("Message: 123", interpreted);
+    }
+    
+    @Test
+    public void testRequestTargetSubstituted() throws Exception {
+        
+        Request request = mockRequest();
+        when(request.getTarget()).thenReturn("/index");
+        
+        String interpreted = ResponseBodyInterpreter.interpret(
+                "Message: [request.target]", 
+                "/", emptyPathParamList(), null, request);
+        
+        assertEquals("Message: /index", interpreted);
     }
     
     /*------------------------------------------------*/

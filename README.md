@@ -114,6 +114,8 @@ Response resp = new AsyncHttpClient()
 assertEquals("Hello Tim", resp.getResponseBody().trim());
 ```
 
+(Other supported request properties are: method, time, path, query, major, minor, target.)
+
 ### Capturing Requests
 
 You can capture requests, and make assertions on the captured requests:

@@ -40,6 +40,13 @@ public class ResponseBodyInterpreter {
             new HashMap<String, RequestValueProvider<?>>();
     static {
         requestValueProviders.put("request.body", new RequestBodyValueProvider());
+        requestValueProviders.put("request.method", new RequestMethodValueProvider());
+        requestValueProviders.put("request.time", new RequestTimeValueProvider());
+        requestValueProviders.put("request.path", new RequestPathValueProvider());
+        requestValueProviders.put("request.query", new RequestQueryValueProvider());
+        requestValueProviders.put("request.major", new RequestMajorValueProvider());
+        requestValueProviders.put("request.minor", new RequestMinorValueProvider());
+        requestValueProviders.put("request.target", new RequestTargetValueProvider());
     }
 
     public static String interpret(String body, String path, 
