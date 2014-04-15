@@ -488,6 +488,19 @@ public class TestResponseBodyInterpreter {
     }
     
     @Test
+    public void testRequestHeaderSubstituted() throws Exception {
+        
+        Request request = mockRequest();
+        when(request.getValue("User-Agent")).thenReturn("Mozilla/5.0");
+        
+        String interpreted = ResponseBodyInterpreter.interpret(
+                "Value: [request$User-Agent]", 
+                "/", emptyPathParamList(), null, request);
+        
+        assertEquals("Value: Mozilla/5.0", interpreted);
+    }
+    
+    @Test
     public void testRequestMethodSubstituted() throws Exception {
         
         Request request = mockRequest();

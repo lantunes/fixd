@@ -128,6 +128,90 @@ public class TestServerFixture {
     }
     
     @Test
+    public void testSimpleGetWithRequestMethod() throws Exception {
+
+        server.handle(Method.GET, "/say-method")
+              .with(200, "text/plain", "Value: [request.method]");
+       
+        Response resp = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/say-method")
+                        .execute()
+                        .get();
+       
+        assertEquals("Value: GET", resp.getResponseBody().trim());
+    }
+    
+    @Test
+    public void testSimpleGetWithRequestPath() throws Exception {
+
+        server.handle(Method.GET, "/say-path")
+              .with(200, "text/plain", "Value: [request.path]");
+       
+        Response resp = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/say-path")
+                        .execute()
+                        .get();
+       
+        assertEquals("Value: /say-path", resp.getResponseBody().trim());
+    }
+    
+    @Test
+    public void testSimpleGetWithRequestQuery() throws Exception {
+
+        server.handle(Method.GET, "/say-query")
+              .with(200, "text/plain", "Value: [request.query]");
+       
+        Response resp = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/say-query?a=b")
+                        .execute()
+                        .get();
+       
+        assertEquals("Value: a=b", resp.getResponseBody().trim());
+    }
+    
+    @Test
+    public void testSimpleGetWithRequestMajor() throws Exception {
+
+        server.handle(Method.GET, "/say-major")
+              .with(200, "text/plain", "Value: [request.major]");
+       
+        Response resp = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/say-major")
+                        .execute()
+                        .get();
+       
+        assertEquals("Value: 1", resp.getResponseBody().trim());
+    }
+    
+    @Test
+    public void testSimpleGetWithRequestMinor() throws Exception {
+
+        server.handle(Method.GET, "/say-minor")
+              .with(200, "text/plain", "Value: [request.minor]");
+       
+        Response resp = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/say-minor")
+                        .execute()
+                        .get();
+       
+        assertEquals("Value: 1", resp.getResponseBody().trim());
+    }
+    
+    @Test
+    public void testSimpleGetWithRequestTarget() throws Exception {
+
+        server.handle(Method.GET, "/say-target")
+              .with(200, "text/plain", "Value: [request.target]");
+       
+        Response resp = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/say-target")
+                        .execute()
+                        .get();
+       
+        assertEquals("Value: /say-target", resp.getResponseBody().trim());
+    }
+    
+    @Test
     public void testSimpleGetWithRequestParameter() throws Exception {
 
         server.handle(Method.GET, "/greeting")
@@ -154,6 +238,20 @@ public class TestServerFixture {
                         .get();
        
         assertEquals("Hello Tim", resp.getResponseBody().trim());
+    }
+    
+    @Test
+    public void testSimpleGetWithRequestHeader() throws Exception {
+
+        server.handle(Method.GET, "/say-user-agent")
+              .with(200, "text/plain", "Value: [request$User-Agent]");
+       
+        Response resp = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/say-user-agent")
+                        .execute()
+                        .get();
+       
+        assertEquals("Value: NING/1.0", resp.getResponseBody().trim());
     }
     
     @Test

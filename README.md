@@ -114,6 +114,20 @@ Response resp = new AsyncHttpClient()
 assertEquals("Hello Tim", resp.getResponseBody().trim());
 ```
 
+...and also the request headers:
+
+```java
+server.handle(Method.GET, "/say-user-agent")
+      .with(200, "text/plain", "Value: [request$User-Agent]");
+ 
+Response resp = new AsyncHttpClient()
+                .prepareGet("http://localhost:8080/say-user-agent")
+                .execute()
+                .get();
+   
+assertEquals("Value: Mozilla/5.0", resp.getResponseBody().trim());
+```
+
 (Other supported request properties are: method, time, path, query, major, minor, target.)
 
 ### Capturing Requests

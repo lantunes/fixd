@@ -100,6 +100,10 @@ public class ResponseBodyInterpreter {
                     return request.getParameter(captured.replaceFirst("request\\?", ""));
                 }
                 
+                if (captured.startsWith("request$")) {
+                    return request.getValue(captured.replaceFirst("request\\$", ""));
+                }
+                
                 RequestValueProvider<?> requestValueProvider = 
                         requestValueProviders.get(captured);
                 if (requestValueProvider != null) {
