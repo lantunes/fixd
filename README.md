@@ -90,6 +90,7 @@ You can access the request body in the body of your response:
 ```java
 server.handle(Method.PUT, "/name")
       .with(200, "text/plain", "Hello [request.body]");
+//supported request properties: body, method, time, path, query, major, minor, target
    
 Response resp = new AsyncHttpClient()
                 .preparePut("http://localhost:8080/name")
@@ -125,10 +126,8 @@ Response resp = new AsyncHttpClient()
                 .execute()
                 .get();
    
-assertEquals("Value: Mozilla/5.0", resp.getResponseBody().trim());
+assertEquals("Value: NING/1.0", resp.getResponseBody().trim());
 ```
-
-(Other supported request properties are: method, time, path, query, major, minor, target.)
 
 ### Capturing Requests
 
