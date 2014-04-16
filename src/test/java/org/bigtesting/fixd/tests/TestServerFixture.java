@@ -170,6 +170,20 @@ public class TestServerFixture {
     }
     
     @Test
+    public void testSimpleGetWithRequestTime() throws Exception {
+
+        server.handle(Method.GET, "/say-time")
+              .with(200, "text/plain", "Value: [request.time]");
+       
+        Response resp = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/say-time")
+                        .execute()
+                        .get();
+     
+        assertTrue(resp.getResponseBody().trim().matches("Value: [0-9]*"));
+    }
+    
+    @Test
     public void testSimpleGetWithRequestMajor() throws Exception {
 
         server.handle(Method.GET, "/say-major")
