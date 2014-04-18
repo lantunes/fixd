@@ -273,7 +273,7 @@ public class TestServerFixture {
         
         server.handle(Method.PUT, "/name/:name")
               .with(200, "text/plain", "OK")
-              .withNewSession(new PathParamSessionHandler());
+              .withSessionHandler(new PathParamSessionHandler());
         
         server.handle(Method.GET, "/name")
               .with(200, "text/plain", "Name: {name}");
@@ -296,7 +296,7 @@ public class TestServerFixture {
         
         server.handle(Method.POST, "/", "application/x-www-form-urlencoded")
               .with(200, "text/plain", "OK")
-              .withNewSession(new RequestParamSessionHandler());
+              .withSessionHandler(new RequestParamSessionHandler());
         
         server.handle(Method.GET, "/")
               .with(200, "text/plain", "Name: {name}");

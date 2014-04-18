@@ -185,7 +185,7 @@ your response:
 ```java
 server.handle(Method.PUT, "/name/:name")
       .with(200, "text/plain", "OK")
-      .withNewSession(new PathParamSessionHandler());
+      .withSessionHandler(new PathParamSessionHandler());
         
 server.handle(Method.GET, "/name")
       .with(200, "text/html", "Name: {name}");

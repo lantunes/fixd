@@ -62,7 +62,7 @@ public class RequestHandler {
         return this;
     }
 
-    public RequestHandler withNewSession(SessionHandler sessionHandler) {
+    public RequestHandler withSessionHandler(SessionHandler sessionHandler) {
         
         this.sessionHandler = sessionHandler;
         return this;
