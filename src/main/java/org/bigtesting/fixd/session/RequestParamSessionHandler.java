@@ -18,7 +18,6 @@ package org.bigtesting.fixd.session;
 import java.util.Set;
 
 import org.bigtesting.fixd.request.HttpRequest;
-import org.bigtesting.fixd.routing.Route;
 
 /**
  * 
@@ -26,12 +25,12 @@ import org.bigtesting.fixd.routing.Route;
  */
 public class RequestParamSessionHandler implements SessionHandler {
 
-    public void onCreate(HttpRequest request, Route route, Session session) {
+    public void onCreate(HttpRequest request) {
 
-        Set<String> params = request.getParameterNames();
+        Set<String> params = request.getRequestParameterNames();
         
         for (String param : params) {
-            session.set(param, request.getParameter(param));
+            request.getSession().set(param, request.getRequestParameter(param));
         }
     }
 }

@@ -234,7 +234,7 @@ public class FixtureContainer implements Container {
             Route route, SessionHandler sessionHandler) {
         
         Session session = new Session();
-        sessionHandler.onCreate(new SimpleHttpRequest(request), route, session);
+        sessionHandler.onCreate(new SimpleHttpRequest(request, session, route));
         String sessionId = UUID.randomUUID().toString();
         sessions.put(sessionId, session);
         

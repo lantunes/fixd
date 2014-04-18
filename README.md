@@ -208,6 +208,16 @@ creates an entry in the session called *name*. The *{}* syntax in the body of th
 means: get the current session for this client, and get the value for the *name* property.
 (NOTE: You can also use a **RequestParamSessionHandler**, which is also provided.)
 
+### Setting Headers in the Response
+
+Setting headers in the response is easy:
+
+```java
+server.handle(Method.GET, "/")
+      .with(302, "text/plain", "page moved")
+      .withHeader("Location", "http://localhost:8080/new-location");
+``` 
+
 ### Delaying a Response
 
 You can delay a response, as well:

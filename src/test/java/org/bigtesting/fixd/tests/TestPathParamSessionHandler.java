@@ -23,10 +23,12 @@ public class TestPathParamSessionHandler {
         when(request.getPath()).thenReturn("/first-name/John/last-name/Doe");
         
         Session session = new Session();
+        when(request.getSession()).thenReturn(session);
         
         Route route = new Route("/first-name/:firstName/last-name/:lastName");
+        when(request.getRoute()).thenReturn(route);
         
-        newSessionHandler().onCreate(request, route, session);
+        newSessionHandler().onCreate(request);
         
         List<String> attributeNames = new ArrayList<String>(session.getAttributeNames());
         Collections.sort(attributeNames);
@@ -44,10 +46,12 @@ public class TestPathParamSessionHandler {
         when(request.getPath()).thenReturn("/");
         
         Session session = new Session();
+        when(request.getSession()).thenReturn(session);
         
         Route route = new Route("/");
+        when(request.getRoute()).thenReturn(route);
         
-        newSessionHandler().onCreate(request, route, session);
+        newSessionHandler().onCreate(request);
         
         assertEquals("[]", session.getAttributeNames().toString());
     }

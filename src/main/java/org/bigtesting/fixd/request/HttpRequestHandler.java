@@ -13,32 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bigtesting.fixd.tests;
+package org.bigtesting.fixd.request;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.bigtesting.fixd.response.HttpResponse;
 
 /**
  * 
  * @author Luis Antunes
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-    TestRegexRoute.class,
-    TestRegexRouteMap.class,
-    TestRoute.class,
-    TestRouteHelper.class,
-    TestCapturedRequest.class,
-    TestResponseBodyInterpreter.class,
-    TestPathParamSessionHandler.class,
-    TestRequestParamSessionHandler.class,
-    TestSimpleHttpRequest.class,
-    TestServerFixture.class
-})
-public class FixdTestSuite {
-    /*
-     *  the class remains completely empty,
-     *  being used only as a placeholder for 
-     *  the above annotations 
-     */
-}
+public interface HttpRequestHandler {
+
+    HttpResponse handle(HttpRequest request);
+ }

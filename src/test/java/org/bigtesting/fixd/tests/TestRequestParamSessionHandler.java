@@ -26,15 +26,17 @@ public class TestRequestParamSessionHandler {
         Set<String> params = new HashSet<String>();
         params.add("firstName");
         params.add("lastName");
-        when(request.getParameterNames()).thenReturn(params);
-        when(request.getParameter("firstName")).thenReturn("John");
-        when(request.getParameter("lastName")).thenReturn("Doe");
+        when(request.getRequestParameterNames()).thenReturn(params);
+        when(request.getRequestParameter("firstName")).thenReturn("John");
+        when(request.getRequestParameter("lastName")).thenReturn("Doe");
         
         Session session = new Session();
+        when(request.getSession()).thenReturn(session);
         
         Route route = new Route("/");
+        when(request.getRoute()).thenReturn(route);
         
-        newSessionHandler().onCreate(request, route, session);
+        newSessionHandler().onCreate(request);
         
         List<String> attributeNames = new ArrayList<String>(session.getAttributeNames());
         Collections.sort(attributeNames);
@@ -49,14 +51,16 @@ public class TestRequestParamSessionHandler {
     public void onCreateIsHandledWithNoParams() {
         
         HttpRequest request = mock(HttpRequest.class);
-        when(request.getParameterNames()).thenReturn(new HashSet<String>());
-        when(request.getParameter(anyString())).thenReturn(null);
+        when(request.getRequestParameterNames()).thenReturn(new HashSet<String>());
+        when(request.getRequestParameter(anyString())).thenReturn(null);
         
         Session session = new Session();
+        when(request.getSession()).thenReturn(session);
         
         Route route = new Route("/");
+        when(request.getRoute()).thenReturn(route);
         
-        newSessionHandler().onCreate(request, route, session);
+        newSessionHandler().onCreate(request);
         
         assertEquals("[]", session.getAttributeNames().toString());
     }

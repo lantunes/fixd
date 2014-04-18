@@ -15,7 +15,13 @@
  */
 package org.bigtesting.fixd.request;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 import java.util.Set;
+
+import org.bigtesting.fixd.routing.Route;
+import org.bigtesting.fixd.session.Session;
 
 /**
  * 
@@ -25,7 +31,40 @@ public interface HttpRequest {
 
     String getPath();
     
-    Set<String> getParameterNames();
+    Set<String> getRequestParameterNames();
     
-    String getParameter(String name);
+    String getRequestParameter(String name);
+    
+    String getPathParameter(String name);
+    
+    List<String> getHeaderNames();
+    
+    String getHeaderValue(String name);
+    
+    String getBody();
+    
+    InputStream getBodyAsStream() throws IOException;
+    
+    long getContentLength();
+    
+    String getContentType();
+    
+    String getMethod();
+    
+    long getTime();
+    
+    String getQuery();
+    
+    int getMajor();
+    
+    int getMinor();
+    
+    String getTarget();
+    
+    /**
+     * @return a session, if it exists, or null if it does not
+     */
+    Session getSession();
+    
+    Route getRoute();
 }

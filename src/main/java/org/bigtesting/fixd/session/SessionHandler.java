@@ -16,7 +16,6 @@
 package org.bigtesting.fixd.session;
 
 import org.bigtesting.fixd.request.HttpRequest;
-import org.bigtesting.fixd.routing.Route;
 
 /**
  * 
@@ -24,5 +23,5 @@ import org.bigtesting.fixd.routing.Route;
  */
 public interface SessionHandler {
 
-    void onCreate(HttpRequest request, Route route, Session session);
+    void onCreate(HttpRequest request);
 }
