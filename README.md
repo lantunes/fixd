@@ -20,6 +20,9 @@ With Fixd, you can:
 * setup asynchronous HTTP subscribe-broadcast scenarios 
 * delay responses for tests that require a delayed response
 
+Finally, Fixd is not limited to being used in the context of unit tests. It can also be
+used as a standalone HTTP server, in any context.
+
 ## Getting Started
 ------------------
 
@@ -317,6 +320,7 @@ server.handle(Method.GET, "/name/:name")
             response.setStatusCode(200);
             response.setContentType("text/plain");
             response.setBody("Hello " + request.getPathParameter("name"));
+            //you can also set a byte[] or InputStream in the response body
         }
     });
 ```
