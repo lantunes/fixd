@@ -15,7 +15,7 @@
  */
 package org.bigtesting.fixd.util.interpreter;
 
-import org.simpleframework.http.Request;
+import org.bigtesting.fixd.request.HttpRequest;
 
 /**
  * 
@@ -23,8 +23,8 @@ import org.simpleframework.http.Request;
  */
 public class RequestTimeValueProvider implements RequestValueProvider<Long> {
 
-    public Long getValue(Request request) {
+    public Long getValue(HttpRequest request) {
         
-        return request.getRequestTime();
+        return request.getTime();
     }
 }

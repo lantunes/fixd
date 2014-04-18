@@ -23,13 +23,12 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bigtesting.fixd.request.HttpRequest;
+import org.bigtesting.fixd.routing.Route;
 import org.bigtesting.fixd.routing.Route.PathParameterElement;
 import org.bigtesting.fixd.session.Session;
 import org.bigtesting.fixd.util.interpreter.ResponseBodyInterpreter;
 import org.junit.Test;
-import org.simpleframework.http.Path;
-import org.simpleframework.http.Query;
-import org.simpleframework.http.Request;
 
 /**
  * 
@@ -40,569 +39,666 @@ public class TestResponseBodyInterpreter {
     @Test
     public void testBodyReturnedUnmodifiedWhenNoInstructionsGiven() {
         
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getPath()).thenReturn("/");
+        Route route = mock(Route.class);
+        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(req.getRoute()).thenReturn(route);
+        when(req.getSession()).thenReturn(null);
+        
         assertEquals("Hello World!", 
-                ResponseBodyInterpreter.interpret("Hello World!", "/", 
-                        emptyPathParamList(), null, mockRequest()));
+                ResponseBodyInterpreter.interpret("Hello World!", req));
     }
     
     @Test
     public void testBodyReturnedUnmodifiedWhenNoInstructionsGiven_WithSession() {
         
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getPath()).thenReturn("/");
+        Route route = mock(Route.class);
+        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("name", "Tim");
+        when(req.getSession()).thenReturn(session);
         
         assertEquals("Hello World!", 
-                ResponseBodyInterpreter.interpret("Hello World!", "/", 
-                        emptyPathParamList(), session, mockRequest()));
+                ResponseBodyInterpreter.interpret("Hello World!", req));
     }
     
     @Test
     public void testSinglePathParamSubstitued() {
         
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getPath()).thenReturn("/name/Tim");
+        Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
         elements.add(new PathParameterElement("name", 1));
+        when(route.pathParameterElements()).thenReturn(elements);
+        when(req.getRoute()).thenReturn(route);
+        when(req.getSession()).thenReturn(null);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello :name", "/name/Tim", 
-                elements, null, mockRequest());
-        
-        assertEquals("Hello Tim", interpreted);
+        assertEquals("Hello Tim", 
+                ResponseBodyInterpreter.interpret("Hello :name", req));
     }
     
     @Test
     public void testSinglePathParamSubstituedInPresenceOfOtherColons() {
         
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getPath()).thenReturn("/name/Tim");
+        Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
         elements.add(new PathParameterElement("name", 1));
+        when(route.pathParameterElements()).thenReturn(elements);
+        when(req.getRoute()).thenReturn(route);
+        when(req.getSession()).thenReturn(null);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello : :name :", "/name/Tim", 
-                elements, null, mockRequest());
-        
-        assertEquals("Hello : Tim :", interpreted);
+        assertEquals("Hello : Tim :", 
+                ResponseBodyInterpreter.interpret("Hello : :name :", req));
     }
     
     @Test
     public void testSinglePathParamDoublyPrefixedIsSubstitued() {
         
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getPath()).thenReturn("/name/Tim");
+        Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
         elements.add(new PathParameterElement("name", 1));
+        when(route.pathParameterElements()).thenReturn(elements);
+        when(req.getRoute()).thenReturn(route);
+        when(req.getSession()).thenReturn(null);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello ::name", "/name/Tim", 
-                elements, null, mockRequest());
-        
-        assertEquals("Hello :Tim", interpreted);
+        assertEquals("Hello :Tim", 
+                ResponseBodyInterpreter.interpret("Hello ::name", req));
     }
     
     @Test
     public void testSinglePathParamEnclosedByColonsIsSubstitued() {
         
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getPath()).thenReturn("/name/Tim");
+        Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
         elements.add(new PathParameterElement("name", 1));
+        when(route.pathParameterElements()).thenReturn(elements);
+        when(req.getRoute()).thenReturn(route);
+        when(req.getSession()).thenReturn(null);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello ::name:", "/name/Tim", 
-                elements, null, mockRequest());
-        
-        assertEquals("Hello :Tim:", interpreted);
+        assertEquals("Hello :Tim:", 
+                ResponseBodyInterpreter.interpret("Hello ::name:", req));
     }
     
     @Test
     public void testSinglePathParamSubstituedInPresenceOfOtherColonPrefixedTerms() {
         
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getPath()).thenReturn("/name/Tim");
+        Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
         elements.add(new PathParameterElement("name", 1));
+        when(route.pathParameterElements()).thenReturn(elements);
+        when(req.getRoute()).thenReturn(route);
+        when(req.getSession()).thenReturn(null);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello :someTerm :name", "/name/Tim", 
-                elements, null, mockRequest());
-        
-        assertEquals("Hello :someTerm Tim", interpreted);
+        assertEquals("Hello :someTerm Tim", 
+                ResponseBodyInterpreter.interpret("Hello :someTerm :name", req));
     }
     
     @Test
     public void testSinglePathParamSubstituedWithColonContainingValue() {
         
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getPath()).thenReturn("/name/:Tim");
+        Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
         elements.add(new PathParameterElement("name", 1));
+        when(route.pathParameterElements()).thenReturn(elements);
+        when(req.getRoute()).thenReturn(route);
+        when(req.getSession()).thenReturn(null);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello :name", "/name/:Tim", 
-                elements, null, mockRequest());
-        
-        assertEquals("Hello :Tim", interpreted);
+        assertEquals("Hello :Tim", 
+                ResponseBodyInterpreter.interpret("Hello :name", req));
     }
     
     @Test
     public void testMultiplePathParamsSubstitued() {
         
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getPath()).thenReturn("/name/John/Doe");
+        Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
         elements.add(new PathParameterElement("firstName", 1));
         elements.add(new PathParameterElement("lastName", 2));
+        when(route.pathParameterElements()).thenReturn(elements);
+        when(req.getRoute()).thenReturn(route);
+        when(req.getSession()).thenReturn(null);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello :firstName :lastName", "/name/John/Doe", 
-                elements, null, mockRequest());
-        
-        assertEquals("Hello John Doe", interpreted);
+        assertEquals("Hello John Doe", 
+                ResponseBodyInterpreter.interpret("Hello :firstName :lastName", req));
     }
     
     @Test
     public void testMultiplePathParamsSubstituedInPresenceOfOtherColons() {
         
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getPath()).thenReturn("/name/John/Doe");
+        Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
         elements.add(new PathParameterElement("firstName", 1));
         elements.add(new PathParameterElement("lastName", 2));
+        when(route.pathParameterElements()).thenReturn(elements);
+        when(req.getRoute()).thenReturn(route);
+        when(req.getSession()).thenReturn(null);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello : :firstName : :lastName :", "/name/John/Doe", 
-                elements, null, mockRequest());
-        
-        assertEquals("Hello : John : Doe :", interpreted);
+        assertEquals("Hello : John : Doe :", 
+                ResponseBodyInterpreter.interpret("Hello : :firstName : :lastName :", req));
     }
     
     @Test
     public void testMultiplePathParamsSubstituedWithColonContainingValues() {
         
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getPath()).thenReturn("/name/:John/:Doe");
+        Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
         elements.add(new PathParameterElement("firstName", 1));
         elements.add(new PathParameterElement("lastName", 2));
+        when(route.pathParameterElements()).thenReturn(elements);
+        when(req.getRoute()).thenReturn(route);
+        when(req.getSession()).thenReturn(null);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello :firstName :lastName", "/name/:John/:Doe", 
-                elements, null, mockRequest());
-        
-        assertEquals("Hello :John :Doe", interpreted);
+        assertEquals("Hello :John :Doe", 
+                ResponseBodyInterpreter.interpret("Hello :firstName :lastName", req));
     }
     
     @Test
     public void testSingleSessionValueSubstitued() {
         
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getPath()).thenReturn("/");
+        Route route = mock(Route.class);
+        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("name", "Tim");
+        when(req.getSession()).thenReturn(session);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello {name}", 
-                "/", emptyPathParamList(), session, mockRequest());
-        
-        assertEquals("Hello Tim", interpreted);
+        assertEquals("Hello Tim", 
+                ResponseBodyInterpreter.interpret("Hello {name}", req));
     }
     
     @Test
     public void testSingleSessionValueSubstituedInPresenceOfOtherBraces() {
         
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getPath()).thenReturn("/");
+        Route route = mock(Route.class);
+        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("name", "Tim");
+        when(req.getSession()).thenReturn(session);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello { {name} } {", 
-                "/", emptyPathParamList(), session, mockRequest());
-        
-        assertEquals("Hello { Tim } {", interpreted);
+        assertEquals("Hello { Tim } {", 
+                ResponseBodyInterpreter.interpret("Hello { {name} } {", req));
     }
     
     @Test
     public void testSingleSessionValueSubstituedInPresenceOfOtherBraces_NoSpaces() {
         
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getPath()).thenReturn("/");
+        Route route = mock(Route.class);
+        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("name", "Tim");
+        when(req.getSession()).thenReturn(session);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello {{name}} {", 
-                "/", emptyPathParamList(), session, mockRequest());
-        
-        assertEquals("Hello {Tim} {", interpreted);
+        assertEquals("Hello {Tim} {", 
+                ResponseBodyInterpreter.interpret("Hello {{name}} {", req));
     }
     
     @Test
     public void testSingleSessionValueSubstituedInPresenceOfOtherBraceEnclosedTerms() {
         
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getPath()).thenReturn("/");
+        Route route = mock(Route.class);
+        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("name", "Tim");
+        when(req.getSession()).thenReturn(session);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello {there} {name}", 
-                "/", emptyPathParamList(), session, mockRequest());
-        
-        assertEquals("Hello {there} Tim", interpreted);
+        assertEquals("Hello {there} Tim", 
+                ResponseBodyInterpreter.interpret("Hello {there} {name}", req));
     }
     
     @Test
     public void testSingleSessionValueSubstituedWithBraceEnclosedValue() {
         
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getPath()).thenReturn("/");
+        Route route = mock(Route.class);
+        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("name", "{Tim}");
+        when(req.getSession()).thenReturn(session);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello {name}", 
-                "/", emptyPathParamList(), session, mockRequest());
-        
-        assertEquals("Hello {Tim}", interpreted);
+        assertEquals("Hello {Tim}", 
+                ResponseBodyInterpreter.interpret("Hello {name}", req));
     }
     
     @Test
     public void testMultipleSessionValuesSubstitued() {
         
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getPath()).thenReturn("/");
+        Route route = mock(Route.class);
+        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("firstName", "John");
         session.set("lastName", "Doe");
+        when(req.getSession()).thenReturn(session);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello {firstName} {lastName}", 
-                "/", emptyPathParamList(), session, mockRequest());
-        
-        assertEquals("Hello John Doe", interpreted);
+        assertEquals("Hello John Doe", 
+                ResponseBodyInterpreter.interpret("Hello {firstName} {lastName}", req));
     }
     
     @Test
     public void testMultipleSessionValuesSubstituedInPresenceOfOtherBraces() {
         
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getPath()).thenReturn("/");
+        Route route = mock(Route.class);
+        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("firstName", "John");
         session.set("lastName", "Doe");
+        when(req.getSession()).thenReturn(session);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello { {firstName} } { {lastName} } {", 
-                "/", emptyPathParamList(), session, mockRequest());
-        
-        assertEquals("Hello { John } { Doe } {", interpreted);
+        assertEquals("Hello { John } { Doe } {", 
+                ResponseBodyInterpreter.interpret("Hello { {firstName} } { {lastName} } {", req));
     }
     
     @Test
     public void testMultipleSessionValuesSubstituedInPresenceOfOtherBraces_NoSpaces() {
         
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getPath()).thenReturn("/");
+        Route route = mock(Route.class);
+        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("firstName", "John");
         session.set("lastName", "Doe");
+        when(req.getSession()).thenReturn(session);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello {{firstName}} {{lastName}} {", 
-                "/", emptyPathParamList(), session, mockRequest());
-        
-        assertEquals("Hello {John} {Doe} {", interpreted);
+        assertEquals("Hello {John} {Doe} {", 
+                ResponseBodyInterpreter.interpret("Hello {{firstName}} {{lastName}} {", req));
     }
     
     @Test
     public void testMultipleSessionValuesSubstituedInPresenceOfOtherBraceEnclosedTerms() {
         
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getPath()).thenReturn("/");
+        Route route = mock(Route.class);
+        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("firstName", "John");
         session.set("lastName", "Doe");
+        when(req.getSession()).thenReturn(session);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello {there} {firstName} {lastName}", 
-                "/", emptyPathParamList(), session, mockRequest());
-        
-        assertEquals("Hello {there} John Doe", interpreted);
+        assertEquals("Hello {there} John Doe", 
+                ResponseBodyInterpreter.interpret("Hello {there} {firstName} {lastName}", req));
     }
     
     @Test
     public void testMultipleSessionValuesSubstituedWithBraceEnclosedValue() {
         
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getPath()).thenReturn("/");
+        Route route = mock(Route.class);
+        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("firstName", "{John}");
         session.set("lastName", "{Doe}");
+        when(req.getSession()).thenReturn(session);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello {firstName} {lastName}", 
-                "/", emptyPathParamList(), session, mockRequest());
-        
-        assertEquals("Hello {John} {Doe}", interpreted);
+        assertEquals("Hello {John} {Doe}", 
+                ResponseBodyInterpreter.interpret("Hello {firstName} {lastName}", req));
     }
     
     @Test
     public void testPathParamAndSessionValues_PathParamValuesComeFirst() {
         
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getPath()).thenReturn("/greet/Mr.");
+        Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
         elements.add(new PathParameterElement("salutation", 1));
-        
+        when(route.pathParameterElements()).thenReturn(elements);
+        when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("firstName", "John");
         session.set("lastName", "Doe");
+        when(req.getSession()).thenReturn(session);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello :salutation {firstName} {lastName}", 
-                "/greet/Mr.", elements, session, mockRequest());
-        
-        assertEquals("Hello Mr. John Doe", interpreted);
+        assertEquals("Hello Mr. John Doe", 
+                ResponseBodyInterpreter.interpret("Hello :salutation {firstName} {lastName}", req));
     }
     
     @Test
     public void testPathParamAndSessionValues_SessionValuesComeFirst() {
         
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getPath()).thenReturn("/greet/John/Doe");
+        Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
         elements.add(new PathParameterElement("firstName", 1));
         elements.add(new PathParameterElement("lastName", 2));
-        
+        when(route.pathParameterElements()).thenReturn(elements);
+        when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("salutation", "Mr.");
+        when(req.getSession()).thenReturn(session);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello {salutation} :firstName :lastName", 
-                "/greet/John/Doe", elements, session, mockRequest());
-        
-        assertEquals("Hello Mr. John Doe", interpreted);
+        assertEquals("Hello Mr. John Doe", 
+                ResponseBodyInterpreter.interpret("Hello {salutation} :firstName :lastName", req));
     }
     
     @Test
     public void testColonPrefixedSessionValueNotHandled() {
         
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getPath()).thenReturn("/name/John");
+        Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
         elements.add(new PathParameterElement("{name}", 1));
-        
+        when(route.pathParameterElements()).thenReturn(elements);
+        when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("name", "Tim");
+        when(req.getSession()).thenReturn(session);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello :{name}", 
-                "/name/John", elements, session, mockRequest());
-        
-        assertEquals("Hello John", interpreted);
+        assertEquals("Hello John", 
+                ResponseBodyInterpreter.interpret("Hello :{name}", req));
     }
     
     @Test
     public void testBraceEnclosedPathParamValueDoesNotSubstituteSessionValue() {
         
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getPath()).thenReturn("/name/John");
+        Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
         elements.add(new PathParameterElement("name", 1));
-        
+        when(route.pathParameterElements()).thenReturn(elements);
+        when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set(":name", "Tim");
+        when(req.getSession()).thenReturn(session);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello {:name}", 
-                "/name/John", elements, session, mockRequest());
-        
-        assertEquals("Hello {John}", interpreted);
+        assertEquals("Hello {John}", 
+                ResponseBodyInterpreter.interpret("Hello {:name}", req));
     }
     
     @Test
     public void testRequestUnknownValuesIgnored() throws Exception {
         
-        Request request = mockRequest();
-        when(request.getInputStream()).thenReturn(body("Hello World!"));
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getBodyAsStream()).thenReturn(body("Hello World!"));
+        when(req.getPath()).thenReturn("/");
+        Route route = mock(Route.class);
+        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(req.getRoute()).thenReturn(route);
+        when(req.getSession()).thenReturn(null);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Message: [some.value]", 
-                "/", emptyPathParamList(), null, request);
-        
-        assertEquals("Message: [some.value]", interpreted);
+        assertEquals("Message: [some.value]", 
+                ResponseBodyInterpreter.interpret("Message: [some.value]", req));
     }
     
     @Test
     public void testRequestBodySubstituted() throws Exception {
         
-        Request request = mockRequest();
-        when(request.getInputStream()).thenReturn(body("Hello World!"));
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getBodyAsStream()).thenReturn(body("Hello World!"));
+        when(req.getPath()).thenReturn("/");
+        Route route = mock(Route.class);
+        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(req.getRoute()).thenReturn(route);
+        when(req.getSession()).thenReturn(null);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Message: [request.body]", 
-                "/", emptyPathParamList(), null, request);
-        
-        assertEquals("Message: Hello World!", interpreted);
+        assertEquals("Message: Hello World!", 
+                ResponseBodyInterpreter.interpret("Message: [request.body]", req));
     }
     
     @Test
     public void testRequestBodySubstituedInPresenceOfOtherBrackets() throws Exception {
         
-        Request request = mockRequest();
-        when(request.getInputStream()).thenReturn(body("Hello World!"));
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getBodyAsStream()).thenReturn(body("Hello World!"));
+        when(req.getPath()).thenReturn("/");
+        Route route = mock(Route.class);
+        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(req.getRoute()).thenReturn(route);
+        when(req.getSession()).thenReturn(null);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Message: [ [request.body] ] [", 
-                "/", emptyPathParamList(), null, request);
-        
-        assertEquals("Message: [ Hello World! ] [", interpreted);
+        assertEquals("Message: [ Hello World! ] [", 
+                ResponseBodyInterpreter.interpret("Message: [ [request.body] ] [", req));
     }
     
     @Test
     public void testRequestBodySubstituedInPresenceOfOtherBrackets_NoSpaces() throws Exception {
         
-        Request request = mockRequest();
-        when(request.getInputStream()).thenReturn(body("Hello World!"));
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getBodyAsStream()).thenReturn(body("Hello World!"));
+        when(req.getPath()).thenReturn("/");
+        Route route = mock(Route.class);
+        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(req.getRoute()).thenReturn(route);
+        when(req.getSession()).thenReturn(null);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Message: [[request.body]] [", 
-                "/", emptyPathParamList(), null, request);
-        
-        assertEquals("Message: [Hello World!] [", interpreted);
+        assertEquals("Message: [Hello World!] [", 
+                ResponseBodyInterpreter.interpret("Message: [[request.body]] [", req));
     }
     
     @Test
     public void testRequestBodySubstituedInPresenceOfOtherBracketEnclosedTerms() throws Exception {
         
-        Request request = mockRequest();
-        when(request.getInputStream()).thenReturn(body("Tim"));
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getBodyAsStream()).thenReturn(body("Tim"));
+        when(req.getPath()).thenReturn("/");
+        Route route = mock(Route.class);
+        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(req.getRoute()).thenReturn(route);
+        when(req.getSession()).thenReturn(null);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello [there] [request.body]", 
-                "/", emptyPathParamList(), null, request);
-        
-        assertEquals("Hello [there] Tim", interpreted);
+        assertEquals("Hello [there] Tim", 
+                ResponseBodyInterpreter.interpret("Hello [there] [request.body]", req));
     }
     
     @Test
     public void testRequestBodySubstituedWithBracketEnclosedValue() throws Exception {
         
-        Request request = mockRequest();
-        when(request.getInputStream()).thenReturn(body("[Tim]"));
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getBodyAsStream()).thenReturn(body("[Tim]"));
+        when(req.getPath()).thenReturn("/");
+        Route route = mock(Route.class);
+        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(req.getRoute()).thenReturn(route);
+        when(req.getSession()).thenReturn(null);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello [request.body]", 
-                "/", emptyPathParamList(), null, request);
-        
-        assertEquals("Hello [Tim]", interpreted);
+        assertEquals("Hello [Tim]", 
+                ResponseBodyInterpreter.interpret("Hello [request.body]", req));
     }
     
     @Test
     public void testPathParamAndSessionAndRequestUsedTogether() throws Exception {
         
-        Request request = mockRequest();
-        when(request.getInputStream()).thenReturn(body("Doe"));
-        
-        Session session = new Session();
-        session.set("salutation", "Mr.");
-        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getBodyAsStream()).thenReturn(body("Doe"));
+        when(req.getPath()).thenReturn("/name/John");
+        Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
         elements.add(new PathParameterElement("name", 1));
+        when(route.pathParameterElements()).thenReturn(elements);
+        when(req.getRoute()).thenReturn(route);
+        Session session = new Session();
+        session.set("salutation", "Mr.");
+        when(req.getSession()).thenReturn(session);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello {salutation} :name [request.body]", 
-                "/name/John", elements, session, request);
-        
-        assertEquals("Hello Mr. John Doe", interpreted);
+        assertEquals("Hello Mr. John Doe", 
+                ResponseBodyInterpreter.interpret("Hello {salutation} :name [request.body]", req));
     }
     
     @Test
     public void testRequestParameterSubstituted() throws Exception {
         
-        Request request = mockRequest();
-        when(request.getParameter("name")).thenReturn("Tim");
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getRequestParameter("name")).thenReturn("Tim");
+        when(req.getPath()).thenReturn("/");
+        Route route = mock(Route.class);
+        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(req.getRoute()).thenReturn(route);
+        when(req.getSession()).thenReturn(null);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Hello [request?name]", 
-                "/", emptyPathParamList(), null, request);
-        
-        assertEquals("Hello Tim", interpreted);
+        assertEquals("Hello Tim", 
+                ResponseBodyInterpreter.interpret("Hello [request?name]", req));
     }
     
     @Test
     public void testRequestHeaderSubstituted() throws Exception {
         
-        Request request = mockRequest();
-        when(request.getValue("User-Agent")).thenReturn("Mozilla/5.0");
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getHeaderValue("User-Agent")).thenReturn("Mozilla/5.0");
+        when(req.getPath()).thenReturn("/");
+        Route route = mock(Route.class);
+        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(req.getRoute()).thenReturn(route);
+        when(req.getSession()).thenReturn(null);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Value: [request$User-Agent]", 
-                "/", emptyPathParamList(), null, request);
-        
-        assertEquals("Value: Mozilla/5.0", interpreted);
+        assertEquals("Value: Mozilla/5.0", 
+                ResponseBodyInterpreter.interpret("Value: [request$User-Agent]", req));
     }
     
     @Test
     public void testRequestMethodSubstituted() throws Exception {
         
-        Request request = mockRequest();
-        when(request.getMethod()).thenReturn("GET");
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getMethod()).thenReturn("GET");
+        when(req.getPath()).thenReturn("/");
+        Route route = mock(Route.class);
+        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(req.getRoute()).thenReturn(route);
+        when(req.getSession()).thenReturn(null);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Message: [request.method]", 
-                "/", emptyPathParamList(), null, request);
-        
-        assertEquals("Message: GET", interpreted);
+        assertEquals("Message: GET", 
+                ResponseBodyInterpreter.interpret("Message: [request.method]", req));
     }
     
     @Test
     public void testRequestTimeSubstituted() throws Exception {
         
-        Request request = mockRequest();
-        when(request.getRequestTime()).thenReturn(123L);
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getTime()).thenReturn(123L);
+        when(req.getPath()).thenReturn("/");
+        Route route = mock(Route.class);
+        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(req.getRoute()).thenReturn(route);
+        when(req.getSession()).thenReturn(null);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Message: [request.time]", 
-                "/", emptyPathParamList(), null, request);
-        
-        assertEquals("Message: 123", interpreted);
+        assertEquals("Message: 123", 
+                ResponseBodyInterpreter.interpret("Message: [request.time]", req));
     }
     
     @Test
     public void testRequestPathSubstituted() throws Exception {
         
-        Request request = mockRequest();
-        Path path = mock(Path.class);
-        when(path.getPath()).thenReturn("/abc");
-        when(request.getPath()).thenReturn(path);
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getPath()).thenReturn("/abc");
+        Route route = mock(Route.class);
+        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(req.getRoute()).thenReturn(route);
+        when(req.getSession()).thenReturn(null);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Message: [request.path]", 
-                "/", emptyPathParamList(), null, request);
-        
-        assertEquals("Message: /abc", interpreted);
+        assertEquals("Message: /abc", 
+                ResponseBodyInterpreter.interpret("Message: [request.path]", req));
     }
     
     @Test
     public void testRequestQuerySubstituted() throws Exception {
         
-        Request request = mockRequest();
-        Query query = mock(Query.class);
-        when(query.toString()).thenReturn("a=b&c=d");
-        when(request.getQuery()).thenReturn(query);
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getQuery()).thenReturn("a=b&c=d");
+        when(req.getPath()).thenReturn("/");
+        Route route = mock(Route.class);
+        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(req.getRoute()).thenReturn(route);
+        when(req.getSession()).thenReturn(null);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Message: [request.query]", 
-                "/", emptyPathParamList(), null, request);
-        
-        assertEquals("Message: a=b&c=d", interpreted);
+        assertEquals("Message: a=b&c=d", 
+                ResponseBodyInterpreter.interpret("Message: [request.query]", req));
     }
     
     @Test
     public void testRequestMajorSubstituted() throws Exception {
         
-        Request request = mockRequest();
-        when(request.getMajor()).thenReturn(123);
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getMajor()).thenReturn(123);
+        when(req.getPath()).thenReturn("/");
+        Route route = mock(Route.class);
+        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(req.getRoute()).thenReturn(route);
+        when(req.getSession()).thenReturn(null);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Message: [request.major]", 
-                "/", emptyPathParamList(), null, request);
-        
-        assertEquals("Message: 123", interpreted);
+        assertEquals("Message: 123", 
+                ResponseBodyInterpreter.interpret("Message: [request.major]", req));
     }
     
     @Test
     public void testRequestMinorSubstituted() throws Exception {
         
-        Request request = mockRequest();
-        when(request.getMinor()).thenReturn(123);
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getMinor()).thenReturn(123);
+        when(req.getPath()).thenReturn("/");
+        Route route = mock(Route.class);
+        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(req.getRoute()).thenReturn(route);
+        when(req.getSession()).thenReturn(null);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Message: [request.minor]", 
-                "/", emptyPathParamList(), null, request);
-        
-        assertEquals("Message: 123", interpreted);
+        assertEquals("Message: 123", 
+                ResponseBodyInterpreter.interpret("Message: [request.minor]", req));
     }
     
     @Test
     public void testRequestTargetSubstituted() throws Exception {
         
-        Request request = mockRequest();
-        when(request.getTarget()).thenReturn("/index");
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getTarget()).thenReturn("/index");
+        when(req.getPath()).thenReturn("/");
+        Route route = mock(Route.class);
+        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(req.getRoute()).thenReturn(route);
+        when(req.getSession()).thenReturn(null);
         
-        String interpreted = ResponseBodyInterpreter.interpret(
-                "Message: [request.target]", 
-                "/", emptyPathParamList(), null, request);
-        
-        assertEquals("Message: /index", interpreted);
+        assertEquals("Message: /index", 
+                ResponseBodyInterpreter.interpret("Message: [request.target]", req));
     }
     
     /*------------------------------------------------*/
     
     private List<PathParameterElement> emptyPathParamList() {
         return new ArrayList<PathParameterElement>();
-    }
-    
-    private Request mockRequest() {
-        return mock(Request.class);
     }
     
     private InputStream body(String content) {

@@ -87,7 +87,11 @@ public class SimpleHttpRequest implements HttpRequest {
     
     public String getBody() {
         
-        return new String(RequestUtils.readBody(request));
+        try {
+            return new String(RequestUtils.readBody(getBodyAsStream()));
+        } catch (IOException e) {
+            throw new RuntimeException("error getting body", e);
+        }
     }
     
     public InputStream getBodyAsStream() throws IOException {

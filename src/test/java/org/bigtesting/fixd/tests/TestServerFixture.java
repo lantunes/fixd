@@ -17,6 +17,7 @@ package org.bigtesting.fixd.tests;
 
 import static org.junit.Assert.*;
 
+import java.io.ByteArrayInputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,9 @@ import java.util.concurrent.TimeUnit;
 import org.bigtesting.fixd.ServerFixture;
 import org.bigtesting.fixd.capture.CapturedRequest;
 import org.bigtesting.fixd.core.Method;
+import org.bigtesting.fixd.request.HttpRequest;
+import org.bigtesting.fixd.request.HttpRequestHandler;
+import org.bigtesting.fixd.response.HttpResponse;
 import org.bigtesting.fixd.session.PathParamSessionHandler;
 import org.bigtesting.fixd.session.RequestParamSessionHandler;
 import org.junit.After;
@@ -524,6 +528,90 @@ public class TestServerFixture {
         CapturedRequest secondRequest = server.request();
         assertNotNull(secondRequest);
         assertEquals("GET /new-location HTTP/1.1", secondRequest.getRequestLine());
+    }
+    
+    @Test
+    public void testSimpleGetWithCustomHandlerReturnsStringBody() throws Exception {
+
+        server.handle(Method.GET, "/name/:name")
+              .with(new HttpRequestHandler() {
+                public void handle(HttpRequest request, HttpResponse response) {
+                    
+                    response.setStatusCode(200);
+                    response.setContentType("text/plain");
+                    response.setBody("Hello " + request.getPathParameter("name"));
+                }
+            });
+       
+        Response resp = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/name/Tim")
+                        .execute()
+                        .get();
+       
+        assertEquals("Hello Tim", resp.getResponseBody().trim());
+    }
+    
+    @Test
+    public void testSimpleGetWithCustomHandlerReturnsInterpretedBody() throws Exception {
+
+        server.handle(Method.GET, "/name/:name")
+              .with(new HttpRequestHandler() {
+                public void handle(HttpRequest request, HttpResponse response) {
+                    
+                    response.setStatusCode(200);
+                    response.setContentType("text/plain");
+                    response.setInterpretedBody("Hello :name");
+                }
+            });
+       
+        Response resp = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/name/Tim")
+                        .execute()
+                        .get();
+       
+        assertEquals("Hello Tim", resp.getResponseBody().trim());
+    }
+    
+    @Test
+    public void testSimpleGetWithCustomHandlerReturnsByteArrayBody() throws Exception {
+
+        server.handle(Method.GET, "/name")
+              .with(new HttpRequestHandler() {
+                public void handle(HttpRequest request, HttpResponse response) {
+                    
+                    response.setStatusCode(200);
+                    response.setContentType("text/plain");
+                    response.setBody("Hello Tim".getBytes());
+                }
+            });
+       
+        Response resp = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/name")
+                        .execute()
+                        .get();
+       
+        assertEquals("Hello Tim", resp.getResponseBody().trim());
+    }
+    
+    @Test
+    public void testSimpleGetWithCustomHandlerReturnsInputStreamBody() throws Exception {
+
+        server.handle(Method.GET, "/name")
+              .with(new HttpRequestHandler() {
+                public void handle(HttpRequest request, HttpResponse response) {
+                    
+                    response.setStatusCode(200);
+                    response.setContentType("text/plain");
+                    response.setBody(new ByteArrayInputStream("Hello Tim".getBytes()));
+                }
+            });
+       
+        Response resp = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/name")
+                        .execute()
+                        .get();
+       
+        assertEquals("Hello Tim", resp.getResponseBody().trim());
     }
     
     @After

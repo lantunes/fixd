@@ -15,8 +15,6 @@
  */
 package org.bigtesting.fixd.core;
 
-import java.io.IOException;
-import java.io.PrintStream;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -133,7 +131,7 @@ public class FixtureContainer implements Container {
             capturedRequests.add(new SimpleCapturedRequest(request));
             
             String responseContentType = "text/plain";
-            String responseBody = "";
+            ResponseBody responseBody = new StringResponseBody("");
             
             ResolvedRequest resolved = resolve(request);
             if (resolved.errorStatus != null) {
@@ -144,10 +142,25 @@ public class FixtureContainer implements Container {
             
             if (requestIsForUponHandler(resolved)) {
                 
-                broadcastToSubscribers(request, resolved.route, 
-                        request.getPath().getPath());
+                broadcastToSubscribers(request, resolved.route);
                 /* continue handling the request, as it needs to 
                  * return a normal response */
+            }
+            
+            /* create a new session if required */
+            SessionHandler sessionHandler = resolved.handler.sessionHandler();
+            if (sessionHandler != null) {
+                createNewSession(request, response, resolved.route, sessionHandler);
+            }
+            
+            /* set the response body */
+            if (!resolved.handler.isSuspend()) {
+                Session session = getSessionIfExists(request);
+                ResponseBody handlerBody = resolved.handler.body(
+                        new SimpleHttpRequest(request, session, resolved.route));
+                if (handlerBody != null && handlerBody.hasContent()) {
+                    responseBody = handlerBody;
+                }
             }
             
             /* set the content type */
@@ -156,23 +169,6 @@ public class FixtureContainer implements Container {
                     handlerContentType.trim().length() != 0) {
                 
                 responseContentType = handlerContentType;
-            }
-            
-            /* set the response body */
-            if (!resolved.handler.isSuspend()) {
-                Session session = getSessionIfExists(request);
-                String path = request.getPath().getPath();
-                String handlerBody = resolved.handler.body(path, 
-                        resolved.route.pathParameterElements(), session, request);
-                if (handlerBody != null && handlerBody.trim().length() != 0) {
-                    responseBody = handlerBody;
-                }
-            }
-            
-            /* create a new session if required */
-            SessionHandler sessionHandler = resolved.handler.sessionHandler();
-            if (sessionHandler != null) {
-                createNewSession(request, response, resolved.route, sessionHandler);
             }
             
             /* set the response status code */
@@ -200,7 +196,7 @@ public class FixtureContainer implements Container {
             
             logger.error("internal server error", e);
             response.setStatus(Status.INTERNAL_SERVER_ERROR);
-            sendAndCommitResponse(response, "text/plain", "");
+            sendAndCommitResponse(response, "text/plain", new StringResponseBody(""));
         }
     }
 
@@ -211,11 +207,11 @@ public class FixtureContainer implements Container {
         return uponHandlers.contains(resolved.key);
     }
     
-    private void broadcastToSubscribers(Request request, Route route, String path) {
+    private void broadcastToSubscribers(Request request, Route route) {
         
         synchronized (subscribers) {
             for (Queue<Broadcast> broadcasts : subscribers) {
-                broadcasts.add(new Broadcast(request, route, path));
+                broadcasts.add(new Broadcast(request, route));
             }
         }
     }
@@ -243,7 +239,7 @@ public class FixtureContainer implements Container {
     }
     
     private void doAsync(Response response, RequestHandler handler, 
-            String responseContentType, String responseBody) {
+            String responseContentType, ResponseBody responseBody) {
         
         AsyncTask task = new AsyncTask(response, handler, 
                 responseContentType, responseBody);
@@ -251,37 +247,15 @@ public class FixtureContainer implements Container {
     }
     
     private void sendAndCommitResponse(Response response, 
-            String responseContentType, String responseBody) {
+            String responseContentType, ResponseBody responseBody) {
         
-        try {
-            
-            PrintStream body = 
-                    sendResponse(response, responseContentType, responseBody);
-            body.close();
-            
-         } catch(Exception e) {
-            throw new RuntimeException(e);
-         }
+        responseBody.sendAndCommit(response, responseContentType);
     }
 
-    private PrintStream sendResponse(Response response, 
-            String responseContentType, String responseBody)
-            throws IOException {
+    private void sendResponse(Response response, 
+            String responseContentType, ResponseBody responseBody) {
         
-        PrintStream body = response.getPrintStream();
-        addStandardHeaders(response, responseContentType);
-        body.println(responseBody);
-        body.flush();
-        return body;
-    }
-
-    private void addStandardHeaders(Response response, String responseContentType) {
-        
-        long time = System.currentTimeMillis();
-        response.setValue("Content-Type", responseContentType);
-        response.setValue("Server", "HelloWorld/1.0 (Simple 5.1.4)");
-        response.setDate("Date", time);
-        response.setDate("Last-Modified", time);
+        responseBody.send(response, responseContentType);
     }
     
     private ResolvedRequest resolve(Request request) {
@@ -328,7 +302,7 @@ public class FixtureContainer implements Container {
         private Response response;
         private RequestHandler handler;
         private String responseContentType; 
-        private String responseBody;
+        private ResponseBody responseBody;
         
         private final BlockingQueue<Broadcast> broadcasts = 
                 new LinkedBlockingQueue<Broadcast>();
@@ -337,7 +311,7 @@ public class FixtureContainer implements Container {
         
         public AsyncTask(Response response, 
                 RequestHandler handler, 
-                String responseContentType, String responseBody) {
+                String responseContentType, ResponseBody responseBody) {
             
             this.response = response;
             this.handler = handler;
@@ -386,11 +360,10 @@ public class FixtureContainer implements Container {
                     
                     Request request = broadcast.getRequest();
                     Route route = broadcast.getRoute();
-                    String path = broadcast.getPath();
 
                     /* no support for session variables for now */
-                    String handlerBody = handler.body(path, 
-                            route.pathParameterElements(), null, request);
+                    ResponseBody handlerBody = handler.body(
+                            new SimpleHttpRequest(request, null, route));
                     
                     sendResponse(response, responseContentType, handlerBody);
                     
@@ -480,12 +453,10 @@ public class FixtureContainer implements Container {
         
         private final Request request;
         private final Route route;
-        private final String path;
         
-        public Broadcast(Request request, Route route, String path) {
+        public Broadcast(Request request, Route route) {
             this.request = request;
             this.route = route;
-            this.path = path;
         }
         
         public Request getRequest() {
@@ -495,15 +466,11 @@ public class FixtureContainer implements Container {
         public Route getRoute() {
             return route;
         }
-        
-        public String getPath() {
-            return path;
-        }
     }
     
     private class SubscribeTimeout extends Broadcast {
         public SubscribeTimeout() {
-            super(null, null, null);
+            super(null, null);
         }
     }
 }

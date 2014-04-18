@@ -17,6 +17,12 @@ package org.bigtesting.fixd.response.impl;
 
 import java.io.InputStream;
 
+import org.bigtesting.fixd.core.ByteArrayResponseBody;
+import org.bigtesting.fixd.core.InputStreamResponseBody;
+import org.bigtesting.fixd.core.InterpretedResponseBody;
+import org.bigtesting.fixd.core.ResponseBody;
+import org.bigtesting.fixd.core.StringResponseBody;
+import org.bigtesting.fixd.request.HttpRequest;
 import org.bigtesting.fixd.response.HttpResponse;
 
 /**
@@ -25,32 +31,33 @@ import org.bigtesting.fixd.response.HttpResponse;
  */
 public class SimpleHttpResponse implements HttpResponse {
 
-    /*
-     * I don't see a way to restrict the body to
-     * the InputStream, byte[], and String types
-     * using Bounded Type Parameters and Generics
-     */
-    private Object body;
+    private final HttpRequest request;
     
+    private ResponseBody body;
     private String contentType;
     private int statusCode;
     
+    public SimpleHttpResponse(HttpRequest req) {
+        this.request = req;
+    }
+    
     public void setBody(InputStream in) {
-        this.body = in;
+        this.body = new InputStreamResponseBody(in);
     }
 
     public void setBody(byte[] content) {
-        this.body = content;
+        this.body = new ByteArrayResponseBody(content);
     }
 
     public void setBody(String content) {
-        this.body = content;
+        this.body = new StringResponseBody(content);
     }
 
-    /*
-     * must be of the following types: InputStream, byte[], String
-     */
-    public Object getBody() {
+    public void setInterpretedBody(String content) {
+        this.body = new InterpretedResponseBody(content, request);
+    }
+    
+    public ResponseBody getBody() {
         return body;
     }
     

@@ -29,6 +29,15 @@ public interface HttpResponse {
     
     void setBody(String content);
     
+    /**
+     * The body content set using this method will
+     * be run through the response body interpreter.
+     * 
+     * @param content the content to be interpreted 
+     * using path, request, and session params
+     */
+    void setInterpretedBody(String content);
+    
     void setContentType(String contentType);
     
     void setStatusCode(int statusCode);

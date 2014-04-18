@@ -304,6 +304,26 @@ The call to **upon()** in the snippet above means: upon receiving a GET request
 for "/broadcast/:message", send a response to the suspended client which contains
 the value of the *message* path parameter in the body.
 
+### Custom Request Handling
+
+You are not limited to responding to requests with interpreted strings. You can also
+provide your own custom request handling logic:
+
+```java
+server.handle(Method.GET, "/name/:name")
+      .with(new HttpRequestHandler() {
+        public void handle(HttpRequest request, HttpResponse response) {
+            
+            response.setStatusCode(200);
+            response.setContentType("text/plain");
+            response.setBody("Hello " + request.getPathParameter("name"));
+        }
+    });
+```
+
+By providing an **HttpRequestHandler**, you have more control over how a 
+request is handled.
+
 ### Tear Down
 
 Finally, remember to stop the server fixture after each test:

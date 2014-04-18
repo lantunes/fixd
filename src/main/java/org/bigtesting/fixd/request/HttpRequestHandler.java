@@ -23,5 +23,5 @@ import org.bigtesting.fixd.response.HttpResponse;
  */
 public interface HttpRequestHandler {
 
-    HttpResponse handle(HttpRequest request);
+    void handle(HttpRequest request, HttpResponse response);
  }

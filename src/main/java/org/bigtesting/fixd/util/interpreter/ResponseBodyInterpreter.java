@@ -16,15 +16,14 @@
 package org.bigtesting.fixd.util.interpreter;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bigtesting.fixd.request.HttpRequest;
 import org.bigtesting.fixd.routing.Route.PathParameterElement;
 import org.bigtesting.fixd.routing.RouteHelper;
 import org.bigtesting.fixd.session.Session;
-import org.simpleframework.http.Request;
 
 /**
  * 
@@ -49,13 +48,12 @@ public class ResponseBodyInterpreter {
         requestValueProviders.put("request.target", new RequestTargetValueProvider());
     }
 
-    public static String interpret(String body, String path, 
-            List<PathParameterElement> pathParams, Session session, Request request) {
+    public static String interpret(String body, HttpRequest request) {
         
-        body = interpretPathParamValues(body, path, pathParams);
+        body = interpretPathParamValues(body, request);
         
-        if (session != null) {
-            body = interpretSessionValues(body, session);
+        if (request.getSession() != null) {
+            body = interpretSessionValues(body, request.getSession());
         }
         
         body = interpretRequestValues(body, request);
@@ -66,11 +64,10 @@ public class ResponseBodyInterpreter {
     /*
      * handle any values that start with ':'
      */
-    private static String interpretPathParamValues(String body, String path, 
-            List<PathParameterElement> pathParams) {
+    private static String interpretPathParamValues(String body, HttpRequest req) {
         
-        String[] pathTokens = RouteHelper.getPathElements(path);
-        for (PathParameterElement param : pathParams) {
+        String[] pathTokens = RouteHelper.getPathElements(req.getPath());
+        for (PathParameterElement param : req.getRoute().pathParameterElements()) {
             String paramName = "\\Q" + param.name() + "\\E";
             body = body.replaceAll(":" + paramName, pathTokens[param.index()]);
         }
@@ -91,17 +88,17 @@ public class ResponseBodyInterpreter {
         });
     }
     
-    private static String interpretRequestValues(String body, final Request request) {
+    private static String interpretRequestValues(String body, final HttpRequest request) {
         
         return substituteGroups(body, REQUEST_VALUE_PATTERN, new ValueProvider() {
             public Object getValue(String captured) {
                 
                 if (captured.startsWith("request?")) {
-                    return request.getParameter(captured.replaceFirst("request\\?", ""));
+                    return request.getRequestParameter(captured.replaceFirst("request\\?", ""));
                 }
                 
                 if (captured.startsWith("request$")) {
-                    return request.getValue(captured.replaceFirst("request\\$", ""));
+                    return request.getHeaderValue(captured.replaceFirst("request\\$", ""));
                 }
                 
                 RequestValueProvider<?> requestValueProvider = 

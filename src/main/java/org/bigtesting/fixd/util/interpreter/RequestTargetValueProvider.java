@@ -15,7 +15,7 @@
  */
 package org.bigtesting.fixd.util.interpreter;
 
-import org.simpleframework.http.Request;
+import org.bigtesting.fixd.request.HttpRequest;
 
 /**
  * 
@@ -23,7 +23,7 @@ import org.simpleframework.http.Request;
  */
 public class RequestTargetValueProvider implements RequestValueProvider<String> {
 
-    public String getValue(Request request) {
+    public String getValue(HttpRequest request) {
         
         return request.getTarget();
     }

@@ -15,7 +15,7 @@
  */
 package org.bigtesting.fixd.util.interpreter;
 
-import org.simpleframework.http.Request;
+import org.bigtesting.fixd.request.HttpRequest;
 
 /**
  * 
@@ -23,5 +23,5 @@ import org.simpleframework.http.Request;
  */
 interface RequestValueProvider<T> {
     
-    T getValue(Request request);        
+    T getValue(HttpRequest request);        
 }

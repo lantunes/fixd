@@ -15,6 +15,7 @@
  */
 package org.bigtesting.fixd.capture.impl;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +64,11 @@ public class SimpleCapturedRequest implements CapturedRequest {
 
     public byte[] getBody() {
         
-        return RequestUtils.readBody(request);
+        try {
+            return RequestUtils.readBody(request.getInputStream());
+        } catch (IOException e) {
+            throw new RuntimeException("error getting body", e);
+        }
     }
 
     public String getBody(String encoding) {

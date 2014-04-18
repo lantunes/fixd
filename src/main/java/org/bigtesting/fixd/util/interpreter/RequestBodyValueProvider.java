@@ -15,8 +15,10 @@
  */
 package org.bigtesting.fixd.util.interpreter;
 
+import java.io.IOException;
+
+import org.bigtesting.fixd.request.HttpRequest;
 import org.bigtesting.fixd.util.RequestUtils;
-import org.simpleframework.http.Request;
 
 /**
  * 
@@ -24,8 +26,12 @@ import org.simpleframework.http.Request;
  */
 public class RequestBodyValueProvider implements RequestValueProvider<String> {
 
-    public String getValue(Request request) {
+    public String getValue(HttpRequest request) {
         
-        return new String(RequestUtils.readBody(request));
+        try {
+            return new String(RequestUtils.readBody(request.getBodyAsStream()));
+        } catch (IOException e) {
+            throw new RuntimeException("error getting body", e);
+        }
     }
 }

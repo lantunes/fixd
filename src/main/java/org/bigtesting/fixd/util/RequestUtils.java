@@ -19,21 +19,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.simpleframework.http.Request;
-
 /**
  * 
  * @author Luis Antunes
  */
 public class RequestUtils {
 
-    public static byte[] readBody(Request request) {
+    public static byte[] readBody(InputStream in) {
         
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        InputStream in = null;
         try {
             
-            in = request.getInputStream();
             byte[] buffer = new byte[1024];
             int len = 0;
             while ((len = in.read(buffer)) != -1) {

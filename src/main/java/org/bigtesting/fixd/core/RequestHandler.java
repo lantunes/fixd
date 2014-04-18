@@ -17,15 +17,13 @@ package org.bigtesting.fixd.core;
 
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.bigtesting.fixd.routing.Route.PathParameterElement;
-import org.bigtesting.fixd.session.Session;
+import org.bigtesting.fixd.request.HttpRequest;
+import org.bigtesting.fixd.request.HttpRequestHandler;
+import org.bigtesting.fixd.response.impl.SimpleHttpResponse;
 import org.bigtesting.fixd.session.SessionHandler;
-import org.bigtesting.fixd.util.interpreter.ResponseBodyInterpreter;
-import org.simpleframework.http.Request;
 
 /**
  * 
@@ -48,17 +46,26 @@ public class RequestHandler {
     private Set<SimpleImmutableEntry<String, String>> headers = 
             new HashSet<SimpleImmutableEntry<String,String>>();
     
+    private HttpRequestHandler httpHandler;
+    
     private final FixtureContainer container;
     
     public RequestHandler(FixtureContainer container) {
         this.container = container;
     }
     
-    public RequestHandler with(int statusCode, String contentType, String body) {
+    public RequestHandler with(final int statusCode, 
+            final String contentType, final String body) {
         
         this.statusCode = statusCode;
         this.contentType = contentType;
         this.body = body;
+        return this;
+    }
+    
+    public RequestHandler with(HttpRequestHandler customHandler) {
+        
+        this.httpHandler = customHandler;
         return this;
     }
 
@@ -125,11 +132,18 @@ public class RequestHandler {
         return contentType;
     }
 
-    String body(String path, List<PathParameterElement> pathParams, 
-            Session session, Request request) {
+    ResponseBody body(HttpRequest request) {
         
-        return ResponseBodyInterpreter.interpret(body, path, 
-                pathParams, session, request);
+        if (httpHandler != null) {
+            
+            SimpleHttpResponse response = new SimpleHttpResponse(request);
+            httpHandler.handle(request, response);
+            this.contentType = response.getContentType();
+            this.statusCode = response.getStatusCode();
+            return response.getBody();
+        }
+        
+        return new InterpretedResponseBody(body, request);
     }
     
     SessionHandler sessionHandler() {
@@ -182,5 +196,9 @@ public class RequestHandler {
     
     Set<SimpleImmutableEntry<String, String>> headers() {
         return new HashSet<SimpleImmutableEntry<String, String>>(headers);
+    }
+    
+    HttpRequestHandler customHandler() {
+        return httpHandler;
     }
 }
