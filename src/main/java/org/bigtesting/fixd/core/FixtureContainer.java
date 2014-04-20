@@ -85,6 +85,8 @@ public class FixtureContainer implements Container {
     
     private final ExecutorService asyncExecutor;
     
+    private int capturedRequestLimit = -1;
+    
     public FixtureContainer(int aysncThreadPoolSize) {
         asyncExecutor = Executors.newFixedThreadPool(aysncThreadPoolSize);
     }
@@ -124,11 +126,16 @@ public class FixtureContainer implements Container {
         return capturedRequests.poll();
     }
     
+    public void setCapturedRequestLimit(int limit) {
+        
+        this.capturedRequestLimit = limit;
+    }
+    
     public void handle(Request request, Response response) {
 
         try {
             
-            capturedRequests.add(new SimpleCapturedRequest(request));
+            addCapturedRequest(request);
             
             String responseContentType = "text/plain";
             ResponseBody responseBody = new StringResponseBody("");
@@ -197,6 +204,15 @@ public class FixtureContainer implements Container {
             logger.error("internal server error", e);
             response.setStatus(Status.INTERNAL_SERVER_ERROR);
             sendAndCommitResponse(response, "text/plain", new StringResponseBody(""));
+        }
+    }
+
+    private void addCapturedRequest(Request request) {
+        
+        capturedRequests.add(new SimpleCapturedRequest(request));
+        
+        if (capturedRequestLimit > -1) {
+            while(capturedRequests.size() > capturedRequestLimit) capturedRequests.remove();
         }
     }
 

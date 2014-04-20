@@ -89,4 +89,9 @@ public class ServerFixture {
         
         return container.nextCapturedRequest();
     }
+    
+    public void setMaxCapturedRequests(int limit) {
+        
+        container.setCapturedRequestLimit(limit);
+    }
 }

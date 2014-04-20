@@ -505,6 +505,33 @@ public class TestServerFixture {
     }
     
     @Test
+    public void recordsRequestsOnSameURL() throws Exception {
+        
+        server.handle(Method.GET, "/say-hello/:name")
+              .with(200, "text/plain", "Hello :name!");
+        
+        assertEquals(0, server.capturedRequests().size());
+        
+        new AsyncHttpClient()
+            .prepareGet("http://localhost:8080/say-hello/John")
+            .execute().get();
+        
+        new AsyncHttpClient()
+            .prepareGet("http://localhost:8080/say-hello/Tim")
+            .execute().get();
+        
+        assertEquals(2, server.capturedRequests().size());
+        
+        CapturedRequest firstRequest = server.request();
+        assertNotNull(firstRequest);
+        assertEquals("GET /say-hello/John HTTP/1.1", firstRequest.getRequestLine());
+        
+        CapturedRequest secondRequest = server.request();
+        assertNotNull(secondRequest);
+        assertEquals("GET /say-hello/Tim HTTP/1.1", secondRequest.getRequestLine());
+    }
+    
+    @Test
     public void addsHeader() throws Exception {
         
         server.handle(Method.GET, "/")
@@ -612,6 +639,25 @@ public class TestServerFixture {
                         .get();
        
         assertEquals("Hello Tim", resp.getResponseBody().trim());
+    }
+    
+    @Test
+    public void testSettingMaxCapturedRequestsLimitsStoredCapturedRequests() throws Exception {
+        
+        server.handle(Method.GET, "/:id").with(200, "text/plain", ":id");
+        server.setMaxCapturedRequests(2);
+        
+        new AsyncHttpClient().prepareGet("http://localhost:8080/1").execute().get();
+        new AsyncHttpClient().prepareGet("http://localhost:8080/2").execute().get();
+        new AsyncHttpClient().prepareGet("http://localhost:8080/3").execute().get();
+        
+        assertEquals(2, server.capturedRequests().size());
+        
+        CapturedRequest captured = server.request();
+        assertEquals("GET /2 HTTP/1.1", captured.getRequestLine());
+        
+        captured = server.request();
+        assertEquals("GET /3 HTTP/1.1", captured.getRequestLine());
     }
     
     @After
