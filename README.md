@@ -158,6 +158,9 @@ CapturedRequest secondRequest = server.request();
 assertEquals("PUT /name/Tim HTTP/1.1", secondRequest.getRequestLine());
 ```
 
+You can limit the number of captured requests that are stored by calling
+**server.setMaxCapturedRequests()**.
+
 ### URI Pattern Matching
 
 Path parameters can be required to conform to certain rules, specified through Regex 
