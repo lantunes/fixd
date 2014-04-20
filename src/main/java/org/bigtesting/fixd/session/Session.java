@@ -18,6 +18,7 @@ package org.bigtesting.fixd.session;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * 
@@ -25,7 +26,21 @@ import java.util.Set;
  */
 public class Session {
 
+    private final String sessionId;
+    
     private final Map<String, Object> values = new HashMap<String, Object>();
+    
+    private boolean valid = true;
+    
+    public Session() {
+        
+        this.sessionId = UUID.randomUUID().toString();
+    }
+    
+    public String getSessionId() {
+        
+        return sessionId;
+    }
     
     public Object get(String key) {
         
@@ -40,5 +55,15 @@ public class Session {
     public Set<String> getAttributeNames() {
         
         return values.keySet();
+    }
+    
+    public boolean isValid() {
+        
+        return valid;
+    }
+    
+    public void invalidate() {
+        
+        this.valid = false;
     }
 }

@@ -24,6 +24,7 @@ import org.bigtesting.fixd.request.HttpRequest;
 import org.bigtesting.fixd.request.HttpRequestHandler;
 import org.bigtesting.fixd.response.impl.SimpleHttpResponse;
 import org.bigtesting.fixd.session.SessionHandler;
+import org.simpleframework.http.Response;
 
 /**
  * 
@@ -132,11 +133,11 @@ public class RequestHandler {
         return contentType;
     }
 
-    ResponseBody body(HttpRequest request) {
+    ResponseBody body(HttpRequest request, Response resp) {
         
         if (httpHandler != null) {
             
-            SimpleHttpResponse response = new SimpleHttpResponse(request);
+            SimpleHttpResponse response = new SimpleHttpResponse(request, resp);
             httpHandler.handle(request, response);
             this.contentType = response.getContentType();
             this.statusCode = response.getStatusCode();

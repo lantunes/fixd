@@ -24,6 +24,8 @@ import org.bigtesting.fixd.core.ResponseBody;
 import org.bigtesting.fixd.core.StringResponseBody;
 import org.bigtesting.fixd.request.HttpRequest;
 import org.bigtesting.fixd.response.HttpResponse;
+import org.simpleframework.http.Cookie;
+import org.simpleframework.http.Response;
 
 /**
  * 
@@ -33,12 +35,15 @@ public class SimpleHttpResponse implements HttpResponse {
 
     private final HttpRequest request;
     
+    private final Response response;
+    
     private ResponseBody body;
     private String contentType;
     private int statusCode;
     
-    public SimpleHttpResponse(HttpRequest req) {
+    public SimpleHttpResponse(HttpRequest req, Response response) {
         this.request = req;
+        this.response = response;
     }
     
     public void setBody(InputStream in) {
@@ -75,5 +80,16 @@ public class SimpleHttpResponse implements HttpResponse {
 
     public int getStatusCode() {
         return statusCode;
+    }
+
+    public void setCookie(String name, String value) {
+
+        Cookie cookie = new Cookie(name, value);
+        response.setCookie(cookie);
+    }
+
+    public void addHeader(String name, String value) {
+
+        response.addValue(name, value);
     }
 }

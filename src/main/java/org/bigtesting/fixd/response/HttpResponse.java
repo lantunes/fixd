@@ -41,4 +41,8 @@ public interface HttpResponse {
     void setContentType(String contentType);
     
     void setStatusCode(int statusCode);
+    
+    void setCookie(String name, String value);
+    
+    void addHeader(String name, String value);
 }

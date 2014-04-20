@@ -319,6 +319,50 @@ public class TestServerFixture {
     }
     
     @Test
+    public void testInvalidatingSessionMakesSessionInvalid() throws Exception {
+        
+        server.handle(Method.PUT, "/name/:name")
+              .with(200, "text/plain", "OK")
+              .withSessionHandler(new PathParamSessionHandler());
+        
+        server.handle(Method.GET, "/say-hello")
+              .with(200, "text/plain", "Hello {name}");
+        
+        server.handle(Method.GET, "/clear")
+              .with(new HttpRequestHandler() {
+                public void handle(HttpRequest request, HttpResponse response) {
+                    
+                    request.getSession().invalidate();
+                    
+                    response.setStatusCode(200);
+                    response.setContentType("text/plain");
+                    response.setBody("OK");
+                }
+            });
+        
+        WebClient client = new WebClient();
+        Page page = client.getPage(new WebRequest(new URL(
+                "http://localhost:8080/name/John"), 
+                HttpMethod.PUT));
+        assertEquals(200, page.getWebResponse().getStatusCode());
+        
+        page      = client.getPage(new WebRequest(new URL(
+                "http://localhost:8080/say-hello"), 
+                HttpMethod.GET));
+        assertEquals("Hello John", page.getWebResponse().getContentAsString().trim());
+        
+        page      = client.getPage(new WebRequest(new URL(
+                "http://localhost:8080/clear"), 
+                HttpMethod.GET));
+        assertEquals(200, page.getWebResponse().getStatusCode());
+        
+        page      = client.getPage(new WebRequest(new URL(
+                "http://localhost:8080/say-hello"), 
+                HttpMethod.GET));
+        assertEquals("Hello {name}", page.getWebResponse().getContentAsString().trim());
+    }
+    
+    @Test
     public void testDelay() throws Exception {
         
         server.handle(Method.GET, "/suspend")

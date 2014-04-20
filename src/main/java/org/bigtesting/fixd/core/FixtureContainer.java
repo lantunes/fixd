@@ -24,7 +24,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -164,7 +163,7 @@ public class FixtureContainer implements Container {
             if (!resolved.handler.isSuspend()) {
                 Session session = getSessionIfExists(request);
                 ResponseBody handlerBody = resolved.handler.body(
-                        new SimpleHttpRequest(request, session, resolved.route));
+                        new SimpleHttpRequest(request, session, resolved.route), response);
                 if (handlerBody != null && handlerBody.hasContent()) {
                     responseBody = handlerBody;
                 }
@@ -237,7 +236,12 @@ public class FixtureContainer implements Container {
         Cookie cookie = request.getCookie(SESSION_COOKIE_NAME);
         if (cookie != null) {
             String sessionId = cookie.getValue();
-            return sessions.get(sessionId);
+            Session session = sessions.get(sessionId);
+            if (session != null && !session.isValid()) {
+                sessions.remove(sessionId);
+                return null;
+            }
+            return session;
         }
         return null;
     }
@@ -247,10 +251,9 @@ public class FixtureContainer implements Container {
         
         Session session = new Session();
         sessionHandler.onCreate(new SimpleHttpRequest(request, session, route));
-        String sessionId = UUID.randomUUID().toString();
-        sessions.put(sessionId, session);
+        sessions.put(session.getSessionId(), session);
         
-        Cookie cookie = new Cookie(SESSION_COOKIE_NAME, sessionId);
+        Cookie cookie = new Cookie(SESSION_COOKIE_NAME, session.getSessionId());
         response.setCookie(cookie);
     }
     
@@ -379,7 +382,7 @@ public class FixtureContainer implements Container {
 
                     /* no support for session variables for now */
                     ResponseBody handlerBody = handler.body(
-                            new SimpleHttpRequest(request, null, route));
+                            new SimpleHttpRequest(request, null, route), response);
                     
                     sendResponse(response, responseContentType, handlerBody);
                     
