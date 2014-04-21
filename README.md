@@ -310,6 +310,30 @@ The call to **upon()** in the snippet above means: upon receiving a GET request
 for "/broadcast/:message", send a response to the suspended client which contains
 the value of the *message* path parameter in the body.
 
+### Handling Requests By Content Type
+
+You can handle requests differently based on the request content type:
+
+```java
+server.handle(Method.GET, "/resource", "text/plain")
+      .with(200, "text/plain", "Received text/plain content");
+        
+server.handle(Method.GET, "/resource", "application/json")
+      .with(200, "text/plain", "Received application/json content");
+
+Response resp = new AsyncHttpClient()
+                .prepareGet("http://localhost:8080/resource")
+                .setHeader("Content-Type", "text/plain")
+                .execute().get();
+assertEquals("Received text/plain content", resp.getResponseBody().trim());
+
+resp          = new AsyncHttpClient()
+                .prepareGet("http://localhost:8080/resource")
+                .setHeader("Content-Type", "application/json")
+                .execute().get();
+assertEquals("Received application/json content", resp.getResponseBody().trim());
+```
+
 ### Custom Request Handling
 
 You are not limited to responding to requests with interpreted strings. You can also

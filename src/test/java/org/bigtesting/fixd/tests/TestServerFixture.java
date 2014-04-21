@@ -704,6 +704,28 @@ public class TestServerFixture {
         assertEquals("GET /3 HTTP/1.1", captured.getRequestLine());
     }
     
+    @Test
+    public void testDifferentContentTypesAreHandledDifferently() throws Exception {
+        
+        server.handle(Method.GET, "/resource", "text/plain")
+              .with(200, "text/plain", "Received text/plain content");
+        
+        server.handle(Method.GET, "/resource", "application/json")
+              .with(200, "text/plain", "Received application/json content");
+        
+        Response resp = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/resource")
+                        .setHeader("Content-Type", "text/plain")
+                        .execute().get();
+        assertEquals("Received text/plain content", resp.getResponseBody().trim());
+        
+        resp          = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/resource")
+                        .setHeader("Content-Type", "application/json")
+                        .execute().get();
+        assertEquals("Received application/json content", resp.getResponseBody().trim());
+    }
+    
     @After
     public void afterEachTest() throws Exception {
         server.stop();
