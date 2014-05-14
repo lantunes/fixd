@@ -33,6 +33,7 @@ import org.bigtesting.fixd.session.PathParamSessionHandler;
 import org.bigtesting.fixd.session.RequestParamSessionHandler;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.gargoylesoftware.htmlunit.HttpMethod;
@@ -724,6 +725,100 @@ public class TestServerFixture {
                         .setHeader("Content-Type", "application/json")
                         .execute().get();
         assertEquals("Received application/json content", resp.getResponseBody().trim());
+    }
+    
+    /*
+     * TODO
+     */
+    @Ignore("implement handling splat path parameters (issue #5)")
+    public void testSplatPathParameterForAllRequests() throws Exception {
+        
+        server.handle(Method.GET, "/*")
+              .with(200, "text/plain", "[request.path]");
+        
+        Response resp = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/1")
+                        .execute().get();
+        assertEquals("/1", resp.getResponseBody().trim());
+        
+        resp = new AsyncHttpClient()
+               .prepareGet("http://localhost:8080/2")
+               .execute().get();
+        assertEquals("/2", resp.getResponseBody().trim());
+        
+    }
+    
+    /*
+     * TODO
+     */
+    @Ignore("implement handling splat path parameters (issue #5)")
+    public void testSplatPathParameterWithPrecedingResource() throws Exception {
+        
+        server.handle(Method.GET, "/protected/*")
+              .with(200, "text/plain", "[request.path]");
+        
+        Response resp = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/hello")
+                        .execute().get();
+        assertEquals(404, resp.getStatusCode());
+        
+        resp = new AsyncHttpClient()
+               .prepareGet("http://localhost:8080/protected/content")
+               .execute().get();
+        assertEquals("/protected/content", resp.getResponseBody().trim());
+        
+    }
+    
+    /*
+     * TODO
+     */
+    @Ignore("implement handling splat path parameters (issue #5)")
+    public void testSplatPathParameterInterjectedBetweenResources() throws Exception {
+        
+        server.handle(Method.GET, "/protected/*/content")
+              .with(200, "text/plain", "[request.path]");
+        
+        Response resp = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/hello")
+                        .execute().get();
+        assertEquals(404, resp.getStatusCode());
+        
+        resp = new AsyncHttpClient()
+               .prepareGet("http://localhost:8080/protected/1/content")
+               .execute().get();
+        assertEquals("/protected/1/content", resp.getResponseBody().trim());
+        
+        resp = new AsyncHttpClient()
+               .prepareGet("http://localhost:8080/protected/blah/content")
+               .execute().get();
+        assertEquals("/protected/blah/content", resp.getResponseBody().trim());
+        
+    }
+    
+    /*
+     * TODO 
+     */
+    @Ignore("implement handling splat path parameters (issue #5)")
+    public void testSplatPathParametersOccuringMultipleTimes() throws Exception {
+        
+        server.handle(Method.GET, "/say/*/to/*")
+              .with(200, "text/plain", "[request.path]");
+        
+        Response resp = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/hello")
+                        .execute().get();
+        assertEquals(404, resp.getStatusCode());
+        
+        resp = new AsyncHttpClient()
+               .prepareGet("http://localhost:8080/say/hello/to/world")
+               .execute().get();
+        assertEquals("/say/hello/to/world", resp.getResponseBody().trim());
+        
+        resp = new AsyncHttpClient()
+               .prepareGet("http://localhost:8080/say/bye/to/Tim")
+               .execute().get();
+        assertEquals("/say/bye/to/Tim", resp.getResponseBody().trim());
+        
     }
     
     @After

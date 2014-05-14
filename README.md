@@ -21,7 +21,8 @@ With Fixd, you can:
 * delay responses for tests that require a delayed response
 
 Finally, Fixd is not limited to being used in the context of unit tests. It can also be
-used as a standalone HTTP server, in any context.
+used as a standalone HTTP server, in any context. In this sense, it can also be viewed
+as a Java micro web framework.
 
 ## Getting Started
 ------------------
