@@ -24,6 +24,8 @@ import org.bigtesting.fixd.capture.CapturedRequest;
 import org.bigtesting.fixd.core.FixtureContainer;
 import org.bigtesting.fixd.core.Method;
 import org.bigtesting.fixd.core.RequestHandler;
+import org.bigtesting.fixd.core.RequestMarshaller;
+import org.bigtesting.fixd.core.RequestUnmarshaller;
 import org.bigtesting.fixd.util.LoggingAgent;
 import org.simpleframework.http.core.ContainerServer;
 import org.simpleframework.transport.Server;
@@ -93,5 +95,17 @@ public class ServerFixture {
     public void setMaxCapturedRequests(int limit) {
         
         container.setCapturedRequestLimit(limit);
+    }
+    
+    public RequestMarshaller marshal(String contentType) {
+        
+        //TODO implement content marshalling
+        return new RequestMarshaller(contentType);
+    }
+    
+    public RequestUnmarshaller unmarshal(String contentType) {
+        
+        //TODO implement content marshalling
+        return new RequestUnmarshaller(contentType);
     }
 }

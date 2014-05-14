@@ -99,6 +99,12 @@ public class SimpleHttpRequest implements HttpRequest {
         return request.getInputStream();
     }
     
+    public <T> T getBody(Class<T> type) {
+        
+        //TODO implement content marshalling
+        return null;
+    }
+    
     public long getContentLength() {
         
         return request.getContentLength();

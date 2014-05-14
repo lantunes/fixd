@@ -18,6 +18,7 @@ package org.bigtesting.fixd.tests;
 import static org.junit.Assert.*;
 
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,8 @@ import java.util.concurrent.TimeUnit;
 import org.bigtesting.fixd.ServerFixture;
 import org.bigtesting.fixd.capture.CapturedRequest;
 import org.bigtesting.fixd.core.Method;
+import org.bigtesting.fixd.marshalling.Marshaller;
+import org.bigtesting.fixd.marshalling.Unmarshaller;
 import org.bigtesting.fixd.request.HttpRequest;
 import org.bigtesting.fixd.request.HttpRequestHandler;
 import org.bigtesting.fixd.response.HttpResponse;
@@ -36,6 +39,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
@@ -728,7 +732,7 @@ public class TestServerFixture {
     }
     
     /*
-     * TODO
+     * TODO implement handling splat path parameters (issue #5)
      */
     @Ignore("implement handling splat path parameters (issue #5)")
     public void testSplatPathParameterForAllRequests() throws Exception {
@@ -749,7 +753,7 @@ public class TestServerFixture {
     }
     
     /*
-     * TODO
+     * TODO implement handling splat path parameters (issue #5)
      */
     @Ignore("implement handling splat path parameters (issue #5)")
     public void testSplatPathParameterWithPrecedingResource() throws Exception {
@@ -770,7 +774,7 @@ public class TestServerFixture {
     }
     
     /*
-     * TODO
+     * TODO implement handling splat path parameters (issue #5)
      */
     @Ignore("implement handling splat path parameters (issue #5)")
     public void testSplatPathParameterInterjectedBetweenResources() throws Exception {
@@ -796,7 +800,7 @@ public class TestServerFixture {
     }
     
     /*
-     * TODO 
+     * TODO implement handling splat path parameters (issue #5)
      */
     @Ignore("implement handling splat path parameters (issue #5)")
     public void testSplatPathParametersOccuringMultipleTimes() throws Exception {
@@ -819,6 +823,52 @@ public class TestServerFixture {
                .execute().get();
         assertEquals("/say/bye/to/Tim", resp.getResponseBody().trim());
         
+    }
+    
+    /*
+     * TODO implement content marshalling (issue #7)
+     */
+    @Ignore("implement content marshalling (issue #7)")
+    public void testMarshalling() throws Exception {
+        
+        server.marshal("application/json")
+              .with(new JSONMarshaller());
+        
+        server.handle(Method.GET, "/marshal")
+              .with(200, "application/json", new SimplePojo("marshalledJSON"));
+        
+        Response resp = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/marshal")
+                        .execute().get();
+        
+        assertEquals("{\"val\":\"marshalledJSON\"}", resp.getResponseBody().trim());
+    }   
+    
+    /*
+     * TODO implement content marshalling (issue #7)
+     */
+    @Ignore("implement content marshalling (issue #7)")
+    public void testUnmarshalling() throws Exception {
+        
+        server.unmarshal("application/json")
+              .with(new JSONUnmarshaller());
+        
+        server.handle(Method.PUT, "/unmarshal", "application/json")
+              .with(new HttpRequestHandler() {
+                public void handle(HttpRequest request, HttpResponse response) {
+                    response.setStatusCode(200);
+                    response.setContentType("text/plain");
+                    SimplePojo entity = request.getBody(SimplePojo.class);
+                    response.setBody(entity != null ? entity.getVal() : "error");
+                }
+            });
+        
+        Response resp = new AsyncHttpClient()
+                        .preparePut("http://localhost:8080/unmarshal")
+                        .setHeader("Content-Type", "application/json")
+                        .setBody("{\"val\":\"unmarshalledJSON\"}")
+                        .execute().get();
+        assertEquals("unmarshalledJSON", resp.getResponseBody().trim());
     }
     
     @After
@@ -847,6 +897,53 @@ public class TestServerFixture {
                 chunks.add(chunk);
             }
             return STATE.CONTINUE;
+        }
+    }
+    
+    private static final ObjectMapper mapper = new ObjectMapper();
+    
+    public static class JSONMarshaller implements Marshaller {
+        
+        public InputStream marshal(Object entity) {
+            try {
+                String payload = mapper.writeValueAsString(entity);
+                return new ByteArrayInputStream(payload.getBytes());
+            } catch (Exception e) {
+                throw new RuntimeException("could not marshal", e);
+            }
+        }
+    }
+    
+    public static class JSONUnmarshaller implements Unmarshaller {
+        
+        public <T> T unmarshal(InputStream in, Class<T> type) {
+            try {
+                return mapper.readValue(in, type);
+            } catch (Exception e) {
+                throw new RuntimeException("could not unmarshal", e);
+            }
+        }
+    }
+    
+    public static class SimplePojo {
+        
+        private String val;
+        
+        public SimplePojo(String val) {
+            this.val = val;
+        }
+        
+        public String getVal() {
+            return val;
+        }
+        
+        public void setVal(String val) {
+            this.val = val;
+        }
+        
+        @Override
+        public String toString() {
+            return val;
         }
     }
 }

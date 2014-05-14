@@ -64,6 +64,15 @@ public class RequestHandler {
         return this;
     }
     
+    public RequestHandler with(final int statusCode, 
+            final String contentType, final Object entity) {
+        
+        this.statusCode = statusCode;
+        this.contentType = contentType;
+        //TODO implement content marshalling
+        return this;
+    }
+    
     public RequestHandler with(HttpRequestHandler customHandler) {
         
         this.httpHandler = customHandler;

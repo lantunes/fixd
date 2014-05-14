@@ -45,6 +45,8 @@ public interface HttpRequest {
     
     InputStream getBodyAsStream() throws IOException;
     
+    <T> T getBody(Class<T> type);
+    
     long getContentLength();
     
     String getContentType();
