@@ -33,7 +33,7 @@ public abstract class ResponseBody {
         
         long time = System.currentTimeMillis();
         response.setValue("Content-Type", responseContentType);
-        response.setValue("Server", "HelloWorld/1.0 (Simple 5.1.4)");
+        response.setValue("Server", "Fixd/1.0 (Simple 5.1.4)");
         response.setDate("Date", time);
         response.setDate("Last-Modified", time);
     }

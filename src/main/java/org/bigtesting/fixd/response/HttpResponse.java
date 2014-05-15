@@ -45,4 +45,8 @@ public interface HttpResponse {
     void setCookie(String name, String value);
     
     void addHeader(String name, String value);
+    
+    void redirect(String location);
+    
+    void redirect(String location, int statusCode);
 }

@@ -92,4 +92,12 @@ public class SimpleHttpResponse implements HttpResponse {
 
         response.addValue(name, value);
     }
+    
+    public void redirect(String location) {
+        //TODO implement convenient redirects
+    }
+    
+    public void redirect(String location, int statusCode) {
+      //TODO implement convenient redirects
+    }
 }

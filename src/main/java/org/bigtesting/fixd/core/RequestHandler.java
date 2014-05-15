@@ -132,6 +132,16 @@ public class RequestHandler {
         return this;
     }
     
+    public RequestHandler withRedirect(String location) {
+        //TODO implement convenient redirects
+        return this;
+    }
+    
+    public RequestHandler withRedirect(String location, int statusCode) {
+        //TODO implement convenient redirects
+        return this;
+    }
+    
     /*-----------------------------------------*/
     
     int statusCode() {

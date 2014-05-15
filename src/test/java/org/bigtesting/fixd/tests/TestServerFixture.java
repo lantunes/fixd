@@ -901,6 +901,110 @@ public class TestServerFixture {
         assertEquals("unmarshalledJSON", resp.getResponseBody().trim());
     }
     
+    /*
+     * TODO implement convenient redirects (issue #10)
+     */
+    @Ignore("implement convenient redirects (issue #10)")
+    public void redirects() throws Exception {
+        
+        server.handle(Method.GET, "/")
+              .withRedirect("http://localhost:8080/new-location");
+        
+        server.handle(Method.GET, "/new-location")
+              .with(200, "text/plain", "OK");
+        
+        Response resp = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/")
+                        .setFollowRedirects(true)
+                        .execute().get();
+        assertTrue(resp.isRedirected());
+        
+        assertEquals(2, server.capturedRequests().size());
+        
+        CapturedRequest firstRequest = server.request();
+        assertNotNull(firstRequest);
+        assertEquals("GET / HTTP/1.1", firstRequest.getRequestLine());
+        
+        CapturedRequest secondRequest = server.request();
+        assertNotNull(secondRequest);
+        assertEquals("GET /new-location HTTP/1.1", secondRequest.getRequestLine());
+    }
+    
+    /*
+     * TODO implement convenient redirects (issue #10)
+     */
+    @Ignore("implement convenient redirects (issue #10)")
+    public void redirectsWithStatusCode() throws Exception {
+        
+        server.handle(Method.GET, "/")
+              .withRedirect("http://localhost:8080/new-location", 301);
+        
+        Response resp = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/")
+                        .setFollowRedirects(false)
+                        .execute().get();
+        
+        assertEquals(301, resp.getStatusCode());
+        assertEquals("http://localhost:8080/new-location", resp.getHeader("Location"));
+    }
+    
+    /*
+     * TODO implement convenient redirects (issue #10)
+     */
+    @Ignore("implement convenient redirects (issue #10)")
+    public void testCustomHandlerRedirects() throws Exception {
+
+        server.handle(Method.GET, "/")
+              .with(new HttpRequestHandler() {
+                public void handle(HttpRequest request, HttpResponse response) {
+                    
+                    response.redirect("http://localhost:8080/new-location");
+                }
+            });
+        
+        server.handle(Method.GET, "/new-location")
+              .with(200, "text/plain", "OK");
+       
+        Response resp = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/")
+                        .setFollowRedirects(true)
+                        .execute().get();
+        assertTrue(resp.isRedirected());
+        
+        assertEquals(2, server.capturedRequests().size());
+        
+        CapturedRequest firstRequest = server.request();
+        assertNotNull(firstRequest);
+        assertEquals("GET / HTTP/1.1", firstRequest.getRequestLine());
+        
+        CapturedRequest secondRequest = server.request();
+        assertNotNull(secondRequest);
+        assertEquals("GET /new-location HTTP/1.1", secondRequest.getRequestLine());
+    }
+    
+    /*
+     * TODO implement convenient redirects (issue #10)
+     */
+    @Ignore("implement convenient redirects (issue #10)")
+    public void testCustomHandlerRedirectsWithStatusCode() throws Exception {
+
+        server.handle(Method.GET, "/")
+              .with(new HttpRequestHandler() {
+                public void handle(HttpRequest request, HttpResponse response) {
+                    
+                    response.redirect("http://localhost:8080/new-location", 301);
+                }
+            });
+        
+        Response resp = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/")
+                        .setFollowRedirects(false)
+                        .execute().get();
+        
+        assertEquals(301, resp.getStatusCode());
+        assertEquals("http://localhost:8080/new-location", resp.getHeader("Location"));
+    }
+    
     @After
     public void afterEachTest() throws Exception {
         server.stop();
