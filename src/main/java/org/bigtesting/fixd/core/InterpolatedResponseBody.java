@@ -15,8 +15,8 @@
  */
 package org.bigtesting.fixd.core;
 
+import org.bigtesting.fixd.interpolator.ResponseBodyInterpolator;
 import org.bigtesting.fixd.request.HttpRequest;
-import org.bigtesting.fixd.util.interpolator.ResponseBodyInterpolator;
 
 /**
  * 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bigtesting.fixd.util.interpolator;
+package org.bigtesting.fixd.interpolator;
 
 import org.bigtesting.fixd.request.HttpRequest;
 
@@ -21,10 +21,10 @@ import org.bigtesting.fixd.request.HttpRequest;
  * 
  * @author Luis Antunes
  */
-public class RequestQueryValueProvider implements RequestValueProvider<String> {
+public class RequestMinorValueProvider implements RequestValueProvider<Integer> {
 
-    public String getValue(HttpRequest request) {
+    public Integer getValue(HttpRequest request) {
         
-        return request.getQuery();
+        return request.getMinor();
     }
 }

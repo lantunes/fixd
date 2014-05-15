@@ -23,11 +23,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bigtesting.fixd.interpolator.ResponseBodyInterpolator;
 import org.bigtesting.fixd.request.HttpRequest;
 import org.bigtesting.fixd.routing.Route;
 import org.bigtesting.fixd.routing.Route.PathParameterElement;
 import org.bigtesting.fixd.session.Session;
-import org.bigtesting.fixd.util.interpolator.ResponseBodyInterpolator;
 import org.junit.Test;
 
 /**
