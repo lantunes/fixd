@@ -57,7 +57,7 @@ public class FixtureContainer implements Container {
     
     private static final Logger logger = LoggerFactory.getLogger(FixtureContainer.class);
     
-    private static final String SESSION_COOKIE_NAME = "Simple-Session";
+    private static final String SESSION_COOKIE_NAME = "Fixd-Session";
 
     private final Map<HandlerKey, RequestHandler> handlerMap = 
             new ConcurrentHashMap<HandlerKey, RequestHandler>();
