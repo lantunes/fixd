@@ -337,7 +337,7 @@ assertEquals("Received application/json content", resp.getResponseBody().trim())
 
 ### Custom Request Handling
 
-You are not limited to responding to requests with interpreted strings. You can also
+You are not limited to responding to requests with interpolated strings. You can also
 provide your own custom request handling logic:
 
 ```java

@@ -163,7 +163,7 @@ public class RequestHandler {
             return response.getBody();
         }
         
-        return new InterpretedResponseBody(body, request);
+        return new InterpolatedResponseBody(body, request);
     }
     
     SessionHandler sessionHandler() {

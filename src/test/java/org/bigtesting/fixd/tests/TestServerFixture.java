@@ -628,7 +628,7 @@ public class TestServerFixture {
     }
     
     @Test
-    public void testSimpleGetWithCustomHandlerReturnsInterpretedBody() throws Exception {
+    public void testSimpleGetWithCustomHandlerReturnsInterpolatedBody() throws Exception {
 
         server.handle(Method.GET, "/name/:name")
               .with(new HttpRequestHandler() {
@@ -636,7 +636,7 @@ public class TestServerFixture {
                     
                     response.setStatusCode(200);
                     response.setContentType("text/plain");
-                    response.setInterpretedBody("Hello :name");
+                    response.setInterpolatedBody("Hello :name");
                 }
             });
        

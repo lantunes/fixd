@@ -29,7 +29,7 @@ import org.junit.runners.Suite;
     TestRoute.class,
     TestRouteHelper.class,
     TestCapturedRequest.class,
-    TestResponseBodyInterpreter.class,
+    TestResponseBodyInterpolator.class,
     TestPathParamSessionHandler.class,
     TestRequestParamSessionHandler.class,
     TestSimpleHttpRequest.class,

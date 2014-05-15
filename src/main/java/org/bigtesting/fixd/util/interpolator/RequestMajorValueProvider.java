@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bigtesting.fixd.core;
+package org.bigtesting.fixd.util.interpolator;
 
 import org.bigtesting.fixd.request.HttpRequest;
-import org.bigtesting.fixd.util.interpreter.ResponseBodyInterpreter;
 
 /**
  * 
  * @author Luis Antunes
  */
-public class InterpretedResponseBody extends StringResponseBody {
+public class RequestMajorValueProvider implements RequestValueProvider<Integer> {
 
-    public InterpretedResponseBody(String body, HttpRequest req) {
-        super(ResponseBodyInterpreter.interpret(body, req));
+    public Integer getValue(HttpRequest request) {
+        
+        return request.getMajor();
     }
 }

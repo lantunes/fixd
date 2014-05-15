@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bigtesting.fixd.util.interpreter;
+package org.bigtesting.fixd.util.interpolator;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +29,7 @@ import org.bigtesting.fixd.session.Session;
  * 
  * @author Luis Antunes
  */
-public class ResponseBodyInterpreter {
+public class ResponseBodyInterpolator {
     
     private static final Pattern SESSION_VALUE_PATTERN = Pattern.compile("\\{([^{}]*)\\}");
     
@@ -48,15 +48,15 @@ public class ResponseBodyInterpreter {
         requestValueProviders.put("request.target", new RequestTargetValueProvider());
     }
 
-    public static String interpret(String body, HttpRequest request) {
+    public static String interpolate(String body, HttpRequest request) {
         
-        body = interpretPathParamValues(body, request);
+        body = interpolatePathParamValues(body, request);
         
         if (request.getSession() != null) {
-            body = interpretSessionValues(body, request.getSession());
+            body = interpolateSessionValues(body, request.getSession());
         }
         
-        body = interpretRequestValues(body, request);
+        body = interpolateRequestValues(body, request);
         
         return body;
     }
@@ -64,7 +64,7 @@ public class ResponseBodyInterpreter {
     /*
      * handle any values that start with ':'
      */
-    private static String interpretPathParamValues(String body, HttpRequest req) {
+    private static String interpolatePathParamValues(String body, HttpRequest req) {
         
         String[] pathTokens = RouteHelper.getPathElements(req.getPath());
         for (PathParameterElement param : req.getRoute().pathParameterElements()) {
@@ -79,7 +79,7 @@ public class ResponseBodyInterpreter {
      * handle any values that are enclosed in '{}'
      * - replacement values can consist of "{}"
      */
-    private static String interpretSessionValues(String body, final Session session) {
+    private static String interpolateSessionValues(String body, final Session session) {
         
         return substituteGroups(body, SESSION_VALUE_PATTERN, new ValueProvider() {
             public Object getValue(String captured) {
@@ -88,7 +88,7 @@ public class ResponseBodyInterpreter {
         });
     }
     
-    private static String interpretRequestValues(String body, final HttpRequest request) {
+    private static String interpolateRequestValues(String body, final HttpRequest request) {
         
         return substituteGroups(body, REQUEST_VALUE_PATTERN, new ValueProvider() {
             public Object getValue(String captured) {

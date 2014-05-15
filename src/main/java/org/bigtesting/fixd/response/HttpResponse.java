@@ -31,12 +31,12 @@ public interface HttpResponse {
     
     /**
      * The body content set using this method will
-     * be run through the response body interpreter.
+     * be run through the response body interpolater.
      * 
-     * @param content the content to be interpreted 
+     * @param content the content to be interpolated 
      * using path, request, and session params
      */
-    void setInterpretedBody(String content);
+    void setInterpolatedBody(String content);
     
     void setContentType(String contentType);
     

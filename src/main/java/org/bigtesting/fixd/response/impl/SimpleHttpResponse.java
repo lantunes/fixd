@@ -19,7 +19,7 @@ import java.io.InputStream;
 
 import org.bigtesting.fixd.core.ByteArrayResponseBody;
 import org.bigtesting.fixd.core.InputStreamResponseBody;
-import org.bigtesting.fixd.core.InterpretedResponseBody;
+import org.bigtesting.fixd.core.InterpolatedResponseBody;
 import org.bigtesting.fixd.core.ResponseBody;
 import org.bigtesting.fixd.core.StringResponseBody;
 import org.bigtesting.fixd.request.HttpRequest;
@@ -58,8 +58,8 @@ public class SimpleHttpResponse implements HttpResponse {
         this.body = new StringResponseBody(content);
     }
 
-    public void setInterpretedBody(String content) {
-        this.body = new InterpretedResponseBody(content, request);
+    public void setInterpolatedBody(String content) {
+        this.body = new InterpolatedResponseBody(content, request);
     }
     
     public ResponseBody getBody() {

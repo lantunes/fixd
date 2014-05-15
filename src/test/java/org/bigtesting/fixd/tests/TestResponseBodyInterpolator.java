@@ -27,14 +27,14 @@ import org.bigtesting.fixd.request.HttpRequest;
 import org.bigtesting.fixd.routing.Route;
 import org.bigtesting.fixd.routing.Route.PathParameterElement;
 import org.bigtesting.fixd.session.Session;
-import org.bigtesting.fixd.util.interpreter.ResponseBodyInterpreter;
+import org.bigtesting.fixd.util.interpolator.ResponseBodyInterpolator;
 import org.junit.Test;
 
 /**
  * 
  * @author Luis Antunes
  */
-public class TestResponseBodyInterpreter {
+public class TestResponseBodyInterpolator {
 
     @Test
     public void testBodyReturnedUnmodifiedWhenNoInstructionsGiven() {
@@ -47,7 +47,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Hello World!", 
-                ResponseBodyInterpreter.interpret("Hello World!", req));
+                ResponseBodyInterpolator.interpolate("Hello World!", req));
     }
     
     @Test
@@ -63,7 +63,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(session);
         
         assertEquals("Hello World!", 
-                ResponseBodyInterpreter.interpret("Hello World!", req));
+                ResponseBodyInterpolator.interpolate("Hello World!", req));
     }
     
     @Test
@@ -79,7 +79,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Hello Tim", 
-                ResponseBodyInterpreter.interpret("Hello :name", req));
+                ResponseBodyInterpolator.interpolate("Hello :name", req));
     }
     
     @Test
@@ -95,7 +95,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Hello : Tim :", 
-                ResponseBodyInterpreter.interpret("Hello : :name :", req));
+                ResponseBodyInterpolator.interpolate("Hello : :name :", req));
     }
     
     @Test
@@ -111,7 +111,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Hello :Tim", 
-                ResponseBodyInterpreter.interpret("Hello ::name", req));
+                ResponseBodyInterpolator.interpolate("Hello ::name", req));
     }
     
     @Test
@@ -127,7 +127,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Hello :Tim:", 
-                ResponseBodyInterpreter.interpret("Hello ::name:", req));
+                ResponseBodyInterpolator.interpolate("Hello ::name:", req));
     }
     
     @Test
@@ -143,7 +143,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Hello :someTerm Tim", 
-                ResponseBodyInterpreter.interpret("Hello :someTerm :name", req));
+                ResponseBodyInterpolator.interpolate("Hello :someTerm :name", req));
     }
     
     @Test
@@ -159,7 +159,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Hello :Tim", 
-                ResponseBodyInterpreter.interpret("Hello :name", req));
+                ResponseBodyInterpolator.interpolate("Hello :name", req));
     }
     
     @Test
@@ -176,7 +176,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Hello John Doe", 
-                ResponseBodyInterpreter.interpret("Hello :firstName :lastName", req));
+                ResponseBodyInterpolator.interpolate("Hello :firstName :lastName", req));
     }
     
     @Test
@@ -193,7 +193,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Hello : John : Doe :", 
-                ResponseBodyInterpreter.interpret("Hello : :firstName : :lastName :", req));
+                ResponseBodyInterpolator.interpolate("Hello : :firstName : :lastName :", req));
     }
     
     @Test
@@ -210,7 +210,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Hello :John :Doe", 
-                ResponseBodyInterpreter.interpret("Hello :firstName :lastName", req));
+                ResponseBodyInterpolator.interpolate("Hello :firstName :lastName", req));
     }
     
     @Test
@@ -226,7 +226,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(session);
         
         assertEquals("Hello Tim", 
-                ResponseBodyInterpreter.interpret("Hello {name}", req));
+                ResponseBodyInterpolator.interpolate("Hello {name}", req));
     }
     
     @Test
@@ -242,7 +242,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(session);
         
         assertEquals("Hello { Tim } {", 
-                ResponseBodyInterpreter.interpret("Hello { {name} } {", req));
+                ResponseBodyInterpolator.interpolate("Hello { {name} } {", req));
     }
     
     @Test
@@ -258,7 +258,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(session);
         
         assertEquals("Hello {Tim} {", 
-                ResponseBodyInterpreter.interpret("Hello {{name}} {", req));
+                ResponseBodyInterpolator.interpolate("Hello {{name}} {", req));
     }
     
     @Test
@@ -274,7 +274,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(session);
         
         assertEquals("Hello {there} Tim", 
-                ResponseBodyInterpreter.interpret("Hello {there} {name}", req));
+                ResponseBodyInterpolator.interpolate("Hello {there} {name}", req));
     }
     
     @Test
@@ -290,7 +290,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(session);
         
         assertEquals("Hello {Tim}", 
-                ResponseBodyInterpreter.interpret("Hello {name}", req));
+                ResponseBodyInterpolator.interpolate("Hello {name}", req));
     }
     
     @Test
@@ -307,7 +307,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(session);
         
         assertEquals("Hello John Doe", 
-                ResponseBodyInterpreter.interpret("Hello {firstName} {lastName}", req));
+                ResponseBodyInterpolator.interpolate("Hello {firstName} {lastName}", req));
     }
     
     @Test
@@ -324,7 +324,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(session);
         
         assertEquals("Hello { John } { Doe } {", 
-                ResponseBodyInterpreter.interpret("Hello { {firstName} } { {lastName} } {", req));
+                ResponseBodyInterpolator.interpolate("Hello { {firstName} } { {lastName} } {", req));
     }
     
     @Test
@@ -341,7 +341,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(session);
         
         assertEquals("Hello {John} {Doe} {", 
-                ResponseBodyInterpreter.interpret("Hello {{firstName}} {{lastName}} {", req));
+                ResponseBodyInterpolator.interpolate("Hello {{firstName}} {{lastName}} {", req));
     }
     
     @Test
@@ -358,7 +358,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(session);
         
         assertEquals("Hello {there} John Doe", 
-                ResponseBodyInterpreter.interpret("Hello {there} {firstName} {lastName}", req));
+                ResponseBodyInterpolator.interpolate("Hello {there} {firstName} {lastName}", req));
     }
     
     @Test
@@ -375,7 +375,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(session);
         
         assertEquals("Hello {John} {Doe}", 
-                ResponseBodyInterpreter.interpret("Hello {firstName} {lastName}", req));
+                ResponseBodyInterpolator.interpolate("Hello {firstName} {lastName}", req));
     }
     
     @Test
@@ -394,7 +394,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(session);
         
         assertEquals("Hello Mr. John Doe", 
-                ResponseBodyInterpreter.interpret("Hello :salutation {firstName} {lastName}", req));
+                ResponseBodyInterpolator.interpolate("Hello :salutation {firstName} {lastName}", req));
     }
     
     @Test
@@ -413,7 +413,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(session);
         
         assertEquals("Hello Mr. John Doe", 
-                ResponseBodyInterpreter.interpret("Hello {salutation} :firstName :lastName", req));
+                ResponseBodyInterpolator.interpolate("Hello {salutation} :firstName :lastName", req));
     }
     
     @Test
@@ -431,7 +431,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(session);
         
         assertEquals("Hello John", 
-                ResponseBodyInterpreter.interpret("Hello :{name}", req));
+                ResponseBodyInterpolator.interpolate("Hello :{name}", req));
     }
     
     @Test
@@ -449,7 +449,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(session);
         
         assertEquals("Hello {John}", 
-                ResponseBodyInterpreter.interpret("Hello {:name}", req));
+                ResponseBodyInterpolator.interpolate("Hello {:name}", req));
     }
     
     @Test
@@ -464,7 +464,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Message: [some.value]", 
-                ResponseBodyInterpreter.interpret("Message: [some.value]", req));
+                ResponseBodyInterpolator.interpolate("Message: [some.value]", req));
     }
     
     @Test
@@ -479,7 +479,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Message: Hello World!", 
-                ResponseBodyInterpreter.interpret("Message: [request.body]", req));
+                ResponseBodyInterpolator.interpolate("Message: [request.body]", req));
     }
     
     @Test
@@ -494,7 +494,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Message: [ Hello World! ] [", 
-                ResponseBodyInterpreter.interpret("Message: [ [request.body] ] [", req));
+                ResponseBodyInterpolator.interpolate("Message: [ [request.body] ] [", req));
     }
     
     @Test
@@ -509,7 +509,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Message: [Hello World!] [", 
-                ResponseBodyInterpreter.interpret("Message: [[request.body]] [", req));
+                ResponseBodyInterpolator.interpolate("Message: [[request.body]] [", req));
     }
     
     @Test
@@ -524,7 +524,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Hello [there] Tim", 
-                ResponseBodyInterpreter.interpret("Hello [there] [request.body]", req));
+                ResponseBodyInterpolator.interpolate("Hello [there] [request.body]", req));
     }
     
     @Test
@@ -539,7 +539,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Hello [Tim]", 
-                ResponseBodyInterpreter.interpret("Hello [request.body]", req));
+                ResponseBodyInterpolator.interpolate("Hello [request.body]", req));
     }
     
     @Test
@@ -558,7 +558,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(session);
         
         assertEquals("Hello Mr. John Doe", 
-                ResponseBodyInterpreter.interpret("Hello {salutation} :name [request.body]", req));
+                ResponseBodyInterpolator.interpolate("Hello {salutation} :name [request.body]", req));
     }
     
     @Test
@@ -573,7 +573,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Hello Tim", 
-                ResponseBodyInterpreter.interpret("Hello [request?name]", req));
+                ResponseBodyInterpolator.interpolate("Hello [request?name]", req));
     }
     
     @Test
@@ -588,7 +588,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Value: Mozilla/5.0", 
-                ResponseBodyInterpreter.interpret("Value: [request$User-Agent]", req));
+                ResponseBodyInterpolator.interpolate("Value: [request$User-Agent]", req));
     }
     
     @Test
@@ -603,7 +603,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Message: GET", 
-                ResponseBodyInterpreter.interpret("Message: [request.method]", req));
+                ResponseBodyInterpolator.interpolate("Message: [request.method]", req));
     }
     
     @Test
@@ -618,7 +618,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Message: 123", 
-                ResponseBodyInterpreter.interpret("Message: [request.time]", req));
+                ResponseBodyInterpolator.interpolate("Message: [request.time]", req));
     }
     
     @Test
@@ -632,7 +632,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Message: /abc", 
-                ResponseBodyInterpreter.interpret("Message: [request.path]", req));
+                ResponseBodyInterpolator.interpolate("Message: [request.path]", req));
     }
     
     @Test
@@ -647,7 +647,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Message: a=b&c=d", 
-                ResponseBodyInterpreter.interpret("Message: [request.query]", req));
+                ResponseBodyInterpolator.interpolate("Message: [request.query]", req));
     }
     
     @Test
@@ -662,7 +662,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Message: 123", 
-                ResponseBodyInterpreter.interpret("Message: [request.major]", req));
+                ResponseBodyInterpolator.interpolate("Message: [request.major]", req));
     }
     
     @Test
@@ -677,7 +677,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Message: 123", 
-                ResponseBodyInterpreter.interpret("Message: [request.minor]", req));
+                ResponseBodyInterpolator.interpolate("Message: [request.minor]", req));
     }
     
     @Test
@@ -692,7 +692,7 @@ public class TestResponseBodyInterpreter {
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Message: /index", 
-                ResponseBodyInterpreter.interpret("Message: [request.target]", req));
+                ResponseBodyInterpolator.interpolate("Message: [request.target]", req));
     }
     
     /*------------------------------------------------*/

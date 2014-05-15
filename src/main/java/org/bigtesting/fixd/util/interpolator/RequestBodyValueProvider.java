@@ -13,15 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bigtesting.fixd.util.interpreter;
+package org.bigtesting.fixd.util.interpolator;
+
+import java.io.IOException;
 
 import org.bigtesting.fixd.request.HttpRequest;
+import org.bigtesting.fixd.util.RequestUtils;
 
 /**
  * 
  * @author Luis Antunes
  */
-interface RequestValueProvider<T> {
-    
-    T getValue(HttpRequest request);        
+public class RequestBodyValueProvider implements RequestValueProvider<String> {
+
+    public String getValue(HttpRequest request) {
+        
+        try {
+            return new String(RequestUtils.readBody(request.getBodyAsStream()));
+        } catch (IOException e) {
+            throw new RuntimeException("error getting body", e);
+        }
+    }
 }
