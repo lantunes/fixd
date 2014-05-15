@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bigtesting.fixd.interpolator;
+package org.bigtesting.fixd.interpolation;
 
 import java.util.HashMap;
 import java.util.Map;
