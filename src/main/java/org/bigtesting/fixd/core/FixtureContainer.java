@@ -86,6 +86,10 @@ public class FixtureContainer implements Container {
     
     private int capturedRequestLimit = -1;
     
+    public FixtureContainer() {
+        asyncExecutor = Executors.newCachedThreadPool();
+    }
+    
     public FixtureContainer(int aysncThreadPoolSize) {
         asyncExecutor = Executors.newFixedThreadPool(aysncThreadPoolSize);
     }

@@ -45,7 +45,9 @@ public class ServerFixture {
     private Connection connection;
     
     public ServerFixture(int port) {
-        this(port, 10);
+        
+        this.port = port;
+        this.container = new FixtureContainer();
     }
     
     public ServerFixture(int port, int aysncThreadPoolSize) {
