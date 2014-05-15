@@ -826,6 +826,36 @@ public class TestServerFixture {
     }
     
     /*
+     * TODO implement handling splat path parameters (issue #5)
+     */
+    @Ignore("implement handling splat path parameters (issue #5)")
+    public void testSplatPathParamsWithVariousPathParams() throws Exception {
+        
+        server.handle(Method.GET, "/say/*/to/:name/:times<[0-9]+>/*")
+              .with(200, "text/plain", "[request.path] :name :times");
+        
+        Response resp = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/hello")
+                        .execute().get();
+        assertEquals(404, resp.getStatusCode());
+        
+        resp = new AsyncHttpClient()
+               .prepareGet("http://localhost:8080/say/hello/to/John")
+               .execute().get();
+        assertEquals(404, resp.getStatusCode());
+        
+        resp = new AsyncHttpClient()
+               .prepareGet("http://localhost:8080/say/hello/to/John/1")
+               .execute().get();
+        assertEquals("/say/hello/to/world/1 John 1", resp.getResponseBody().trim());
+        
+        resp = new AsyncHttpClient()
+                .prepareGet("http://localhost:8080/say/hello/to/Tim/1/time")
+                .execute().get();
+         assertEquals("/say/hello/to/world/1/time Tim 1", resp.getResponseBody().trim());
+    }
+    
+    /*
      * TODO implement content marshalling (issue #7)
      */
     @Ignore("implement content marshalling (issue #7)")
