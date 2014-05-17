@@ -15,38 +15,32 @@
  */
 package org.bigtesting.fixd.core;
 
-import org.bigtesting.fixd.Method;
+import org.bigtesting.fixd.RequestMarshaller;
+import org.bigtesting.fixd.marshalling.Marshaller;
 
 /**
  * 
  * @author Luis Antunes
  */
-public class Upon {
+public class RequestMarshallerImpl implements RequestMarshaller {
 
-    private Method method;
-    private String resource;
-    private String contentType;
+    private final String contentType;
     
-    public Upon(Method method, String resource) {
-        this(method, resource, null);
-    }
+    private Marshaller marshaller;
     
-    public Upon(Method method, String resource, String contentType) {
-        
-        this.method = method;
-        this.resource = resource;
+    public RequestMarshallerImpl(String contentType) {
         this.contentType = contentType;
     }
-
-    public Method getMethod() {
-        return method;
-    }
     
-    public String getResource() {
-        return resource;
+    public void with(Marshaller marshaller) {
+        this.marshaller = marshaller;
     }
     
     public String getContentType() {
         return contentType;
+    }
+    
+    public Marshaller getMarshaller() {
+        return marshaller;
     }
 }

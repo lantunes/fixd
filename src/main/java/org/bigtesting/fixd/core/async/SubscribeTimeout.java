@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bigtesting.fixd.core;
+package org.bigtesting.fixd.core.async;
 
 /**
  * 
  * @author Luis Antunes
  */
-public enum Method {
-
-    GET, POST, PUT, TRACE, OPTIONS, HEAD, DELETE
+public class SubscribeTimeout extends Broadcast {
+    
+    public SubscribeTimeout() {
+        super(null, null);
+    }
 }

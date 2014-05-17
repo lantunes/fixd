@@ -16,24 +16,18 @@
 package org.bigtesting.fixd.core;
 
 import java.util.AbstractMap.SimpleImmutableEntry;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
+import org.bigtesting.fixd.Method;
 import org.bigtesting.fixd.capture.CapturedRequest;
 import org.bigtesting.fixd.capture.impl.SimpleCapturedRequest;
+import org.bigtesting.fixd.core.async.AsyncHandler;
 import org.bigtesting.fixd.request.impl.SimpleHttpRequest;
 import org.bigtesting.fixd.routing.RegexRouteMap;
 import org.bigtesting.fixd.routing.Route;
@@ -59,8 +53,8 @@ public class FixtureContainer implements Container {
     
     private static final String SESSION_COOKIE_NAME = "Fixd-Session";
 
-    private final Map<HandlerKey, RequestHandler> handlerMap = 
-            new ConcurrentHashMap<HandlerKey, RequestHandler>();
+    private final Map<HandlerKey, RequestHandlerImpl> handlerMap = 
+            new ConcurrentHashMap<HandlerKey, RequestHandlerImpl>();
     
     private final Set<HandlerKey> uponHandlers = 
             Collections.newSetFromMap(new ConcurrentHashMap<HandlerKey, Boolean>());
@@ -79,28 +73,25 @@ public class FixtureContainer implements Container {
     private final Queue<CapturedRequest> capturedRequests = 
             new ConcurrentLinkedQueue<CapturedRequest>();
     
-    private final List<Queue<Broadcast>> subscribers = 
-            Collections.synchronizedList(new ArrayList<Queue<Broadcast>>());
-    
-    private final ExecutorService asyncExecutor;
+    private final AsyncHandler asyncHandler;
     
     private int capturedRequestLimit = -1;
     
     public FixtureContainer() {
-        asyncExecutor = Executors.newCachedThreadPool();
+        asyncHandler = new AsyncHandler(Executors.newCachedThreadPool());
     }
     
     public FixtureContainer(int aysncThreadPoolSize) {
-        asyncExecutor = Executors.newFixedThreadPool(aysncThreadPoolSize);
+        asyncHandler = new AsyncHandler(Executors.newFixedThreadPool(aysncThreadPoolSize));
     }
     
-    public HandlerKey addHandler(RequestHandler handler, 
+    public HandlerKey addHandler(RequestHandlerImpl handler, 
             Method method, String resource) {
         
         return addHandler(handler, method, resource, null);
     }
     
-    public HandlerKey addHandler(RequestHandler handler, 
+    public HandlerKey addHandler(RequestHandlerImpl handler, 
             Method method, String resource, String contentType) {
         
         Route route = new Route(resource);
@@ -112,8 +103,8 @@ public class FixtureContainer implements Container {
     
     public void addUponHandler(Upon upon) {
        
-        RequestHandler uponHandler = 
-                new RequestHandler(this).with(200, "text/plain", "");
+        RequestHandlerImpl uponHandler = 
+                (RequestHandlerImpl)new RequestHandlerImpl(this).with(200, "text/plain", "");
         HandlerKey uponKey = addHandler(uponHandler, upon.getMethod(), 
                 upon.getResource(), upon.getContentType());
         uponHandlers.add(uponKey);
@@ -152,7 +143,7 @@ public class FixtureContainer implements Container {
             
             if (requestIsForUponHandler(resolved)) {
                 
-                broadcastToSubscribers(request, resolved.route);
+                asyncHandler.broadcastToSubscribers(request, resolved.route);
                 /* continue handling the request, as it needs to 
                  * return a normal response */
             }
@@ -210,6 +201,8 @@ public class FixtureContainer implements Container {
         }
     }
 
+    /*----------------------------------------------------------*/
+    
     private void addCapturedRequest(Request request) {
         
         capturedRequests.add(new SimpleCapturedRequest(request));
@@ -218,21 +211,10 @@ public class FixtureContainer implements Container {
             while(capturedRequests.size() > capturedRequestLimit) capturedRequests.remove();
         }
     }
-
-    /*----------------------------------------------------------*/
     
     private boolean requestIsForUponHandler(ResolvedRequest resolved) {
         
         return uponHandlers.contains(resolved.key);
-    }
-    
-    private void broadcastToSubscribers(Request request, Route route) {
-        
-        synchronized (subscribers) {
-            for (Queue<Broadcast> broadcasts : subscribers) {
-                broadcasts.add(new Broadcast(request, route));
-            }
-        }
     }
     
     private Session getSessionIfExists(Request request) {
@@ -261,12 +243,10 @@ public class FixtureContainer implements Container {
         response.setCookie(cookie);
     }
     
-    private void doAsync(Response response, RequestHandler handler, 
+    private void doAsync(Response response, RequestHandlerImpl handler, 
             String responseContentType, ResponseBody responseBody) {
         
-        AsyncTask task = new AsyncTask(response, handler, 
-                responseContentType, responseBody);
-        asyncExecutor.execute(task);
+        asyncHandler.doAsync(response, handler, responseContentType, responseBody);
     }
     
     private void sendAndCommitResponse(Response response, 
@@ -275,12 +255,6 @@ public class FixtureContainer implements Container {
         responseBody.sendAndCommit(response, responseContentType);
     }
 
-    private void sendResponse(Response response, 
-            String responseContentType, ResponseBody responseBody) {
-        
-        responseBody.send(response, responseContentType);
-    }
-    
     private ResolvedRequest resolve(Request request) {
         
         ResolvedRequest resolved = new ResolvedRequest();
@@ -298,7 +272,7 @@ public class FixtureContainer implements Container {
         String contentType = requestContentType != null ? 
                 requestContentType.toString() : null;
         HandlerKey key = new HandlerKey(method, route, contentType);
-        RequestHandler handler = handlerMap.get(key);
+        RequestHandlerImpl handler = handlerMap.get(key);
         if (handler == null) {
             logger.error("could not find a handler for " + 
                     method + " - " + path);
@@ -315,185 +289,8 @@ public class FixtureContainer implements Container {
     private class ResolvedRequest {
         
         public Route route;
-        public RequestHandler handler;
+        public RequestHandlerImpl handler;
         public HandlerKey key;
         public Status errorStatus;
-    }
-    
-    private class AsyncTask implements Runnable {
-
-        private Response response;
-        private RequestHandler handler;
-        private String responseContentType; 
-        private ResponseBody responseBody;
-        
-        private final BlockingQueue<Broadcast> broadcasts = 
-                new LinkedBlockingQueue<Broadcast>();
-        
-        private Timer broadcastSubscribeTimeoutTimer;
-        
-        public AsyncTask(Response response, 
-                RequestHandler handler, 
-                String responseContentType, ResponseBody responseBody) {
-            
-            this.response = response;
-            this.handler = handler;
-            this.responseContentType = responseContentType;
-            this.responseBody = responseBody;
-        }
-
-        public void run() {
-            
-            delayIfRequired(handler);
-            
-            if (handler.isSuspend()) {
-                
-                handleBroadcasts();
-                
-            } else {
-            
-                long period = handler.period();
-                if (period > -1) {
-                    respondPeriodically(period);
-                } else {
-                    sendAndCommitResponse(response, responseContentType, responseBody);
-                }
-            }
-        }
-
-        private void handleBroadcasts() {
-            
-            subscribers.add(broadcasts);
-            
-            startTimeoutCountdownIfRequired();
-            
-            while(true) {
-                try {
-                    
-                    Broadcast broadcast = broadcasts.take();
-                    if (broadcast instanceof SubscribeTimeout) {
-                        response.setStatus(Status.REQUEST_TIMEOUT);
-                        response.getPrintStream().close();
-                        break;
-                    }
-                    
-                    restartTimeoutCountdownIfRequired();
-                    
-                    delayIfRequired(handler);
-                    
-                    Request request = broadcast.getRequest();
-                    Route route = broadcast.getRoute();
-
-                    /* no support for session variables for now */
-                    ResponseBody handlerBody = handler.body(
-                            new SimpleHttpRequest(request, null, route), response);
-                    
-                    sendResponse(response, responseContentType, handlerBody);
-                    
-                } catch (Exception e) {
-                    logger.error("error waiting for, or handling, a broadcast", e);
-                }
-            }
-            
-            subscribers.remove(broadcasts);
-        }
-        
-        private void delayIfRequired(RequestHandler handler) {
-            
-            long delay = handler.delay();
-            if (delay > -1) {
-                
-                try {
-                    
-                    TimeUnit delayUnit = handler.delayUnit();
-                    long delayInMillis = delayUnit.toMillis(delay);
-                    Thread.sleep(delayInMillis);
-                    
-                } catch (Exception e) {
-                    throw new RuntimeException("error delaying response", e);
-                }
-            }
-        }
-
-        private void respondPeriodically(long period) {
-            
-            TimeUnit periodUnit = handler.periodUnit();
-            long periodInMillis = periodUnit.toMillis(period);
-            final int times = handler.periodTimes();
-            final Timer timer = new Timer("ServerFixtureTimer", true);
-            timer.scheduleAtFixedRate(new TimerTask() {
-                
-                private int count = 0;
-                
-                @Override
-                public void run() {
-                    try {
-                        
-                        if (times > -1 && count >= times) {
-                            timer.cancel();
-                            timer.purge();
-                            response.getPrintStream().close();
-                            return;
-                        }
-                        
-                        sendResponse(response, responseContentType, responseBody);
-                        
-                        count++;
-                        
-                    } catch (Exception e) {
-                        logger.error("error sending async response at fixed rate", e);
-                    }
-                }
-            }, 0, periodInMillis);
-        }
-        
-        private void startTimeoutCountdownIfRequired() {
-            
-            if (handler.hasTimeout()) {
-                broadcastSubscribeTimeoutTimer = new Timer("TimeoutTask", true);
-                broadcastSubscribeTimeoutTimer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        broadcasts.add(new SubscribeTimeout());
-                        broadcastSubscribeTimeoutTimer.cancel();
-                        broadcastSubscribeTimeoutTimer.purge();
-                    }
-                }, handler.timeoutUnit().toMillis(handler.timeout()));
-            }
-        }
-        
-        private void restartTimeoutCountdownIfRequired() {
-            
-            if (broadcastSubscribeTimeoutTimer != null) {
-                broadcastSubscribeTimeoutTimer.cancel();
-                broadcastSubscribeTimeoutTimer.purge();
-            }
-            startTimeoutCountdownIfRequired();
-        }
-    }
-    
-    private class Broadcast {
-        
-        private final Request request;
-        private final Route route;
-        
-        public Broadcast(Request request, Route route) {
-            this.request = request;
-            this.route = route;
-        }
-        
-        public Request getRequest() {
-            return request;
-        }
-        
-        public Route getRoute() {
-            return route;
-        }
-    }
-    
-    private class SubscribeTimeout extends Broadcast {
-        public SubscribeTimeout() {
-            super(null, null);
-        }
     }
 }

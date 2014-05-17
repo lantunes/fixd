@@ -24,9 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.bigtesting.fixd.Method;
 import org.bigtesting.fixd.ServerFixture;
 import org.bigtesting.fixd.capture.CapturedRequest;
-import org.bigtesting.fixd.core.Method;
 import org.bigtesting.fixd.marshalling.Marshaller;
 import org.bigtesting.fixd.marshalling.Unmarshaller;
 import org.bigtesting.fixd.request.HttpRequest;

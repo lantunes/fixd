@@ -13,33 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bigtesting.fixd.core;
+package org.bigtesting.fixd;
 
-import org.bigtesting.fixd.marshalling.Marshaller;
+import org.bigtesting.fixd.marshalling.Unmarshaller;
 
 /**
  * 
  * @author Luis Antunes
  */
-public class RequestMarshaller {
+public interface RequestUnmarshaller {
 
-    private final String contentType;
-    
-    private Marshaller marshaller;
-    
-    public RequestMarshaller(String contentType) {
-        this.contentType = contentType;
-    }
-    
-    public void with(Marshaller marshaller) {
-        this.marshaller = marshaller;
-    }
-    
-    public String getContentType() {
-        return contentType;
-    }
-    
-    public Marshaller getMarshaller() {
-        return marshaller;
-    }
+    void with(Unmarshaller unmarshaller);
 }

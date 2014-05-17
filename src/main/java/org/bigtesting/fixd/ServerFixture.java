@@ -22,10 +22,9 @@ import java.util.Collection;
 
 import org.bigtesting.fixd.capture.CapturedRequest;
 import org.bigtesting.fixd.core.FixtureContainer;
-import org.bigtesting.fixd.core.Method;
-import org.bigtesting.fixd.core.RequestHandler;
-import org.bigtesting.fixd.core.RequestMarshaller;
-import org.bigtesting.fixd.core.RequestUnmarshaller;
+import org.bigtesting.fixd.core.RequestHandlerImpl;
+import org.bigtesting.fixd.core.RequestMarshallerImpl;
+import org.bigtesting.fixd.core.RequestUnmarshallerImpl;
 import org.bigtesting.fixd.util.LoggingAgent;
 import org.simpleframework.http.core.ContainerServer;
 import org.simpleframework.transport.Server;
@@ -72,14 +71,14 @@ public class ServerFixture {
     
     public RequestHandler handle(Method method, String resource) {
         
-        RequestHandler handler = new RequestHandler(container);
+        RequestHandlerImpl handler = new RequestHandlerImpl(container);
         container.addHandler(handler, method, resource);
         return handler;
     }
     
     public RequestHandler handle(Method method, String resource, String contentType) {
         
-        RequestHandler handler = new RequestHandler(container);
+        RequestHandlerImpl handler = new RequestHandlerImpl(container);
         container.addHandler(handler, method, resource, contentType);
         return handler;
     }
@@ -102,12 +101,12 @@ public class ServerFixture {
     public RequestMarshaller marshal(String contentType) {
         
         //TODO implement content marshalling
-        return new RequestMarshaller(contentType);
+        return new RequestMarshallerImpl(contentType);
     }
     
     public RequestUnmarshaller unmarshal(String contentType) {
         
         //TODO implement content marshalling
-        return new RequestUnmarshaller(contentType);
+        return new RequestUnmarshallerImpl(contentType);
     }
 }

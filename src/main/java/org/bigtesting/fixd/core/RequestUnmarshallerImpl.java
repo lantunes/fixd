@@ -15,19 +15,20 @@
  */
 package org.bigtesting.fixd.core;
 
+import org.bigtesting.fixd.RequestUnmarshaller;
 import org.bigtesting.fixd.marshalling.Unmarshaller;
 
 /**
  * 
  * @author Luis Antunes
  */
-public class RequestUnmarshaller {
+public class RequestUnmarshallerImpl implements RequestUnmarshaller {
 
 private final String contentType;
     
     private Unmarshaller unmarshaller;
     
-    public RequestUnmarshaller(String contentType) {
+    public RequestUnmarshallerImpl(String contentType) {
         this.contentType = contentType;
     }
     

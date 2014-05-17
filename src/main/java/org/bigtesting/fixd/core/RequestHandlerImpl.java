@@ -20,6 +20,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.bigtesting.fixd.Method;
+import org.bigtesting.fixd.RequestHandler;
 import org.bigtesting.fixd.request.HttpRequest;
 import org.bigtesting.fixd.request.HttpRequestHandler;
 import org.bigtesting.fixd.response.impl.SimpleHttpResponse;
@@ -30,7 +32,7 @@ import org.simpleframework.http.Response;
  * 
  * @author Luis Antunes
  */
-public class RequestHandler {
+public class RequestHandlerImpl implements RequestHandler {
 
     private int statusCode = -1;
     private String contentType;
@@ -51,12 +53,11 @@ public class RequestHandler {
     
     private final FixtureContainer container;
     
-    public RequestHandler(FixtureContainer container) {
+    public RequestHandlerImpl(FixtureContainer container) {
         this.container = container;
     }
     
-    public RequestHandler with(final int statusCode, 
-            final String contentType, final String body) {
+    public RequestHandler with(int statusCode, String contentType, String body) {
         
         this.statusCode = statusCode;
         this.contentType = contentType;
@@ -64,8 +65,7 @@ public class RequestHandler {
         return this;
     }
     
-    public RequestHandler with(final int statusCode, 
-            final String contentType, final Object entity) {
+    public RequestHandler with(int statusCode, String contentType, Object entity) {
         
         this.statusCode = statusCode;
         this.contentType = contentType;
@@ -144,15 +144,15 @@ public class RequestHandler {
     
     /*-----------------------------------------*/
     
-    int statusCode() {
+    public int statusCode() {
         return statusCode;
     }
 
-    String contentType() {
+    public String contentType() {
         return contentType;
     }
 
-    ResponseBody body(HttpRequest request, Response resp) {
+    public ResponseBody body(HttpRequest request, Response resp) {
         
         if (httpHandler != null) {
             
@@ -166,59 +166,59 @@ public class RequestHandler {
         return new InterpolatedResponseBody(body, request);
     }
     
-    SessionHandler sessionHandler() {
+    public SessionHandler sessionHandler() {
         return sessionHandler;
     }
     
-    boolean isAsync() {
+    public boolean isAsync() {
         return delay > -1 || period > -1 || isSuspend();
     }
     
-    long delay() {
+    public long delay() {
         return delay;
     }
     
-    TimeUnit delayUnit() {
+    public TimeUnit delayUnit() {
         return delayUnit;
     }
     
-    long period() {
+    public long period() {
         return period;
     }
     
-    TimeUnit periodUnit() {
+    public TimeUnit periodUnit() {
         return periodUnit;
     }
     
-    int periodTimes() {
+    public int periodTimes() {
         return periodTimes;
     }
     
-    boolean hasTimeout() {
+    public boolean hasTimeout() {
         return timeout != -1;
     }
     
-    long timeout() {
+    public long timeout() {
         return timeout;
     }
     
-    TimeUnit timeoutUnit() {
+    public TimeUnit timeoutUnit() {
         return timeoutUnit;
     }
     
-    Upon upon() {
+    public Upon upon() {
         return upon;
     }
     
-    boolean isSuspend() {
+    public boolean isSuspend() {
         return upon != null;
     }
     
-    Set<SimpleImmutableEntry<String, String>> headers() {
+    public Set<SimpleImmutableEntry<String, String>> headers() {
         return new HashSet<SimpleImmutableEntry<String, String>>(headers);
     }
     
-    HttpRequestHandler customHandler() {
+    public HttpRequestHandler customHandler() {
         return httpHandler;
     }
 }

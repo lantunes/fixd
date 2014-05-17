@@ -13,40 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bigtesting.fixd.core;
+package org.bigtesting.fixd.core.async;
 
-import org.bigtesting.fixd.Method;
+import org.bigtesting.fixd.routing.Route;
+import org.simpleframework.http.Request;
 
 /**
  * 
  * @author Luis Antunes
  */
-public class Upon {
-
-    private Method method;
-    private String resource;
-    private String contentType;
+public class Broadcast {
     
-    public Upon(Method method, String resource) {
-        this(method, resource, null);
+    private final Request request;
+    private final Route route;
+    
+    public Broadcast(Request request, Route route) {
+        this.request = request;
+        this.route = route;
     }
     
-    public Upon(Method method, String resource, String contentType) {
-        
-        this.method = method;
-        this.resource = resource;
-        this.contentType = contentType;
-    }
-
-    public Method getMethod() {
-        return method;
+    public Request getRequest() {
+        return request;
     }
     
-    public String getResource() {
-        return resource;
-    }
-    
-    public String getContentType() {
-        return contentType;
+    public Route getRoute() {
+        return route;
     }
 }
