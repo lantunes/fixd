@@ -41,10 +41,10 @@ public class AsyncTask implements Runnable {
     
     private static final Logger logger = LoggerFactory.getLogger(AsyncTask.class);
 
-    private Response response;
-    private RequestHandlerImpl handler;
-    private String responseContentType; 
-    private ResponseBody responseBody;
+    private final Response response;
+    private final RequestHandlerImpl handler;
+    private final String responseContentType; 
+    private final ResponseBody responseBody;
     
     private final BlockingQueue<Broadcast> broadcasts = 
             new LinkedBlockingQueue<Broadcast>();
@@ -60,10 +60,9 @@ public class AsyncTask implements Runnable {
         
         this.response = response;
         this.handler = handler;
+        this.subscribers = subscribers;
         this.responseContentType = responseContentType;
         this.responseBody = responseBody;
-        
-        this.subscribers = subscribers;
     }
 
     public void run() {
