@@ -24,9 +24,7 @@ import org.bigtesting.fixd.core.RequestUnmarshallerImpl;
 import org.bigtesting.fixd.request.HttpRequest;
 import org.bigtesting.fixd.session.Session;
 import org.bigtesting.fixd.util.RequestUtils;
-import org.bigtesting.routd.PathParameterElement;
 import org.bigtesting.routd.Route;
-import org.bigtesting.routd.RouteHelper;
 import org.simpleframework.http.Request;
 
 /**
@@ -69,15 +67,7 @@ public class SimpleHttpRequest implements HttpRequest {
     
     public String getPathParameter(String name) {
         
-        List<PathParameterElement> pathParams = getRoute().pathParameterElements();
-        String[] pathTokens = RouteHelper.getPathElements(getPath());
-        
-        for (PathParameterElement pathParam : pathParams) {
-            
-            if (pathParam.name().equals(name)) return pathTokens[pathParam.index()];
-        }
-        
-        return null;
+        return getRoute().getPathParameter(name, getPath());
     }
     
     public List<String> getHeaderNames() {
