@@ -797,6 +797,11 @@ public class TestServerFixture {
                .execute().get();
         assertEquals("/protected/blah/content", resp.getResponseBody().trim());
         
+        resp = new AsyncHttpClient()
+                .prepareGet("http://localhost:8080/protected/1/blah/content")
+                .execute().get();
+        assertEquals(404, resp.getStatusCode());
+        
     }
     
     /*
