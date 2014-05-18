@@ -62,7 +62,7 @@ public class FixtureContainer implements Container {
     /**
      * TODO issue #9
      * create a separate route map for before and after handlers;
-     * otherwise, a before handler for /* will not handle requests
+     * otherwise, a before handler for /* will handle requests
      * for specific routes that have other handlers  
      */
     private final RouteMap routeMap = new RegexRouteMap();
