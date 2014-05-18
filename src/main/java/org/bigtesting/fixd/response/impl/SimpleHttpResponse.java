@@ -26,6 +26,7 @@ import org.bigtesting.fixd.request.HttpRequest;
 import org.bigtesting.fixd.response.HttpResponse;
 import org.simpleframework.http.Cookie;
 import org.simpleframework.http.Response;
+import org.simpleframework.http.Status;
 
 /**
  * 
@@ -94,10 +95,16 @@ public class SimpleHttpResponse implements HttpResponse {
     }
     
     public void redirect(String location) {
-        //TODO implement convenient redirects
+
+        redirect(location, Status.FOUND.code);
     }
     
     public void redirect(String location, int statusCode) {
-      //TODO implement convenient redirects
+        
+        addHeader("Location", location);
+        addHeader("Connection", "close");
+        setStatusCode(statusCode);
+        setContentType("text/plain");
+        setBody("");
     }
 }

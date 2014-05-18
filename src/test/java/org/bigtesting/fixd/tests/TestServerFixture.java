@@ -901,10 +901,7 @@ public class TestServerFixture {
         assertEquals("unmarshalledJSON", resp.getResponseBody().trim());
     }
     
-    /*
-     * TODO implement convenient redirects (issue #10)
-     */
-    @Ignore("implement convenient redirects (issue #10)")
+    @Test
     public void redirects() throws Exception {
         
         server.handle(Method.GET, "/")
@@ -913,11 +910,10 @@ public class TestServerFixture {
         server.handle(Method.GET, "/new-location")
               .with(200, "text/plain", "OK");
         
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/")
-                        .setFollowRedirects(true)
-                        .execute().get();
-        assertTrue(resp.isRedirected());
+        new AsyncHttpClient()
+            .prepareGet("http://localhost:8080/")
+            .setFollowRedirects(true)
+            .execute().get();
         
         assertEquals(2, server.capturedRequests().size());
         
@@ -930,10 +926,22 @@ public class TestServerFixture {
         assertEquals("GET /new-location HTTP/1.1", secondRequest.getRequestLine());
     }
     
-    /*
-     * TODO implement convenient redirects (issue #10)
-     */
-    @Ignore("implement convenient redirects (issue #10)")
+    @Test
+    public void redirectWithoutStatusCodeHasCorrectDefaultStatusCode() throws Exception {
+        
+        server.handle(Method.GET, "/")
+              .withRedirect("http://localhost:8080/new-location");
+        
+        Response resp = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/")
+                        .setFollowRedirects(false)
+                        .execute().get();
+        
+        assertEquals(302, resp.getStatusCode());
+        assertEquals("http://localhost:8080/new-location", resp.getHeader("Location"));
+    }
+    
+    @Test
     public void redirectsWithStatusCode() throws Exception {
         
         server.handle(Method.GET, "/")
@@ -948,10 +956,7 @@ public class TestServerFixture {
         assertEquals("http://localhost:8080/new-location", resp.getHeader("Location"));
     }
     
-    /*
-     * TODO implement convenient redirects (issue #10)
-     */
-    @Ignore("implement convenient redirects (issue #10)")
+    @Test
     public void testCustomHandlerRedirects() throws Exception {
 
         server.handle(Method.GET, "/")
@@ -965,11 +970,10 @@ public class TestServerFixture {
         server.handle(Method.GET, "/new-location")
               .with(200, "text/plain", "OK");
        
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/")
-                        .setFollowRedirects(true)
-                        .execute().get();
-        assertTrue(resp.isRedirected());
+        new AsyncHttpClient()
+            .prepareGet("http://localhost:8080/")
+            .setFollowRedirects(true)
+            .execute().get();
         
         assertEquals(2, server.capturedRequests().size());
         
@@ -982,10 +986,7 @@ public class TestServerFixture {
         assertEquals("GET /new-location HTTP/1.1", secondRequest.getRequestLine());
     }
     
-    /*
-     * TODO implement convenient redirects (issue #10)
-     */
-    @Ignore("implement convenient redirects (issue #10)")
+    @Test
     public void testCustomHandlerRedirectsWithStatusCode() throws Exception {
 
         server.handle(Method.GET, "/")

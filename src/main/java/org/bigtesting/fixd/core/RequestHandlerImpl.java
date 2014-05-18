@@ -27,6 +27,7 @@ import org.bigtesting.fixd.request.HttpRequestHandler;
 import org.bigtesting.fixd.response.impl.SimpleHttpResponse;
 import org.bigtesting.fixd.session.SessionHandler;
 import org.simpleframework.http.Response;
+import org.simpleframework.http.Status;
 
 /**
  * 
@@ -133,12 +134,17 @@ public class RequestHandlerImpl implements RequestHandler {
     }
     
     public RequestHandler withRedirect(String location) {
-        //TODO implement convenient redirects
-        return this;
+        
+        return withRedirect(location, Status.FOUND.code);
     }
     
     public RequestHandler withRedirect(String location, int statusCode) {
-        //TODO implement convenient redirects
+        
+        this.statusCode = statusCode;
+        this.contentType = "text/plain";
+        this.body = "";
+        withHeader("Location", location);
+        withHeader("Connection", "close");
         return this;
     }
     
