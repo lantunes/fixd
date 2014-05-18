@@ -59,6 +59,12 @@ public class FixtureContainer implements Container {
     private final Set<HandlerKey> uponHandlers = 
             Collections.newSetFromMap(new ConcurrentHashMap<HandlerKey, Boolean>());
     
+    /**
+     * TODO issue #9
+     * create a separate route map for before and after handlers;
+     * otherwise, a before handler for /* will have precedence
+     * over all other handler routes if using the same route map  
+     */
     private final RouteMap routeMap = new RegexRouteMap();
     
     private final Map<String, RequestMarshallerImpl> contentMarshallers = 
