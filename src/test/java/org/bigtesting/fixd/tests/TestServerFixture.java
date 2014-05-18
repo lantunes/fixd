@@ -808,7 +808,7 @@ public class TestServerFixture {
      * TODO implement handling splat path parameters (issue #5)
      */
     @Ignore("implement handling splat path parameters (issue #5)")
-    public void testSplatPathParametersOccuringMultipleTimes() throws Exception {
+    public void testSplatPathParametersOccurringMultipleTimes() throws Exception {
         
         server.handle(Method.GET, "/say/*/to/*")
               .with(200, "text/plain", "[request.path]");
