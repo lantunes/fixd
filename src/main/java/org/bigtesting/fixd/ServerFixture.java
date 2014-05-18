@@ -100,13 +100,15 @@ public class ServerFixture {
     
     public RequestMarshaller marshal(String contentType) {
         
-        //TODO implement content marshalling
-        return new RequestMarshallerImpl(contentType);
+        RequestMarshallerImpl marshaller = new RequestMarshallerImpl(contentType);
+        container.addContentMarshaller(contentType, marshaller);
+        return marshaller;
     }
     
     public RequestUnmarshaller unmarshal(String contentType) {
         
-        //TODO implement content marshalling
-        return new RequestUnmarshallerImpl(contentType);
+        RequestUnmarshallerImpl marshaller = new RequestUnmarshallerImpl(contentType);
+        container.addContentUnmarshaller(contentType, marshaller);
+        return marshaller;
     }
 }

@@ -22,6 +22,8 @@ import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 
 import org.bigtesting.fixd.core.RequestHandlerImpl;
+import org.bigtesting.fixd.core.RequestMarshallerImpl;
+import org.bigtesting.fixd.core.RequestUnmarshallerImpl;
 import org.bigtesting.fixd.core.ResponseBody;
 import org.bigtesting.fixd.routing.Route;
 import org.simpleframework.http.Request;
@@ -44,10 +46,12 @@ public class AsyncHandler {
     }
     
     public void doAsync(Response response, RequestHandlerImpl handler, 
-            String responseContentType, ResponseBody responseBody) {
+            String responseContentType, ResponseBody responseBody,
+            RequestMarshallerImpl marshaller,
+            RequestUnmarshallerImpl unmarshaller) {
         
         AsyncTask task = new AsyncTask(response, handler, subscribers,
-                responseContentType, responseBody);
+                responseContentType, responseBody, marshaller, unmarshaller);
         asyncExecutor.execute(task);
     }
     

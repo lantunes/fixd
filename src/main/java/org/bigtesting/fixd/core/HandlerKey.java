@@ -34,6 +34,10 @@ public class HandlerKey {
         this.contentType = contentType;
     }
     
+    public String contentType() {
+        return contentType;
+    }
+    
     @Override
     public int hashCode() {
         

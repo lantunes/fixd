@@ -50,6 +50,8 @@ public class RequestHandlerImpl implements RequestHandler {
     private Set<SimpleImmutableEntry<String, String>> headers = 
             new HashSet<SimpleImmutableEntry<String,String>>();
     
+    private Object entity;
+    
     private HttpRequestHandler httpHandler;
     
     private final FixtureContainer container;
@@ -70,7 +72,7 @@ public class RequestHandlerImpl implements RequestHandler {
         
         this.statusCode = statusCode;
         this.contentType = contentType;
-        //TODO implement content marshalling
+        this.entity = entity;
         return this;
     }
     
@@ -158,7 +160,8 @@ public class RequestHandlerImpl implements RequestHandler {
         return contentType;
     }
 
-    public ResponseBody body(HttpRequest request, Response resp) {
+    public ResponseBody body(HttpRequest request, Response resp, 
+            RequestMarshallerImpl marshaller) {
         
         if (httpHandler != null) {
             
@@ -167,6 +170,17 @@ public class RequestHandlerImpl implements RequestHandler {
             this.contentType = response.getContentType();
             this.statusCode = response.getStatusCode();
             return response.getBody();
+        }
+        
+        if (hasEntity()) {
+            
+            if (marshaller == null) {
+                throw new RuntimeException("an entity has been set in the " +
+                		"response, but no marshaller exists for " +
+                		"content type: " + contentType);
+            }
+            
+            return new MarshalledResponseBody(entity, marshaller.getMarshaller());
         }
         
         return new InterpolatedResponseBody(body, request);
@@ -226,5 +240,17 @@ public class RequestHandlerImpl implements RequestHandler {
     
     public HttpRequestHandler customHandler() {
         return httpHandler;
+    }
+    
+    public Object entity() {
+        return entity;
+    }
+    
+    public boolean hasEntity() {
+        return entity != null;
+    }
+    
+    public boolean hasContentType() {
+        return contentType != null;
     }
 }

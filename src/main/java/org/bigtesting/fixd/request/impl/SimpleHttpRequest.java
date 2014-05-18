@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 
+import org.bigtesting.fixd.core.RequestUnmarshallerImpl;
 import org.bigtesting.fixd.request.HttpRequest;
 import org.bigtesting.fixd.routing.Route;
 import org.bigtesting.fixd.routing.Route.PathParameterElement;
@@ -40,11 +41,15 @@ public class SimpleHttpRequest implements HttpRequest {
     
     private final Route route;
     
-    public SimpleHttpRequest(Request request, Session session, Route route) {
+    private final RequestUnmarshallerImpl unmarshaller;
+    
+    public SimpleHttpRequest(Request request, Session session, Route route, 
+            RequestUnmarshallerImpl unmarshaller) {
         
         this.request = request;
         this.session = session;
         this.route = route;
+        this.unmarshaller = unmarshaller;
     }
     
     public String getPath() {
@@ -101,8 +106,15 @@ public class SimpleHttpRequest implements HttpRequest {
     
     public <T> T getBody(Class<T> type) {
         
-        //TODO implement content marshalling
-        return null;
+        if (unmarshaller == null) {
+            throw new RuntimeException("cannot unmarshall body as type " + 
+                    type.getName() + ", as no unmarshaller is available");
+        }
+        try {
+            return unmarshaller.getUnmarshaller().unmarshal(getBodyAsStream(), type);
+        } catch (Exception e) {
+            throw new RuntimeException("error unmarshalling", e);
+        }
     }
     
     public long getContentLength() {

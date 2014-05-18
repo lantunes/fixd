@@ -855,10 +855,7 @@ public class TestServerFixture {
          assertEquals("/say/hello/to/world/1/time Tim 1", resp.getResponseBody().trim());
     }
     
-    /*
-     * TODO implement content marshalling (issue #7)
-     */
-    @Ignore("implement content marshalling (issue #7)")
+    @Test
     public void testMarshalling() throws Exception {
         
         server.marshal("application/json")
@@ -874,10 +871,7 @@ public class TestServerFixture {
         assertEquals("{\"val\":\"marshalledJSON\"}", resp.getResponseBody().trim());
     }   
     
-    /*
-     * TODO implement content marshalling (issue #7)
-     */
-    @Ignore("implement content marshalling (issue #7)")
+    @Test
     public void testUnmarshalling() throws Exception {
         
         server.unmarshal("application/json")
@@ -1063,6 +1057,8 @@ public class TestServerFixture {
     public static class SimplePojo {
         
         private String val;
+        
+        public SimplePojo() {}
         
         public SimplePojo(String val) {
             this.val = val;

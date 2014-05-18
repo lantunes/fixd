@@ -40,7 +40,7 @@ public class TestSimpleHttpRequest {
         
         Route route = new Route("/first-name/:firstName/last-name/:lastName");
         
-        SimpleHttpRequest req = new SimpleHttpRequest(request, null, route);
+        SimpleHttpRequest req = new SimpleHttpRequest(request, null, route, null);
         
         assertEquals("John", req.getPathParameter("firstName"));
         assertEquals("Doe", req.getPathParameter("lastName"));

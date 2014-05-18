@@ -61,6 +61,12 @@ public class FixtureContainer implements Container {
     
     private final RouteMap routeMap = new RegexRouteMap();
     
+    private final Map<String, RequestMarshallerImpl> contentMarshallers = 
+            new ConcurrentHashMap<String, RequestMarshallerImpl>();
+    
+    private final Map<String, RequestUnmarshallerImpl> contentUnmarshallers = 
+            new ConcurrentHashMap<String, RequestUnmarshallerImpl>();
+    
     /*
      * a ConcurrentHashMap, as opposed to synchronized map, is chosen here because,
      * from the perspective of a client, an up-to-date view of the map is not 
@@ -125,6 +131,16 @@ public class FixtureContainer implements Container {
         this.capturedRequestLimit = limit;
     }
     
+    public void addContentMarshaller(String contentType, RequestMarshallerImpl marshaller) {
+        
+        this.contentMarshallers.put(contentType, marshaller);
+    }
+    
+    public void addContentUnmarshaller(String contentType, RequestUnmarshallerImpl unmarshaller) {
+        
+        this.contentUnmarshallers.put(contentType, unmarshaller);
+    }
+    
     public void handle(Request request, Response response) {
 
         try {
@@ -151,14 +167,17 @@ public class FixtureContainer implements Container {
             /* create a new session if required */
             SessionHandler sessionHandler = resolved.handler.sessionHandler();
             if (sessionHandler != null) {
-                createNewSession(request, response, resolved.route, sessionHandler);
+                createNewSession(request, response, resolved.route, sessionHandler, 
+                        resolved.unmarshaller());
             }
             
             /* set the response body */
             if (!resolved.handler.isSuspend()) {
                 Session session = getSessionIfExists(request);
                 ResponseBody handlerBody = resolved.handler.body(
-                        new SimpleHttpRequest(request, session, resolved.route), response);
+                        new SimpleHttpRequest(request, session, resolved.route, 
+                                resolved.unmarshaller()), 
+                        response, resolved.marhsaller());
                 if (handlerBody != null && handlerBody.hasContent()) {
                     responseBody = handlerBody;
                 }
@@ -188,7 +207,8 @@ public class FixtureContainer implements Container {
             
             /* handle the response */
             if (resolved.handler.isAsync()) {
-                doAsync(response, resolved.handler, responseContentType, responseBody);
+                doAsync(response, resolved.handler, responseContentType, responseBody, 
+                        resolved.unmarshaller());
             } else {
                 sendAndCommitResponse(response, responseContentType, responseBody);
             }
@@ -233,10 +253,11 @@ public class FixtureContainer implements Container {
     }
     
     private void createNewSession(Request request, Response response, 
-            Route route, SessionHandler sessionHandler) {
+            Route route, SessionHandler sessionHandler, 
+            RequestUnmarshallerImpl unmarshaller) {
         
         Session session = new Session();
-        sessionHandler.onCreate(new SimpleHttpRequest(request, session, route));
+        sessionHandler.onCreate(new SimpleHttpRequest(request, session, route, unmarshaller));
         sessions.put(session.getSessionId(), session);
         
         Cookie cookie = new Cookie(SESSION_COOKIE_NAME, session.getSessionId());
@@ -244,9 +265,11 @@ public class FixtureContainer implements Container {
     }
     
     private void doAsync(Response response, RequestHandlerImpl handler, 
-            String responseContentType, ResponseBody responseBody) {
+            String responseContentType, ResponseBody responseBody, 
+            RequestUnmarshallerImpl unmarshaller) {
         
-        asyncHandler.doAsync(response, handler, responseContentType, responseBody);
+        asyncHandler.doAsync(response, handler, responseContentType, responseBody,
+                contentMarshallers.get(responseContentType), unmarshaller);
     }
     
     private void sendAndCommitResponse(Response response, 
@@ -288,9 +311,28 @@ public class FixtureContainer implements Container {
     
     private class ResolvedRequest {
         
-        public Route route;
-        public RequestHandlerImpl handler;
-        public HandlerKey key;
-        public Status errorStatus;
+        Route route;
+        RequestHandlerImpl handler;
+        HandlerKey key;
+        Status errorStatus;
+        
+        RequestMarshallerImpl marhsaller() {
+            return handler.hasContentType() ? 
+                    contentMarshallers.get(handler.contentType()) : null;
+        }
+        
+        RequestUnmarshallerImpl unmarshaller() {
+            return hasHandledContentType() ? 
+                    contentUnmarshallers.get(handledContentType()) : null;
+        }
+        
+        String handledContentType() {
+            return key.contentType();
+        }
+        
+        boolean hasHandledContentType() {
+            return handledContentType() != null && 
+                    handledContentType().trim().length() > 0;
+        }
     }
 }
