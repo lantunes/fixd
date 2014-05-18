@@ -45,6 +45,11 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.bigtesting</groupId>
+            <artifactId>routd</artifactId>
+            <version>1.0.0</version>
+        </dependency>
         <!-- test dependencies -->
         <dependency>
             <groupId>junit</groupId>
@@ -94,6 +99,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
                 <configuration>
                     <source>1.6</source>
                     <target>1.6</target>

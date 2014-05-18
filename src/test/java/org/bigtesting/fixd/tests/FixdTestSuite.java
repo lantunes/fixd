@@ -24,10 +24,6 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-    TestRegexRoute.class,
-    TestRegexRouteMap.class,
-    TestRoute.class,
-    TestRouteHelper.class,
     TestCapturedRequest.class,
     TestResponseBodyInterpolator.class,
     TestPathParamSessionHandler.class,

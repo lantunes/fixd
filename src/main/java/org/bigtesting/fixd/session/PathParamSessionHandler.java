@@ -18,8 +18,8 @@ package org.bigtesting.fixd.session;
 import java.util.List;
 
 import org.bigtesting.fixd.request.HttpRequest;
-import org.bigtesting.fixd.routing.Route.PathParameterElement;
-import org.bigtesting.fixd.routing.RouteHelper;
+import org.bigtesting.routd.PathParameterElement;
+import org.bigtesting.routd.RouteHelper;
 
 /**
  * 

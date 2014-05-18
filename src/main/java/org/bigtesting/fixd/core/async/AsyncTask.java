@@ -28,7 +28,7 @@ import org.bigtesting.fixd.core.RequestMarshallerImpl;
 import org.bigtesting.fixd.core.RequestUnmarshallerImpl;
 import org.bigtesting.fixd.core.ResponseBody;
 import org.bigtesting.fixd.request.impl.SimpleHttpRequest;
-import org.bigtesting.fixd.routing.Route;
+import org.bigtesting.routd.Route;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
 import org.simpleframework.http.Status;

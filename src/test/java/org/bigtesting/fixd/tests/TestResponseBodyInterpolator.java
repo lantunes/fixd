@@ -25,9 +25,9 @@ import java.util.List;
 
 import org.bigtesting.fixd.interpolation.ResponseBodyInterpolator;
 import org.bigtesting.fixd.request.HttpRequest;
-import org.bigtesting.fixd.routing.Route;
-import org.bigtesting.fixd.routing.Route.PathParameterElement;
 import org.bigtesting.fixd.session.Session;
+import org.bigtesting.routd.PathParameterElement;
+import org.bigtesting.routd.Route;
 import org.junit.Test;
 
 /**
@@ -73,7 +73,7 @@ public class TestResponseBodyInterpolator {
         when(req.getPath()).thenReturn("/name/Tim");
         Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("name", 1));
+        elements.add(new PathParameterElement("name", 1, null));
         when(route.pathParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
@@ -89,7 +89,7 @@ public class TestResponseBodyInterpolator {
         when(req.getPath()).thenReturn("/name/Tim");
         Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("name", 1));
+        elements.add(new PathParameterElement("name", 1, null));
         when(route.pathParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
@@ -105,7 +105,7 @@ public class TestResponseBodyInterpolator {
         when(req.getPath()).thenReturn("/name/Tim");
         Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("name", 1));
+        elements.add(new PathParameterElement("name", 1, null));
         when(route.pathParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
@@ -121,7 +121,7 @@ public class TestResponseBodyInterpolator {
         when(req.getPath()).thenReturn("/name/Tim");
         Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("name", 1));
+        elements.add(new PathParameterElement("name", 1, null));
         when(route.pathParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
@@ -137,7 +137,7 @@ public class TestResponseBodyInterpolator {
         when(req.getPath()).thenReturn("/name/Tim");
         Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("name", 1));
+        elements.add(new PathParameterElement("name", 1, null));
         when(route.pathParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
@@ -153,7 +153,7 @@ public class TestResponseBodyInterpolator {
         when(req.getPath()).thenReturn("/name/:Tim");
         Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("name", 1));
+        elements.add(new PathParameterElement("name", 1, null));
         when(route.pathParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
@@ -169,8 +169,8 @@ public class TestResponseBodyInterpolator {
         when(req.getPath()).thenReturn("/name/John/Doe");
         Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("firstName", 1));
-        elements.add(new PathParameterElement("lastName", 2));
+        elements.add(new PathParameterElement("firstName", 1, null));
+        elements.add(new PathParameterElement("lastName", 2, null));
         when(route.pathParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
@@ -186,8 +186,8 @@ public class TestResponseBodyInterpolator {
         when(req.getPath()).thenReturn("/name/John/Doe");
         Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("firstName", 1));
-        elements.add(new PathParameterElement("lastName", 2));
+        elements.add(new PathParameterElement("firstName", 1, null));
+        elements.add(new PathParameterElement("lastName", 2, null));
         when(route.pathParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
@@ -203,8 +203,8 @@ public class TestResponseBodyInterpolator {
         when(req.getPath()).thenReturn("/name/:John/:Doe");
         Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("firstName", 1));
-        elements.add(new PathParameterElement("lastName", 2));
+        elements.add(new PathParameterElement("firstName", 1, null));
+        elements.add(new PathParameterElement("lastName", 2, null));
         when(route.pathParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
@@ -385,7 +385,7 @@ public class TestResponseBodyInterpolator {
         when(req.getPath()).thenReturn("/greet/Mr.");
         Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("salutation", 1));
+        elements.add(new PathParameterElement("salutation", 1, null));
         when(route.pathParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         Session session = new Session();
@@ -404,8 +404,8 @@ public class TestResponseBodyInterpolator {
         when(req.getPath()).thenReturn("/greet/John/Doe");
         Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("firstName", 1));
-        elements.add(new PathParameterElement("lastName", 2));
+        elements.add(new PathParameterElement("firstName", 1, null));
+        elements.add(new PathParameterElement("lastName", 2, null));
         when(route.pathParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         Session session = new Session();
@@ -423,7 +423,7 @@ public class TestResponseBodyInterpolator {
         when(req.getPath()).thenReturn("/name/John");
         Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("{name}", 1));
+        elements.add(new PathParameterElement("{name}", 1, null));
         when(route.pathParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         Session session = new Session();
@@ -441,7 +441,7 @@ public class TestResponseBodyInterpolator {
         when(req.getPath()).thenReturn("/name/John");
         Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("name", 1));
+        elements.add(new PathParameterElement("name", 1, null));
         when(route.pathParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         Session session = new Session();
@@ -550,7 +550,7 @@ public class TestResponseBodyInterpolator {
         when(req.getPath()).thenReturn("/name/John");
         Route route = mock(Route.class);
         List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("name", 1));
+        elements.add(new PathParameterElement("name", 1, null));
         when(route.pathParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         Session session = new Session();

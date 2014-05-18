@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import org.bigtesting.fixd.request.impl.SimpleHttpRequest;
-import org.bigtesting.fixd.routing.Route;
+import org.bigtesting.routd.Route;
 import org.junit.Test;
 import org.simpleframework.http.Path;
 import org.simpleframework.http.Request;

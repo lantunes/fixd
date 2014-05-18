@@ -15,7 +15,7 @@
  */
 package org.bigtesting.fixd.core.async;
 
-import org.bigtesting.fixd.routing.Route;
+import org.bigtesting.routd.Route;
 import org.simpleframework.http.Request;
 
 /**
