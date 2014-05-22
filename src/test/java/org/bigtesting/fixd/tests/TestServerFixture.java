@@ -36,7 +36,6 @@ import org.bigtesting.fixd.session.PathParamSessionHandler;
 import org.bigtesting.fixd.session.RequestParamSessionHandler;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -731,10 +730,7 @@ public class TestServerFixture {
         assertEquals("Received application/json content", resp.getResponseBody().trim());
     }
     
-    /*
-     * TODO implement handling splat path parameters (issue #5)
-     */
-    @Ignore("implement handling splat path parameters (issue #5)")
+    @Test
     public void testSplatPathParameterForAllRequests() throws Exception {
         
         server.handle(Method.GET, "/*")
@@ -752,10 +748,7 @@ public class TestServerFixture {
         
     }
     
-    /*
-     * TODO implement handling splat path parameters (issue #5)
-     */
-    @Ignore("implement handling splat path parameters (issue #5)")
+    @Test
     public void testSplatPathParameterWithPrecedingResource() throws Exception {
         
         server.handle(Method.GET, "/protected/*")
@@ -773,10 +766,7 @@ public class TestServerFixture {
         
     }
     
-    /*
-     * TODO implement handling splat path parameters (issue #5)
-     */
-    @Ignore("implement handling splat path parameters (issue #5)")
+    @Test
     public void testSplatPathParameterInterjectedBetweenResources() throws Exception {
         
         server.handle(Method.GET, "/protected/*/content")
@@ -804,10 +794,7 @@ public class TestServerFixture {
         
     }
     
-    /*
-     * TODO implement handling splat path parameters (issue #5)
-     */
-    @Ignore("implement handling splat path parameters (issue #5)")
+    @Test
     public void testSplatPathParametersOccurringMultipleTimes() throws Exception {
         
         server.handle(Method.GET, "/say/*/to/*")
@@ -830,10 +817,7 @@ public class TestServerFixture {
         
     }
     
-    /*
-     * TODO implement handling splat path parameters (issue #5)
-     */
-    @Ignore("implement handling splat path parameters (issue #5)")
+    @Test
     public void testSplatPathParamsWithVariousPathParams() throws Exception {
         
         server.handle(Method.GET, "/say/*/to/:name/:times<[0-9]+>/*")
@@ -850,14 +834,14 @@ public class TestServerFixture {
         assertEquals(404, resp.getStatusCode());
         
         resp = new AsyncHttpClient()
-               .prepareGet("http://localhost:8080/say/hello/to/John/1")
+               .prepareGet("http://localhost:8080/say/hello/to/John/1/")
                .execute().get();
-        assertEquals("/say/hello/to/world/1 John 1", resp.getResponseBody().trim());
+        assertEquals("/say/hello/to/John/1/ John 1", resp.getResponseBody().trim());
         
         resp = new AsyncHttpClient()
                 .prepareGet("http://localhost:8080/say/hello/to/Tim/1/time")
                 .execute().get();
-         assertEquals("/say/hello/to/world/1/time Tim 1", resp.getResponseBody().trim());
+         assertEquals("/say/hello/to/Tim/1/time Tim 1", resp.getResponseBody().trim());
     }
     
     @Test

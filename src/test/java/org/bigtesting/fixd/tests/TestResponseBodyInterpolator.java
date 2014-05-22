@@ -26,7 +26,7 @@ import java.util.List;
 import org.bigtesting.fixd.interpolation.ResponseBodyInterpolator;
 import org.bigtesting.fixd.request.HttpRequest;
 import org.bigtesting.fixd.session.Session;
-import org.bigtesting.routd.PathParameterElement;
+import org.bigtesting.routd.NamedParameterElement;
 import org.bigtesting.routd.Route;
 import org.junit.Test;
 
@@ -42,7 +42,7 @@ public class TestResponseBodyInterpolator {
         HttpRequest req = mock(HttpRequest.class);
         when(req.getPath()).thenReturn("/");
         Route route = mock(Route.class);
-        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
         
@@ -56,7 +56,7 @@ public class TestResponseBodyInterpolator {
         HttpRequest req = mock(HttpRequest.class);
         when(req.getPath()).thenReturn("/");
         Route route = mock(Route.class);
-        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
         when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("name", "Tim");
@@ -72,9 +72,9 @@ public class TestResponseBodyInterpolator {
         HttpRequest req = mock(HttpRequest.class);
         when(req.getPath()).thenReturn("/name/Tim");
         Route route = mock(Route.class);
-        List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("name", 1, null));
-        when(route.pathParameterElements()).thenReturn(elements);
+        List<NamedParameterElement> elements = emptyPathParamList();
+        elements.add(new NamedParameterElement("name", 1, null));
+        when(route.getNamedParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
         
@@ -88,9 +88,9 @@ public class TestResponseBodyInterpolator {
         HttpRequest req = mock(HttpRequest.class);
         when(req.getPath()).thenReturn("/name/Tim");
         Route route = mock(Route.class);
-        List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("name", 1, null));
-        when(route.pathParameterElements()).thenReturn(elements);
+        List<NamedParameterElement> elements = emptyPathParamList();
+        elements.add(new NamedParameterElement("name", 1, null));
+        when(route.getNamedParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
         
@@ -104,9 +104,9 @@ public class TestResponseBodyInterpolator {
         HttpRequest req = mock(HttpRequest.class);
         when(req.getPath()).thenReturn("/name/Tim");
         Route route = mock(Route.class);
-        List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("name", 1, null));
-        when(route.pathParameterElements()).thenReturn(elements);
+        List<NamedParameterElement> elements = emptyPathParamList();
+        elements.add(new NamedParameterElement("name", 1, null));
+        when(route.getNamedParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
         
@@ -120,9 +120,9 @@ public class TestResponseBodyInterpolator {
         HttpRequest req = mock(HttpRequest.class);
         when(req.getPath()).thenReturn("/name/Tim");
         Route route = mock(Route.class);
-        List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("name", 1, null));
-        when(route.pathParameterElements()).thenReturn(elements);
+        List<NamedParameterElement> elements = emptyPathParamList();
+        elements.add(new NamedParameterElement("name", 1, null));
+        when(route.getNamedParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
         
@@ -136,9 +136,9 @@ public class TestResponseBodyInterpolator {
         HttpRequest req = mock(HttpRequest.class);
         when(req.getPath()).thenReturn("/name/Tim");
         Route route = mock(Route.class);
-        List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("name", 1, null));
-        when(route.pathParameterElements()).thenReturn(elements);
+        List<NamedParameterElement> elements = emptyPathParamList();
+        elements.add(new NamedParameterElement("name", 1, null));
+        when(route.getNamedParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
         
@@ -152,9 +152,9 @@ public class TestResponseBodyInterpolator {
         HttpRequest req = mock(HttpRequest.class);
         when(req.getPath()).thenReturn("/name/:Tim");
         Route route = mock(Route.class);
-        List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("name", 1, null));
-        when(route.pathParameterElements()).thenReturn(elements);
+        List<NamedParameterElement> elements = emptyPathParamList();
+        elements.add(new NamedParameterElement("name", 1, null));
+        when(route.getNamedParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
         
@@ -168,10 +168,10 @@ public class TestResponseBodyInterpolator {
         HttpRequest req = mock(HttpRequest.class);
         when(req.getPath()).thenReturn("/name/John/Doe");
         Route route = mock(Route.class);
-        List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("firstName", 1, null));
-        elements.add(new PathParameterElement("lastName", 2, null));
-        when(route.pathParameterElements()).thenReturn(elements);
+        List<NamedParameterElement> elements = emptyPathParamList();
+        elements.add(new NamedParameterElement("firstName", 1, null));
+        elements.add(new NamedParameterElement("lastName", 2, null));
+        when(route.getNamedParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
         
@@ -185,10 +185,10 @@ public class TestResponseBodyInterpolator {
         HttpRequest req = mock(HttpRequest.class);
         when(req.getPath()).thenReturn("/name/John/Doe");
         Route route = mock(Route.class);
-        List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("firstName", 1, null));
-        elements.add(new PathParameterElement("lastName", 2, null));
-        when(route.pathParameterElements()).thenReturn(elements);
+        List<NamedParameterElement> elements = emptyPathParamList();
+        elements.add(new NamedParameterElement("firstName", 1, null));
+        elements.add(new NamedParameterElement("lastName", 2, null));
+        when(route.getNamedParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
         
@@ -202,10 +202,10 @@ public class TestResponseBodyInterpolator {
         HttpRequest req = mock(HttpRequest.class);
         when(req.getPath()).thenReturn("/name/:John/:Doe");
         Route route = mock(Route.class);
-        List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("firstName", 1, null));
-        elements.add(new PathParameterElement("lastName", 2, null));
-        when(route.pathParameterElements()).thenReturn(elements);
+        List<NamedParameterElement> elements = emptyPathParamList();
+        elements.add(new NamedParameterElement("firstName", 1, null));
+        elements.add(new NamedParameterElement("lastName", 2, null));
+        when(route.getNamedParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
         
@@ -219,7 +219,7 @@ public class TestResponseBodyInterpolator {
         HttpRequest req = mock(HttpRequest.class);
         when(req.getPath()).thenReturn("/");
         Route route = mock(Route.class);
-        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
         when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("name", "Tim");
@@ -235,7 +235,7 @@ public class TestResponseBodyInterpolator {
         HttpRequest req = mock(HttpRequest.class);
         when(req.getPath()).thenReturn("/");
         Route route = mock(Route.class);
-        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
         when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("name", "Tim");
@@ -251,7 +251,7 @@ public class TestResponseBodyInterpolator {
         HttpRequest req = mock(HttpRequest.class);
         when(req.getPath()).thenReturn("/");
         Route route = mock(Route.class);
-        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
         when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("name", "Tim");
@@ -267,7 +267,7 @@ public class TestResponseBodyInterpolator {
         HttpRequest req = mock(HttpRequest.class);
         when(req.getPath()).thenReturn("/");
         Route route = mock(Route.class);
-        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
         when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("name", "Tim");
@@ -283,7 +283,7 @@ public class TestResponseBodyInterpolator {
         HttpRequest req = mock(HttpRequest.class);
         when(req.getPath()).thenReturn("/");
         Route route = mock(Route.class);
-        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
         when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("name", "{Tim}");
@@ -299,7 +299,7 @@ public class TestResponseBodyInterpolator {
         HttpRequest req = mock(HttpRequest.class);
         when(req.getPath()).thenReturn("/");
         Route route = mock(Route.class);
-        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
         when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("firstName", "John");
@@ -316,7 +316,7 @@ public class TestResponseBodyInterpolator {
         HttpRequest req = mock(HttpRequest.class);
         when(req.getPath()).thenReturn("/");
         Route route = mock(Route.class);
-        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
         when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("firstName", "John");
@@ -333,7 +333,7 @@ public class TestResponseBodyInterpolator {
         HttpRequest req = mock(HttpRequest.class);
         when(req.getPath()).thenReturn("/");
         Route route = mock(Route.class);
-        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
         when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("firstName", "John");
@@ -350,7 +350,7 @@ public class TestResponseBodyInterpolator {
         HttpRequest req = mock(HttpRequest.class);
         when(req.getPath()).thenReturn("/");
         Route route = mock(Route.class);
-        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
         when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("firstName", "John");
@@ -367,7 +367,7 @@ public class TestResponseBodyInterpolator {
         HttpRequest req = mock(HttpRequest.class);
         when(req.getPath()).thenReturn("/");
         Route route = mock(Route.class);
-        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
         when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("firstName", "{John}");
@@ -384,9 +384,9 @@ public class TestResponseBodyInterpolator {
         HttpRequest req = mock(HttpRequest.class);
         when(req.getPath()).thenReturn("/greet/Mr.");
         Route route = mock(Route.class);
-        List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("salutation", 1, null));
-        when(route.pathParameterElements()).thenReturn(elements);
+        List<NamedParameterElement> elements = emptyPathParamList();
+        elements.add(new NamedParameterElement("salutation", 1, null));
+        when(route.getNamedParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("firstName", "John");
@@ -403,10 +403,10 @@ public class TestResponseBodyInterpolator {
         HttpRequest req = mock(HttpRequest.class);
         when(req.getPath()).thenReturn("/greet/John/Doe");
         Route route = mock(Route.class);
-        List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("firstName", 1, null));
-        elements.add(new PathParameterElement("lastName", 2, null));
-        when(route.pathParameterElements()).thenReturn(elements);
+        List<NamedParameterElement> elements = emptyPathParamList();
+        elements.add(new NamedParameterElement("firstName", 1, null));
+        elements.add(new NamedParameterElement("lastName", 2, null));
+        when(route.getNamedParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("salutation", "Mr.");
@@ -422,9 +422,9 @@ public class TestResponseBodyInterpolator {
         HttpRequest req = mock(HttpRequest.class);
         when(req.getPath()).thenReturn("/name/John");
         Route route = mock(Route.class);
-        List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("{name}", 1, null));
-        when(route.pathParameterElements()).thenReturn(elements);
+        List<NamedParameterElement> elements = emptyPathParamList();
+        elements.add(new NamedParameterElement("{name}", 1, null));
+        when(route.getNamedParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("name", "Tim");
@@ -440,9 +440,9 @@ public class TestResponseBodyInterpolator {
         HttpRequest req = mock(HttpRequest.class);
         when(req.getPath()).thenReturn("/name/John");
         Route route = mock(Route.class);
-        List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("name", 1, null));
-        when(route.pathParameterElements()).thenReturn(elements);
+        List<NamedParameterElement> elements = emptyPathParamList();
+        elements.add(new NamedParameterElement("name", 1, null));
+        when(route.getNamedParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set(":name", "Tim");
@@ -459,7 +459,7 @@ public class TestResponseBodyInterpolator {
         when(req.getBodyAsStream()).thenReturn(body("Hello World!"));
         when(req.getPath()).thenReturn("/");
         Route route = mock(Route.class);
-        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
         
@@ -474,7 +474,7 @@ public class TestResponseBodyInterpolator {
         when(req.getBodyAsStream()).thenReturn(body("Hello World!"));
         when(req.getPath()).thenReturn("/");
         Route route = mock(Route.class);
-        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
         
@@ -489,7 +489,7 @@ public class TestResponseBodyInterpolator {
         when(req.getBodyAsStream()).thenReturn(body("Hello World!"));
         when(req.getPath()).thenReturn("/");
         Route route = mock(Route.class);
-        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
         
@@ -504,7 +504,7 @@ public class TestResponseBodyInterpolator {
         when(req.getBodyAsStream()).thenReturn(body("Hello World!"));
         when(req.getPath()).thenReturn("/");
         Route route = mock(Route.class);
-        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
         
@@ -519,7 +519,7 @@ public class TestResponseBodyInterpolator {
         when(req.getBodyAsStream()).thenReturn(body("Tim"));
         when(req.getPath()).thenReturn("/");
         Route route = mock(Route.class);
-        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
         
@@ -534,7 +534,7 @@ public class TestResponseBodyInterpolator {
         when(req.getBodyAsStream()).thenReturn(body("[Tim]"));
         when(req.getPath()).thenReturn("/");
         Route route = mock(Route.class);
-        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
         
@@ -549,9 +549,9 @@ public class TestResponseBodyInterpolator {
         when(req.getBodyAsStream()).thenReturn(body("Doe"));
         when(req.getPath()).thenReturn("/name/John");
         Route route = mock(Route.class);
-        List<PathParameterElement> elements = emptyPathParamList();
-        elements.add(new PathParameterElement("name", 1, null));
-        when(route.pathParameterElements()).thenReturn(elements);
+        List<NamedParameterElement> elements = emptyPathParamList();
+        elements.add(new NamedParameterElement("name", 1, null));
+        when(route.getNamedParameterElements()).thenReturn(elements);
         when(req.getRoute()).thenReturn(route);
         Session session = new Session();
         session.set("salutation", "Mr.");
@@ -568,7 +568,7 @@ public class TestResponseBodyInterpolator {
         when(req.getRequestParameter("name")).thenReturn("Tim");
         when(req.getPath()).thenReturn("/");
         Route route = mock(Route.class);
-        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
         
@@ -583,7 +583,7 @@ public class TestResponseBodyInterpolator {
         when(req.getHeaderValue("User-Agent")).thenReturn("Mozilla/5.0");
         when(req.getPath()).thenReturn("/");
         Route route = mock(Route.class);
-        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
         
@@ -598,7 +598,7 @@ public class TestResponseBodyInterpolator {
         when(req.getMethod()).thenReturn("GET");
         when(req.getPath()).thenReturn("/");
         Route route = mock(Route.class);
-        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
         
@@ -613,7 +613,7 @@ public class TestResponseBodyInterpolator {
         when(req.getTime()).thenReturn(123L);
         when(req.getPath()).thenReturn("/");
         Route route = mock(Route.class);
-        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
         
@@ -627,7 +627,7 @@ public class TestResponseBodyInterpolator {
         HttpRequest req = mock(HttpRequest.class);
         when(req.getPath()).thenReturn("/abc");
         Route route = mock(Route.class);
-        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
         
@@ -642,7 +642,7 @@ public class TestResponseBodyInterpolator {
         when(req.getQuery()).thenReturn("a=b&c=d");
         when(req.getPath()).thenReturn("/");
         Route route = mock(Route.class);
-        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
         
@@ -657,7 +657,7 @@ public class TestResponseBodyInterpolator {
         when(req.getMajor()).thenReturn(123);
         when(req.getPath()).thenReturn("/");
         Route route = mock(Route.class);
-        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
         
@@ -672,7 +672,7 @@ public class TestResponseBodyInterpolator {
         when(req.getMinor()).thenReturn(123);
         when(req.getPath()).thenReturn("/");
         Route route = mock(Route.class);
-        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
         
@@ -687,7 +687,7 @@ public class TestResponseBodyInterpolator {
         when(req.getTarget()).thenReturn("/index");
         when(req.getPath()).thenReturn("/");
         Route route = mock(Route.class);
-        when(route.pathParameterElements()).thenReturn(emptyPathParamList());
+        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
         when(req.getRoute()).thenReturn(route);
         when(req.getSession()).thenReturn(null);
         
@@ -697,8 +697,8 @@ public class TestResponseBodyInterpolator {
     
     /*------------------------------------------------*/
     
-    private List<PathParameterElement> emptyPathParamList() {
-        return new ArrayList<PathParameterElement>();
+    private List<NamedParameterElement> emptyPathParamList() {
+        return new ArrayList<NamedParameterElement>();
     }
     
     private InputStream body(String content) {

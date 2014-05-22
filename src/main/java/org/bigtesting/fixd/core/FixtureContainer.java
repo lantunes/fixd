@@ -31,9 +31,9 @@ import org.bigtesting.fixd.core.async.AsyncHandler;
 import org.bigtesting.fixd.request.impl.SimpleHttpRequest;
 import org.bigtesting.fixd.session.Session;
 import org.bigtesting.fixd.session.SessionHandler;
-import org.bigtesting.routd.RegexRouteMap;
 import org.bigtesting.routd.Route;
-import org.bigtesting.routd.RouteMap;
+import org.bigtesting.routd.Router;
+import org.bigtesting.routd.TreeRouter;
 import org.simpleframework.http.ContentType;
 import org.simpleframework.http.Cookie;
 import org.simpleframework.http.Request;
@@ -61,11 +61,11 @@ public class FixtureContainer implements Container {
     
     /**
      * TODO issue #9
-     * create a separate route map for before and after handlers;
+     * create a separate router for before and after handlers;
      * otherwise, a before handler for /* will handle requests
      * for specific routes that have other handlers  
      */
-    private final RouteMap routeMap = new RegexRouteMap();
+    private final Router router = new TreeRouter();
     
     private final Map<String, RequestMarshallerImpl> contentMarshallers = 
             new ConcurrentHashMap<String, RequestMarshallerImpl>();
@@ -109,7 +109,7 @@ public class FixtureContainer implements Container {
         Route route = new Route(resource);
         HandlerKey key = new HandlerKey(method.name(), route, contentType);
         handlerMap.put(key, handler);
-        routeMap.add(route);
+        router.add(route);
         return key;
     }
     
@@ -292,7 +292,7 @@ public class FixtureContainer implements Container {
         ContentType requestContentType = request.getContentType();
         
         /* get the route and the handler for this request */
-        Route route = routeMap.getRoute(path);
+        Route route = router.route(path);
         if (route == null) {
             logger.error("could not find a route for " + path);
             resolved.errorStatus = Status.NOT_FOUND;

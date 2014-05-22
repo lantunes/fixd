@@ -18,7 +18,7 @@ package org.bigtesting.fixd.session;
 import java.util.List;
 
 import org.bigtesting.fixd.request.HttpRequest;
-import org.bigtesting.routd.PathParameterElement;
+import org.bigtesting.routd.NamedParameterElement;
 import org.bigtesting.routd.RouteHelper;
 
 /**
@@ -29,10 +29,10 @@ public class PathParamSessionHandler implements SessionHandler {
 
     public void onCreate(HttpRequest request) {
         
-        List<PathParameterElement> pathParams = request.getRoute().pathParameterElements();
+        List<NamedParameterElement> pathParams = request.getRoute().getNamedParameterElements();
         String[] pathTokens = RouteHelper.getPathElements(request.getPath());
         
-        for (PathParameterElement pathParam : pathParams) {
+        for (NamedParameterElement pathParam : pathParams) {
             request.getSession().set(pathParam.name(), pathTokens[pathParam.index()]);
         }
     }

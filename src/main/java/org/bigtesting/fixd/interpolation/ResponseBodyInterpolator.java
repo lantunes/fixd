@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 
 import org.bigtesting.fixd.request.HttpRequest;
 import org.bigtesting.fixd.session.Session;
-import org.bigtesting.routd.PathParameterElement;
+import org.bigtesting.routd.NamedParameterElement;
 import org.bigtesting.routd.RouteHelper;
 
 /**
@@ -67,7 +67,7 @@ public class ResponseBodyInterpolator {
     private static String interpolatePathParamValues(String body, HttpRequest req) {
         
         String[] pathTokens = RouteHelper.getPathElements(req.getPath());
-        for (PathParameterElement param : req.getRoute().pathParameterElements()) {
+        for (NamedParameterElement param : req.getRoute().getNamedParameterElements()) {
             String paramName = "\\Q" + param.name() + "\\E";
             body = body.replaceAll(":" + paramName, pathTokens[param.index()]);
         }

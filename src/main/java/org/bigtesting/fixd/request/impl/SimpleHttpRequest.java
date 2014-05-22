@@ -67,7 +67,7 @@ public class SimpleHttpRequest implements HttpRequest {
     
     public String getPathParameter(String name) {
         
-        return getRoute().getPathParameter(name, getPath());
+        return getRoute().getNamedParameter(name, getPath());
     }
     
     public List<String> getHeaderNames() {
