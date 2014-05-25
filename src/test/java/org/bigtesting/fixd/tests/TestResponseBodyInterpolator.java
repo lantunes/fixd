@@ -40,10 +40,8 @@ public class TestResponseBodyInterpolator {
     public void testBodyReturnedUnmodifiedWhenNoInstructionsGiven() {
         
         HttpRequest req = mock(HttpRequest.class);
-        when(req.getPath()).thenReturn("/");
-        Route route = mock(Route.class);
-        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Hello World!", 
@@ -54,10 +52,8 @@ public class TestResponseBodyInterpolator {
     public void testBodyReturnedUnmodifiedWhenNoInstructionsGiven_WithSession() {
         
         HttpRequest req = mock(HttpRequest.class);
-        when(req.getPath()).thenReturn("/");
-        Route route = mock(Route.class);
-        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
         Session session = new Session();
         session.set("name", "Tim");
         when(req.getSession()).thenReturn(session);
@@ -70,12 +66,8 @@ public class TestResponseBodyInterpolator {
     public void testSinglePathParamSubstitued() {
         
         HttpRequest req = mock(HttpRequest.class);
-        when(req.getPath()).thenReturn("/name/Tim");
-        Route route = mock(Route.class);
-        List<NamedParameterElement> elements = emptyPathParamList();
-        elements.add(new NamedParameterElement("name", 1, null));
-        when(route.getNamedParameterElements()).thenReturn(elements);
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/name/Tim");
+        when(req.getRoute()).thenReturn(new Route("/name/:name"));
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Hello Tim", 
@@ -86,12 +78,8 @@ public class TestResponseBodyInterpolator {
     public void testSinglePathParamSubstituedInPresenceOfOtherColons() {
         
         HttpRequest req = mock(HttpRequest.class);
-        when(req.getPath()).thenReturn("/name/Tim");
-        Route route = mock(Route.class);
-        List<NamedParameterElement> elements = emptyPathParamList();
-        elements.add(new NamedParameterElement("name", 1, null));
-        when(route.getNamedParameterElements()).thenReturn(elements);
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/name/Tim");
+        when(req.getRoute()).thenReturn(new Route("/name/:name"));
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Hello : Tim :", 
@@ -102,12 +90,8 @@ public class TestResponseBodyInterpolator {
     public void testSinglePathParamDoublyPrefixedIsSubstitued() {
         
         HttpRequest req = mock(HttpRequest.class);
-        when(req.getPath()).thenReturn("/name/Tim");
-        Route route = mock(Route.class);
-        List<NamedParameterElement> elements = emptyPathParamList();
-        elements.add(new NamedParameterElement("name", 1, null));
-        when(route.getNamedParameterElements()).thenReturn(elements);
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/name/Tim");
+        when(req.getRoute()).thenReturn(new Route("/name/:name"));
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Hello :Tim", 
@@ -118,12 +102,8 @@ public class TestResponseBodyInterpolator {
     public void testSinglePathParamEnclosedByColonsIsSubstitued() {
         
         HttpRequest req = mock(HttpRequest.class);
-        when(req.getPath()).thenReturn("/name/Tim");
-        Route route = mock(Route.class);
-        List<NamedParameterElement> elements = emptyPathParamList();
-        elements.add(new NamedParameterElement("name", 1, null));
-        when(route.getNamedParameterElements()).thenReturn(elements);
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/name/Tim");
+        when(req.getRoute()).thenReturn(new Route("/name/:name"));
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Hello :Tim:", 
@@ -134,12 +114,8 @@ public class TestResponseBodyInterpolator {
     public void testSinglePathParamSubstituedInPresenceOfOtherColonPrefixedTerms() {
         
         HttpRequest req = mock(HttpRequest.class);
-        when(req.getPath()).thenReturn("/name/Tim");
-        Route route = mock(Route.class);
-        List<NamedParameterElement> elements = emptyPathParamList();
-        elements.add(new NamedParameterElement("name", 1, null));
-        when(route.getNamedParameterElements()).thenReturn(elements);
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/name/Tim");
+        when(req.getRoute()).thenReturn(new Route("/name/:name"));
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Hello :someTerm Tim", 
@@ -150,12 +126,8 @@ public class TestResponseBodyInterpolator {
     public void testSinglePathParamSubstituedWithColonContainingValue() {
         
         HttpRequest req = mock(HttpRequest.class);
-        when(req.getPath()).thenReturn("/name/:Tim");
-        Route route = mock(Route.class);
-        List<NamedParameterElement> elements = emptyPathParamList();
-        elements.add(new NamedParameterElement("name", 1, null));
-        when(route.getNamedParameterElements()).thenReturn(elements);
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/name/:Tim");
+        when(req.getRoute()).thenReturn(new Route("/name/:name"));
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Hello :Tim", 
@@ -166,13 +138,8 @@ public class TestResponseBodyInterpolator {
     public void testMultiplePathParamsSubstitued() {
         
         HttpRequest req = mock(HttpRequest.class);
-        when(req.getPath()).thenReturn("/name/John/Doe");
-        Route route = mock(Route.class);
-        List<NamedParameterElement> elements = emptyPathParamList();
-        elements.add(new NamedParameterElement("firstName", 1, null));
-        elements.add(new NamedParameterElement("lastName", 2, null));
-        when(route.getNamedParameterElements()).thenReturn(elements);
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/name/John/Doe");
+        when(req.getRoute()).thenReturn(new Route("/name/:firstName/:lastName"));
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Hello John Doe", 
@@ -183,13 +150,8 @@ public class TestResponseBodyInterpolator {
     public void testMultiplePathParamsSubstituedInPresenceOfOtherColons() {
         
         HttpRequest req = mock(HttpRequest.class);
-        when(req.getPath()).thenReturn("/name/John/Doe");
-        Route route = mock(Route.class);
-        List<NamedParameterElement> elements = emptyPathParamList();
-        elements.add(new NamedParameterElement("firstName", 1, null));
-        elements.add(new NamedParameterElement("lastName", 2, null));
-        when(route.getNamedParameterElements()).thenReturn(elements);
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/name/John/Doe");
+        when(req.getRoute()).thenReturn(new Route("/name/:firstName/:lastName"));
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Hello : John : Doe :", 
@@ -200,13 +162,8 @@ public class TestResponseBodyInterpolator {
     public void testMultiplePathParamsSubstituedWithColonContainingValues() {
         
         HttpRequest req = mock(HttpRequest.class);
-        when(req.getPath()).thenReturn("/name/:John/:Doe");
-        Route route = mock(Route.class);
-        List<NamedParameterElement> elements = emptyPathParamList();
-        elements.add(new NamedParameterElement("firstName", 1, null));
-        elements.add(new NamedParameterElement("lastName", 2, null));
-        when(route.getNamedParameterElements()).thenReturn(elements);
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/name/:John/:Doe");
+        when(req.getRoute()).thenReturn(new Route("/name/:firstName/:lastName"));
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Hello :John :Doe", 
@@ -217,10 +174,8 @@ public class TestResponseBodyInterpolator {
     public void testSingleSessionValueSubstitued() {
         
         HttpRequest req = mock(HttpRequest.class);
-        when(req.getPath()).thenReturn("/");
-        Route route = mock(Route.class);
-        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
         Session session = new Session();
         session.set("name", "Tim");
         when(req.getSession()).thenReturn(session);
@@ -233,10 +188,8 @@ public class TestResponseBodyInterpolator {
     public void testSingleSessionValueSubstituedInPresenceOfOtherBraces() {
         
         HttpRequest req = mock(HttpRequest.class);
-        when(req.getPath()).thenReturn("/");
-        Route route = mock(Route.class);
-        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
         Session session = new Session();
         session.set("name", "Tim");
         when(req.getSession()).thenReturn(session);
@@ -249,10 +202,8 @@ public class TestResponseBodyInterpolator {
     public void testSingleSessionValueSubstituedInPresenceOfOtherBraces_NoSpaces() {
         
         HttpRequest req = mock(HttpRequest.class);
-        when(req.getPath()).thenReturn("/");
-        Route route = mock(Route.class);
-        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
         Session session = new Session();
         session.set("name", "Tim");
         when(req.getSession()).thenReturn(session);
@@ -265,10 +216,8 @@ public class TestResponseBodyInterpolator {
     public void testSingleSessionValueSubstituedInPresenceOfOtherBraceEnclosedTerms() {
         
         HttpRequest req = mock(HttpRequest.class);
-        when(req.getPath()).thenReturn("/");
-        Route route = mock(Route.class);
-        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
         Session session = new Session();
         session.set("name", "Tim");
         when(req.getSession()).thenReturn(session);
@@ -281,10 +230,8 @@ public class TestResponseBodyInterpolator {
     public void testSingleSessionValueSubstituedWithBraceEnclosedValue() {
         
         HttpRequest req = mock(HttpRequest.class);
-        when(req.getPath()).thenReturn("/");
-        Route route = mock(Route.class);
-        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
         Session session = new Session();
         session.set("name", "{Tim}");
         when(req.getSession()).thenReturn(session);
@@ -297,10 +244,8 @@ public class TestResponseBodyInterpolator {
     public void testMultipleSessionValuesSubstitued() {
         
         HttpRequest req = mock(HttpRequest.class);
-        when(req.getPath()).thenReturn("/");
-        Route route = mock(Route.class);
-        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
         Session session = new Session();
         session.set("firstName", "John");
         session.set("lastName", "Doe");
@@ -314,10 +259,8 @@ public class TestResponseBodyInterpolator {
     public void testMultipleSessionValuesSubstituedInPresenceOfOtherBraces() {
         
         HttpRequest req = mock(HttpRequest.class);
-        when(req.getPath()).thenReturn("/");
-        Route route = mock(Route.class);
-        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
         Session session = new Session();
         session.set("firstName", "John");
         session.set("lastName", "Doe");
@@ -331,10 +274,8 @@ public class TestResponseBodyInterpolator {
     public void testMultipleSessionValuesSubstituedInPresenceOfOtherBraces_NoSpaces() {
         
         HttpRequest req = mock(HttpRequest.class);
-        when(req.getPath()).thenReturn("/");
-        Route route = mock(Route.class);
-        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
         Session session = new Session();
         session.set("firstName", "John");
         session.set("lastName", "Doe");
@@ -348,10 +289,8 @@ public class TestResponseBodyInterpolator {
     public void testMultipleSessionValuesSubstituedInPresenceOfOtherBraceEnclosedTerms() {
         
         HttpRequest req = mock(HttpRequest.class);
-        when(req.getPath()).thenReturn("/");
-        Route route = mock(Route.class);
-        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
         Session session = new Session();
         session.set("firstName", "John");
         session.set("lastName", "Doe");
@@ -365,10 +304,8 @@ public class TestResponseBodyInterpolator {
     public void testMultipleSessionValuesSubstituedWithBraceEnclosedValue() {
         
         HttpRequest req = mock(HttpRequest.class);
-        when(req.getPath()).thenReturn("/");
-        Route route = mock(Route.class);
-        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
         Session session = new Session();
         session.set("firstName", "{John}");
         session.set("lastName", "{Doe}");
@@ -382,12 +319,8 @@ public class TestResponseBodyInterpolator {
     public void testPathParamAndSessionValues_PathParamValuesComeFirst() {
         
         HttpRequest req = mock(HttpRequest.class);
-        when(req.getPath()).thenReturn("/greet/Mr.");
-        Route route = mock(Route.class);
-        List<NamedParameterElement> elements = emptyPathParamList();
-        elements.add(new NamedParameterElement("salutation", 1, null));
-        when(route.getNamedParameterElements()).thenReturn(elements);
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/greet/Mr.");
+        when(req.getRoute()).thenReturn(new Route("/greet/:salutation"));
         Session session = new Session();
         session.set("firstName", "John");
         session.set("lastName", "Doe");
@@ -401,13 +334,8 @@ public class TestResponseBodyInterpolator {
     public void testPathParamAndSessionValues_SessionValuesComeFirst() {
         
         HttpRequest req = mock(HttpRequest.class);
-        when(req.getPath()).thenReturn("/greet/John/Doe");
-        Route route = mock(Route.class);
-        List<NamedParameterElement> elements = emptyPathParamList();
-        elements.add(new NamedParameterElement("firstName", 1, null));
-        elements.add(new NamedParameterElement("lastName", 2, null));
-        when(route.getNamedParameterElements()).thenReturn(elements);
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/greet/John/Doe");
+        when(req.getRoute()).thenReturn(new Route("/greet/:firstName/:lastName"));
         Session session = new Session();
         session.set("salutation", "Mr.");
         when(req.getSession()).thenReturn(session);
@@ -420,12 +348,8 @@ public class TestResponseBodyInterpolator {
     public void testColonPrefixedSessionValueNotHandled() {
         
         HttpRequest req = mock(HttpRequest.class);
-        when(req.getPath()).thenReturn("/name/John");
-        Route route = mock(Route.class);
-        List<NamedParameterElement> elements = emptyPathParamList();
-        elements.add(new NamedParameterElement("{name}", 1, null));
-        when(route.getNamedParameterElements()).thenReturn(elements);
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/name/John");
+        when(req.getRoute()).thenReturn(new Route("/name/:{name}"));
         Session session = new Session();
         session.set("name", "Tim");
         when(req.getSession()).thenReturn(session);
@@ -438,12 +362,8 @@ public class TestResponseBodyInterpolator {
     public void testBraceEnclosedPathParamValueDoesNotSubstituteSessionValue() {
         
         HttpRequest req = mock(HttpRequest.class);
-        when(req.getPath()).thenReturn("/name/John");
-        Route route = mock(Route.class);
-        List<NamedParameterElement> elements = emptyPathParamList();
-        elements.add(new NamedParameterElement("name", 1, null));
-        when(route.getNamedParameterElements()).thenReturn(elements);
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/name/John");
+        when(req.getRoute()).thenReturn(new Route("/name/:name"));
         Session session = new Session();
         session.set(":name", "Tim");
         when(req.getSession()).thenReturn(session);
@@ -457,10 +377,8 @@ public class TestResponseBodyInterpolator {
         
         HttpRequest req = mock(HttpRequest.class);
         when(req.getBodyAsStream()).thenReturn(body("Hello World!"));
-        when(req.getPath()).thenReturn("/");
-        Route route = mock(Route.class);
-        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Message: [some.value]", 
@@ -472,10 +390,8 @@ public class TestResponseBodyInterpolator {
         
         HttpRequest req = mock(HttpRequest.class);
         when(req.getBodyAsStream()).thenReturn(body("Hello World!"));
-        when(req.getPath()).thenReturn("/");
-        Route route = mock(Route.class);
-        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Message: Hello World!", 
@@ -487,10 +403,8 @@ public class TestResponseBodyInterpolator {
         
         HttpRequest req = mock(HttpRequest.class);
         when(req.getBodyAsStream()).thenReturn(body("Hello World!"));
-        when(req.getPath()).thenReturn("/");
-        Route route = mock(Route.class);
-        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Message: [ Hello World! ] [", 
@@ -502,10 +416,8 @@ public class TestResponseBodyInterpolator {
         
         HttpRequest req = mock(HttpRequest.class);
         when(req.getBodyAsStream()).thenReturn(body("Hello World!"));
-        when(req.getPath()).thenReturn("/");
-        Route route = mock(Route.class);
-        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Message: [Hello World!] [", 
@@ -517,10 +429,8 @@ public class TestResponseBodyInterpolator {
         
         HttpRequest req = mock(HttpRequest.class);
         when(req.getBodyAsStream()).thenReturn(body("Tim"));
-        when(req.getPath()).thenReturn("/");
-        Route route = mock(Route.class);
-        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Hello [there] Tim", 
@@ -532,10 +442,8 @@ public class TestResponseBodyInterpolator {
         
         HttpRequest req = mock(HttpRequest.class);
         when(req.getBodyAsStream()).thenReturn(body("[Tim]"));
-        when(req.getPath()).thenReturn("/");
-        Route route = mock(Route.class);
-        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Hello [Tim]", 
@@ -547,12 +455,8 @@ public class TestResponseBodyInterpolator {
         
         HttpRequest req = mock(HttpRequest.class);
         when(req.getBodyAsStream()).thenReturn(body("Doe"));
-        when(req.getPath()).thenReturn("/name/John");
-        Route route = mock(Route.class);
-        List<NamedParameterElement> elements = emptyPathParamList();
-        elements.add(new NamedParameterElement("name", 1, null));
-        when(route.getNamedParameterElements()).thenReturn(elements);
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/name/John");
+        when(req.getRoute()).thenReturn(new Route("/name/:name"));
         Session session = new Session();
         session.set("salutation", "Mr.");
         when(req.getSession()).thenReturn(session);
@@ -566,10 +470,8 @@ public class TestResponseBodyInterpolator {
         
         HttpRequest req = mock(HttpRequest.class);
         when(req.getRequestParameter("name")).thenReturn("Tim");
-        when(req.getPath()).thenReturn("/");
-        Route route = mock(Route.class);
-        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Hello Tim", 
@@ -581,10 +483,8 @@ public class TestResponseBodyInterpolator {
         
         HttpRequest req = mock(HttpRequest.class);
         when(req.getHeaderValue("User-Agent")).thenReturn("Mozilla/5.0");
-        when(req.getPath()).thenReturn("/");
-        Route route = mock(Route.class);
-        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Value: Mozilla/5.0", 
@@ -596,10 +496,8 @@ public class TestResponseBodyInterpolator {
         
         HttpRequest req = mock(HttpRequest.class);
         when(req.getMethod()).thenReturn("GET");
-        when(req.getPath()).thenReturn("/");
-        Route route = mock(Route.class);
-        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Message: GET", 
@@ -611,10 +509,8 @@ public class TestResponseBodyInterpolator {
         
         HttpRequest req = mock(HttpRequest.class);
         when(req.getTime()).thenReturn(123L);
-        when(req.getPath()).thenReturn("/");
-        Route route = mock(Route.class);
-        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Message: 123", 
@@ -625,10 +521,9 @@ public class TestResponseBodyInterpolator {
     public void testRequestPathSubstituted() throws Exception {
         
         HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/abc");
         when(req.getPath()).thenReturn("/abc");
-        Route route = mock(Route.class);
-        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
-        when(req.getRoute()).thenReturn(route);
+        when(req.getRoute()).thenReturn(new Route("/abc"));
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Message: /abc", 
@@ -640,10 +535,8 @@ public class TestResponseBodyInterpolator {
         
         HttpRequest req = mock(HttpRequest.class);
         when(req.getQuery()).thenReturn("a=b&c=d");
-        when(req.getPath()).thenReturn("/");
-        Route route = mock(Route.class);
-        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Message: a=b&c=d", 
@@ -655,10 +548,8 @@ public class TestResponseBodyInterpolator {
         
         HttpRequest req = mock(HttpRequest.class);
         when(req.getMajor()).thenReturn(123);
-        when(req.getPath()).thenReturn("/");
-        Route route = mock(Route.class);
-        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Message: 123", 
@@ -670,10 +561,8 @@ public class TestResponseBodyInterpolator {
         
         HttpRequest req = mock(HttpRequest.class);
         when(req.getMinor()).thenReturn(123);
-        when(req.getPath()).thenReturn("/");
-        Route route = mock(Route.class);
-        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Message: 123", 
@@ -685,10 +574,8 @@ public class TestResponseBodyInterpolator {
         
         HttpRequest req = mock(HttpRequest.class);
         when(req.getTarget()).thenReturn("/index");
-        when(req.getPath()).thenReturn("/");
-        Route route = mock(Route.class);
-        when(route.getNamedParameterElements()).thenReturn(emptyPathParamList());
-        when(req.getRoute()).thenReturn(route);
+        when(req.getUndecodedPath()).thenReturn("/index");
+        when(req.getRoute()).thenReturn(new Route("/index"));
         when(req.getSession()).thenReturn(null);
         
         assertEquals("Message: /index", 

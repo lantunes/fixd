@@ -31,6 +31,8 @@ public interface HttpRequest {
 
     String getPath();
     
+    String getUndecodedPath();
+    
     Set<String> getRequestParameterNames();
     
     String getRequestParameter(String name);

@@ -989,6 +989,71 @@ public class TestServerFixture {
         assertEquals("http://localhost:8080/new-location", resp.getHeader("Location"));
     }
     
+    @Test
+    public void testHandlesEncodedPaths() throws Exception {
+        
+        server.handle(Method.GET, "/foo+bar")
+              .with(200, "text/plain", "ok");
+        
+        Response resp = new AsyncHttpClient()
+                .prepareGet("http://localhost:8080/foo%2Bbar")
+                .execute().get();
+        
+        assertEquals("ok", resp.getResponseBody().trim());
+    }
+    
+    @Test
+    public void testHandlesEncodedPathSeparators() throws Exception {
+        
+        server.handle(Method.GET, "/foo/bar")
+              .with(200, "text/plain", "ok");
+        
+        Response resp = new AsyncHttpClient()
+                .prepareGet("http://localhost:8080/foo%2Fbar")
+                .execute().get();
+        
+        assertEquals(404, resp.getStatusCode());
+    }
+    
+    @Test
+    public void testHandlesEncodedPathSeparatorsWithNamedParams() throws Exception {
+        
+        server.handle(Method.GET, "/:name")
+              .with(200, "text/plain", ":name");
+        
+        Response resp = new AsyncHttpClient()
+                .prepareGet("http://localhost:8080/foo%2Fbar")
+                .execute().get();
+        
+        assertEquals("foo/bar", resp.getResponseBody().trim());
+    }
+    
+    @Test
+    public void testHandlesEncodedPlusWithNamedParams() throws Exception {
+        
+        server.handle(Method.GET, "/:name")
+              .with(200, "text/plain", ":name");
+        
+        Response resp = new AsyncHttpClient()
+                .prepareGet("http://localhost:8080/foo%2Bbar")
+                .execute().get();
+        
+        assertEquals("foo+bar", resp.getResponseBody().trim());
+    }
+    
+    @Test
+    public void testHandlesUnencodedPlusWithNamedParams() throws Exception {
+        
+        server.handle(Method.GET, "/:name")
+              .with(200, "text/plain", ":name");
+        
+        Response resp = new AsyncHttpClient()
+                .prepareGet("http://localhost:8080/foo+bar")
+                .execute().get();
+        
+        assertEquals("foo+bar", resp.getResponseBody().trim());
+    }
+    
     @After
     public void afterEachTest() throws Exception {
         server.stop();

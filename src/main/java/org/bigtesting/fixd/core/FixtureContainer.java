@@ -288,7 +288,7 @@ public class FixtureContainer implements Container {
         
         ResolvedRequest resolved = new ResolvedRequest();
         String method = request.getMethod();
-        String path = request.getPath().getPath();
+        String path = getPath(request);
         ContentType requestContentType = request.getContentType();
         
         /* get the route and the handler for this request */
@@ -313,6 +313,16 @@ public class FixtureContainer implements Container {
         resolved.route = route;
         resolved.key = key;
         return resolved;
+    }
+    
+    private String getPath(Request request) {
+        
+        String path = request.getTarget();
+        int queryIndex = path.indexOf('?');
+        if (queryIndex != -1) {
+            path = path.substring(0, queryIndex);
+        }
+        return path;
     }
     
     private class ResolvedRequest {
