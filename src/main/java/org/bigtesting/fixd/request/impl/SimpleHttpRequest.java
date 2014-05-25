@@ -57,12 +57,7 @@ public class SimpleHttpRequest implements HttpRequest {
     
     public String getUndecodedPath() {
         
-        String path = request.getTarget();
-        int queryIndex = path.indexOf('?');
-        if (queryIndex != -1) {
-            path = path.substring(0, queryIndex);
-        }
-        return path;
+        return RequestUtils.getUndecodedPath(request);
     }
 
     public Set<String> getRequestParameterNames() {

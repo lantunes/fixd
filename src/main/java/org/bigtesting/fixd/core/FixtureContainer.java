@@ -31,6 +31,7 @@ import org.bigtesting.fixd.core.async.AsyncHandler;
 import org.bigtesting.fixd.request.impl.SimpleHttpRequest;
 import org.bigtesting.fixd.session.Session;
 import org.bigtesting.fixd.session.SessionHandler;
+import org.bigtesting.fixd.util.RequestUtils;
 import org.bigtesting.routd.Route;
 import org.bigtesting.routd.Router;
 import org.bigtesting.routd.TreeRouter;
@@ -288,7 +289,7 @@ public class FixtureContainer implements Container {
         
         ResolvedRequest resolved = new ResolvedRequest();
         String method = request.getMethod();
-        String path = getPath(request);
+        String path = RequestUtils.getUndecodedPath(request);
         ContentType requestContentType = request.getContentType();
         
         /* get the route and the handler for this request */
@@ -313,16 +314,6 @@ public class FixtureContainer implements Container {
         resolved.route = route;
         resolved.key = key;
         return resolved;
-    }
-    
-    private String getPath(Request request) {
-        
-        String path = request.getTarget();
-        int queryIndex = path.indexOf('?');
-        if (queryIndex != -1) {
-            path = path.substring(0, queryIndex);
-        }
-        return path;
     }
     
     private class ResolvedRequest {

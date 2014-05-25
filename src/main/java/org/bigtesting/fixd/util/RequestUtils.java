@@ -19,6 +19,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.simpleframework.http.Request;
+
 /**
  * 
  * @author Luis Antunes
@@ -43,5 +45,15 @@ public class RequestUtils {
         }
         
         return out.toByteArray();
+    }
+    
+    public static String getUndecodedPath(Request request) {
+        
+        String path = request.getTarget();
+        int queryIndex = path.indexOf('?');
+        if (queryIndex != -1) {
+            path = path.substring(0, queryIndex);
+        }
+        return path;
     }
 }
