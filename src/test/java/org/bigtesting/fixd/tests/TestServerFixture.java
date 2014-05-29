@@ -277,6 +277,20 @@ public class TestServerFixture {
     }
     
     @Test
+    public void testSimpleGetWithSplatParam() throws Exception {
+
+        server.handle(Method.GET, "/name/*")
+              .with(200, "text/plain", "Hello *[0]");
+       
+        Response resp = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/name/Tim")
+                        .execute()
+                        .get();
+       
+        assertEquals("Hello Tim", resp.getResponseBody().trim());
+    }
+    
+    @Test
     public void testStatefulRequests() throws Exception {
         
         server.handle(Method.PUT, "/name/:name")

@@ -51,6 +51,8 @@ public class ResponseBodyInterpolator {
         
         body = interpolatePathParamValues(body, request);
         
+        body = interpolateSplatParamValues(body, request);
+        
         if (request.getSession() != null) {
             body = interpolateSessionValues(body, request.getSession());
         }
@@ -71,6 +73,20 @@ public class ResponseBodyInterpolator {
             body = body.replaceAll(":" + paramName, req.getRoute().getNamedParameter(param.name(), path));
         }
         
+        return body;
+    }
+    
+    /*
+     * handle any values enclosed in '*[]'
+     */
+    private static String interpolateSplatParamValues(String body, HttpRequest req) {
+        
+        String path = req.getUndecodedPath();
+        String[] splatValues = req.getRoute().splat(path);
+        for (int i = 0; i < splatValues.length; i++) {
+            body = body.replaceAll("\\*\\[" + i + "\\]", splatValues[i]);
+        }
+
         return body;
     }
     

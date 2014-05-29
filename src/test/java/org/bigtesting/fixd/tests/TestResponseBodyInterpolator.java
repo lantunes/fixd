@@ -20,13 +20,10 @@ import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.bigtesting.fixd.interpolation.ResponseBodyInterpolator;
 import org.bigtesting.fixd.request.HttpRequest;
 import org.bigtesting.fixd.session.Session;
-import org.bigtesting.routd.NamedParameterElement;
 import org.bigtesting.routd.Route;
 import org.junit.Test;
 
@@ -582,11 +579,127 @@ public class TestResponseBodyInterpolator {
                 ResponseBodyInterpolator.interpolate("Message: [request.target]", req));
     }
     
-    /*------------------------------------------------*/
-    
-    private List<NamedParameterElement> emptyPathParamList() {
-        return new ArrayList<NamedParameterElement>();
+    @Test
+    public void testSingleSplatParamSubstitued() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/name/Tim");
+        when(req.getRoute()).thenReturn(new Route("/name/*"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello Tim", 
+                ResponseBodyInterpolator.interpolate("Hello *[0]", req));
     }
+    
+    @Test
+    public void testSingleSplatParamSubstituedMultipleTimes() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/name/Tim");
+        when(req.getRoute()).thenReturn(new Route("/name/*"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello Tim Tim", 
+                ResponseBodyInterpolator.interpolate("Hello *[0] *[0]", req));
+    }
+    
+    @Test
+    public void testSingleSplatParamNotSubstituedWithIncorrectIndex() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/name/Tim");
+        when(req.getRoute()).thenReturn(new Route("/name/*"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello *[1]", 
+                ResponseBodyInterpolator.interpolate("Hello *[1]", req));
+    }
+    
+    @Test
+    public void testSingleSplatParamNotSubstituedIfFormattedIncorrectly() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/name/Tim");
+        when(req.getRoute()).thenReturn(new Route("/name/*"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello *[ 0]", 
+                ResponseBodyInterpolator.interpolate("Hello *[ 0]", req));
+    }
+    
+    @Test
+    public void testSingleSplatParamSubstituedWithSplatContainingValue() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/name/*[0]");
+        when(req.getRoute()).thenReturn(new Route("/name/*"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello *[0]", 
+                ResponseBodyInterpolator.interpolate("Hello *[0]", req));
+    }
+    
+    @Test
+    public void testSingleSplatParamSubstituedWithEmptyValue() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/name/");
+        when(req.getRoute()).thenReturn(new Route("/name/*"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello ", 
+                ResponseBodyInterpolator.interpolate("Hello *[0]", req));
+    }
+    
+    @Test
+    public void testSplatParamSubstituedWithDoubleDigitIndex() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/name/a/b/c/d/e/f/g/h/i/j/k");
+        when(req.getRoute()).thenReturn(new Route("/name/*/*/*/*/*/*/*/*/*/*/*"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello k", 
+                ResponseBodyInterpolator.interpolate("Hello *[10]", req));
+    }
+    
+    @Test
+    public void testTwoSplatParamsSubstitued() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/name/John/Doe");
+        when(req.getRoute()).thenReturn(new Route("/name/*/*"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello John Doe", 
+                ResponseBodyInterpolator.interpolate("Hello *[0] *[1]", req));
+    }
+    
+    @Test
+    public void testOnlySecondOfTwoSplatParamsSubstitued() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/name/John/Doe");
+        when(req.getRoute()).thenReturn(new Route("/name/*/*"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello Doe", 
+                ResponseBodyInterpolator.interpolate("Hello *[1]", req));
+    }
+    
+    @Test
+    public void testSplatParamSubsitutedInPresenceOfOtherParamTypes() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/say/hello/to/John/1/x");
+        when(req.getRoute()).thenReturn(new Route("/say/*/to/:name/:times<[0-9]+>/*"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("hello x", 
+                ResponseBodyInterpolator.interpolate("*[0] *[1]", req));
+    }
+    
+    /*------------------------------------------------*/
     
     private InputStream body(String content) {
         return new ByteArrayInputStream(content.getBytes());
