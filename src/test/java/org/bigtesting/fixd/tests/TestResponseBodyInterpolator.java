@@ -132,6 +132,42 @@ public class TestResponseBodyInterpolator {
     }
     
     @Test
+    public void testSimilarPathParamsSubstitued() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/name/Tim/John");
+        when(req.getRoute()).thenReturn(new Route("/name/:name/:name1"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello Tim John", 
+                ResponseBodyInterpolator.interpolate("Hello :name :name1", req));
+    }
+    
+    @Test
+    public void testSimilarPathParamNotSubstitued() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/name/Tim");
+        when(req.getRoute()).thenReturn(new Route("/name/:name"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello :name1", 
+                ResponseBodyInterpolator.interpolate("Hello :name1", req));
+    }
+    
+    @Test
+    public void testPathParamSubstitutedWithNameOfAnotherPathParam() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/name/:id/1");
+        when(req.getRoute()).thenReturn(new Route("/name/:name/:id"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello :id 1", 
+                ResponseBodyInterpolator.interpolate("Hello :name :id", req));
+    }
+    
+    @Test
     public void testMultiplePathParamsSubstitued() {
         
         HttpRequest req = mock(HttpRequest.class);
@@ -342,8 +378,13 @@ public class TestResponseBodyInterpolator {
     }
     
     @Test
-    public void testColonPrefixedSessionValueNotHandled() {
+    public void testColonPrefixedSessionValue() {
         
+        /*
+         * In this test, the result is not "Hello John" because
+         * :{name} is not a valid prefixed variable, as its name
+         * contains non-alphanumeric characters.
+         */
         HttpRequest req = mock(HttpRequest.class);
         when(req.getUndecodedPath()).thenReturn("/name/John");
         when(req.getRoute()).thenReturn(new Route("/name/:{name}"));
@@ -351,7 +392,7 @@ public class TestResponseBodyInterpolator {
         session.set("name", "Tim");
         when(req.getSession()).thenReturn(session);
         
-        assertEquals("Hello John", 
+        assertEquals("Hello :Tim", 
                 ResponseBodyInterpolator.interpolate("Hello :{name}", req));
     }
     

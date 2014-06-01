@@ -17,12 +17,10 @@ package org.bigtesting.fixd.interpolation;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import org.bigtesting.fixd.interpolation.lib.Interpolator;
+import org.bigtesting.fixd.interpolation.lib.Substitutor;
 import org.bigtesting.fixd.request.HttpRequest;
-import org.bigtesting.fixd.session.Session;
-import org.bigtesting.routd.NamedParameterElement;
 
 /**
  * 
@@ -30,12 +28,11 @@ import org.bigtesting.routd.NamedParameterElement;
  */
 public class ResponseBodyInterpolator {
     
-    private static final Pattern SESSION_VALUE_PATTERN = Pattern.compile("\\{([^{}]*)\\}");
-    
-    private static final Pattern REQUEST_VALUE_PATTERN = Pattern.compile("\\[([^\\[\\]]*)\\]");
+    private static final Interpolator interpolator = new Interpolator();
     
     private static final Map<String, RequestValueProvider<?>> requestValueProviders = 
             new HashMap<String, RequestValueProvider<?>>();
+    
     static {
         requestValueProviders.put("request.body", new RequestBodyValueProvider());
         requestValueProviders.put("request.method", new RequestMethodValueProvider());
@@ -45,108 +42,75 @@ public class ResponseBodyInterpolator {
         requestValueProviders.put("request.major", new RequestMajorValueProvider());
         requestValueProviders.put("request.minor", new RequestMinorValueProvider());
         requestValueProviders.put("request.target", new RequestTargetValueProvider());
-    }
-
-    public static String interpolate(String body, HttpRequest request) {
         
-        body = interpolatePathParamValues(body, request);
-        
-        body = interpolateSplatParamValues(body, request);
-        
-        if (request.getSession() != null) {
-            body = interpolateSessionValues(body, request.getSession());
-        }
-        
-        body = interpolateRequestValues(body, request);
-        
-        return body;
-    }
-    
-    /*
-     * handle any values that start with ':'
-     */
-    private static String interpolatePathParamValues(String body, HttpRequest req) {
-        
-        String path = req.getUndecodedPath();
-        for (NamedParameterElement param : req.getRoute().getNamedParameterElements()) {
-            String paramName = "\\Q" + param.name() + "\\E";
-            body = body.replaceAll(":" + paramName, req.getRoute().getNamedParameter(param.name(), path));
-        }
-        
-        return body;
-    }
-    
-    /*
-     * handle any values enclosed in '*[]'
-     */
-    private static String interpolateSplatParamValues(String body, HttpRequest req) {
-        
-        String path = req.getUndecodedPath();
-        String[] splatValues = req.getRoute().splat(path);
-        for (int i = 0; i < splatValues.length; i++) {
-            body = body.replaceAll("\\*\\[" + i + "\\]", splatValues[i]);
-        }
-
-        return body;
-    }
-    
-    /* 
-     * handle any values that are enclosed in '{}'
-     * - replacement values can consist of "{}"
-     */
-    private static String interpolateSessionValues(String body, final Session session) {
-        
-        return substituteGroups(body, SESSION_VALUE_PATTERN, new ValueProvider() {
-            public Object getValue(String captured) {
-                return session.get(captured);
+        interpolator.when("[a-zA-Z0-9_]").prefixedWith(":").handleWith(new Substitutor() {
+            public String substitute(String captured, Object arg) {
+                
+                HttpRequest req = (HttpRequest)arg;
+                String path = req.getUndecodedPath();
+                return req.getRoute().getNamedParameter(captured, path);
             }
         });
-    }
-    
-    private static String interpolateRequestValues(String body, final HttpRequest request) {
         
-        return substituteGroups(body, REQUEST_VALUE_PATTERN, new ValueProvider() {
-            public Object getValue(String captured) {
+        interpolator.when("[0-9]").enclosedBy("*[").and("]").handleWith(new Substitutor() {
+            public String substitute(String captured, Object arg) {
                 
+                HttpRequest req = (HttpRequest)arg;
+                String path = req.getUndecodedPath();
+                try {
+                    int i = Integer.parseInt(captured);
+                    String[] splat = req.getRoute().splat(path);
+                    //TODO route.getSplatParameter() should return null if index does not exist
+                    if (i > splat.length - 1) {
+                        return null;
+                    }
+                    return req.getRoute().splat(path)[i];
+                } catch (NumberFormatException e) {
+                    return null;
+                }
+            }
+        });
+        
+        interpolator.when().enclosedBy("{").and("}").handleWith(new Substitutor() {
+            public String substitute(String captured, Object arg) {
+                
+                HttpRequest req = (HttpRequest)arg;
+                if (req.getSession() != null) {
+                    Object val = req.getSession().get(captured);
+                    if (val != null) {
+                        return val.toString();
+                    }
+                }
+                return null;
+            }
+        });
+        
+        interpolator.when().enclosedBy("[").and("]").handleWith(new Substitutor() {
+            public String substitute(String captured, Object arg) {
+                
+                HttpRequest req = (HttpRequest)arg;
                 if (captured.startsWith("request?")) {
-                    return request.getRequestParameter(captured.replaceFirst("request\\?", ""));
+                    return req.getRequestParameter(captured.replaceFirst("request\\?", ""));
                 }
-                
+
                 if (captured.startsWith("request$")) {
-                    return request.getHeaderValue(captured.replaceFirst("request\\$", ""));
+                    return req.getHeaderValue(captured.replaceFirst("request\\$", ""));
                 }
-                
-                RequestValueProvider<?> requestValueProvider = 
-                        requestValueProviders.get(captured);
+
+                RequestValueProvider<?> requestValueProvider = requestValueProviders.get(captured);
                 if (requestValueProvider != null) {
-                    return requestValueProvider.getValue(request);
+                    Object val = requestValueProvider.getValue(req);
+                    if (val != null) {
+                        return val.toString();
+                    }
                 }
                 return null;
             }
         });
     }
-    
-    private static String substituteGroups(String body, Pattern pattern, 
-            ValueProvider valueProvider) {
+
+    public static String interpolate(String body, HttpRequest request) {
         
-        Matcher m = pattern.matcher(body);
-        StringBuilder result = new StringBuilder();
-        int start = 0;
-        while (m.find()) {
-            String captured = m.group(1);
-            Object val = valueProvider.getValue(captured);
-            if (val != null) {
-                String stringVal = val.toString();
-                result.append(body.substring(start, m.start()));
-                result.append(stringVal);
-                start = m.end();
-            }
-        }
-        result.append(body.substring(start));
-        return result.toString();
-    }
-    
-    private static interface ValueProvider {
-        Object getValue(String captured);
+        return interpolator.interpolate(body, request);
     }
 }
