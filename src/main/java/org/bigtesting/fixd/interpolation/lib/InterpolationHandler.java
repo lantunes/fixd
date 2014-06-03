@@ -21,7 +21,7 @@ package org.bigtesting.fixd.interpolation.lib;
  */
 public interface InterpolationHandler {
 
-    PrefixHandler prefixedWith(String prefix);
+    PrefixHandler prefixedBy(String prefix);
     
     EnclosureOpeningHandler enclosedBy(String opening);
 }

@@ -42,7 +42,7 @@ public class InterpolationHandlerImpl implements InterpolationHandler, Interpola
         this.characterClass = characterClass;
     }
     
-    public PrefixHandler prefixedWith(String prefix) {
+    public PrefixHandler prefixedBy(String prefix) {
         
         PrefixHandlerImpl prefixHandler = new PrefixHandlerImpl(prefix, characterClass);
         this.prefixHandler = prefixHandler;
