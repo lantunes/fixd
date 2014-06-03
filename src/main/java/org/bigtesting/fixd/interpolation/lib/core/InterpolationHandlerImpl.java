@@ -15,6 +15,9 @@
  */
 package org.bigtesting.fixd.interpolation.lib.core;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bigtesting.fixd.interpolation.lib.EnclosureOpeningHandler;
 import org.bigtesting.fixd.interpolation.lib.InterpolationHandler;
 import org.bigtesting.fixd.interpolation.lib.PrefixHandler;
@@ -23,7 +26,7 @@ import org.bigtesting.fixd.interpolation.lib.PrefixHandler;
  * 
  * @author Luis Antunes
  */
-public class InterpolationHandlerImpl implements InterpolationHandler {
+public class InterpolationHandlerImpl implements InterpolationHandler, Interpolating {
 
     private PrefixHandlerImpl prefixHandler;
     
@@ -54,18 +57,19 @@ public class InterpolationHandlerImpl implements InterpolationHandler {
         return enclosureOpeningHandler;
     }
     
-    public String interpolate(String toInterpolate, Object arg) {
+    public List<Substitution> interpolate(String toInterpolate, Object arg) {
         
+        List<Substitution> substitutions = new ArrayList<Substitution>();
         if (prefixHandler != null) {
             
-            toInterpolate = prefixHandler.interpolate(toInterpolate, arg);
+            substitutions.addAll(prefixHandler.interpolate(toInterpolate, arg));
             
         } else if (enclosureOpeningHandler != null) {
             
-            toInterpolate = enclosureOpeningHandler.getEnclosureClosingHandler()
-                                                   .interpolate(toInterpolate, arg);
+            substitutions.addAll(enclosureOpeningHandler.getEnclosureClosingHandler()
+                                                   .interpolate(toInterpolate, arg));
         }
         
-        return toInterpolate;
+        return substitutions;
     }
 }

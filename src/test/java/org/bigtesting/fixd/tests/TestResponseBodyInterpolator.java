@@ -218,6 +218,34 @@ public class TestResponseBodyInterpolator {
     }
     
     @Test
+    public void testSessionValueWithNamedParamNameNotSubstituted() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        Session session = new Session();
+        session.set("name", ":name");
+        when(req.getSession()).thenReturn(session);
+        
+        assertEquals("Hello :name", 
+                ResponseBodyInterpolator.interpolate("Hello {name}", req));
+    }
+    
+    @Test
+    public void testNamedParamWithSessionValueNameNotSubstituted() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/{name}");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        Session session = new Session();
+        session.set("name", "Tim");
+        when(req.getSession()).thenReturn(session);
+        
+        assertEquals("Hello {name}", 
+                ResponseBodyInterpolator.interpolate("Hello :name", req));
+    }
+    
+    @Test
     public void testSingleSessionValueSubstituedInPresenceOfOtherBraces() {
         
         HttpRequest req = mock(HttpRequest.class);
@@ -397,7 +425,7 @@ public class TestResponseBodyInterpolator {
     }
     
     @Test
-    public void testBraceEnclosedPathParamValueDoesNotSubstituteSessionValue() {
+    public void testBraceEnclosedPathParamValueSubstitutesSessionValue_OneOccurrence() {
         
         HttpRequest req = mock(HttpRequest.class);
         when(req.getUndecodedPath()).thenReturn("/name/John");
@@ -406,8 +434,23 @@ public class TestResponseBodyInterpolator {
         session.set(":name", "Tim");
         when(req.getSession()).thenReturn(session);
         
-        assertEquals("Hello {John}", 
+        assertEquals("Hello Tim", 
                 ResponseBodyInterpolator.interpolate("Hello {:name}", req));
+    }
+    
+    @Test
+    public void testBraceEnclosedPathParamValueSubstitutesSessionValue_TwoOccurrences() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/name/John/Doe");
+        when(req.getRoute()).thenReturn(new Route("/name/:first/:last"));
+        Session session = new Session();
+        session.set(":first", "Tom");
+        session.set(":last", "Jerry");
+        when(req.getSession()).thenReturn(session);
+        
+        assertEquals("Hello Tom Jerry", 
+                ResponseBodyInterpolator.interpolate("Hello {:first} {:last}", req));
     }
     
     @Test
@@ -738,6 +781,364 @@ public class TestResponseBodyInterpolator {
         
         assertEquals("hello x", 
                 ResponseBodyInterpolator.interpolate("*[0] *[1]", req));
+    }
+    
+    @Test
+    public void testSubstitutionIncreasesOverallLengthOfString() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/hello/there");
+        when(req.getRoute()).thenReturn(new Route("/*/*"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("hello there", 
+                ResponseBodyInterpolator.interpolate("*[0] *[1]", req));
+    }
+    
+    @Test
+    public void testEscapeWithSingleNamedParamWhichExists() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello :name", 
+                ResponseBodyInterpolator.interpolate("Hello ^:name", req));
+    }
+    
+    @Test
+    public void testEscapeWithSingleNamedParamWhichDoesNotExist() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John");
+        when(req.getRoute()).thenReturn(new Route("/:id"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello :name", 
+                ResponseBodyInterpolator.interpolate("Hello ^:name", req));
+    }
+    
+    @Test
+    public void testEscapeWithMultipleNamedParams_OneEscaped() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John/Doe");
+        when(req.getRoute()).thenReturn(new Route("/:name1/:name2"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello :name1 Doe", 
+                ResponseBodyInterpolator.interpolate("Hello ^:name1 :name2", req));
+    }
+    
+    @Test
+    public void testEscapeWithMultipleNamedParams_MultipleEscaped() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John/Doe");
+        when(req.getRoute()).thenReturn(new Route("/:name1/:name2"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello :name1 :name2", 
+                ResponseBodyInterpolator.interpolate("Hello ^:name1 ^:name2", req));
+    }
+    
+    @Test
+    public void testEscapeWithMultipleNamedParams_MultipleEscapedConcatenated() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John/Doe");
+        when(req.getRoute()).thenReturn(new Route("/:name1/:name2"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello :name1:name2", 
+                ResponseBodyInterpolator.interpolate("Hello ^:name1^:name2", req));
+    }
+    
+    @Test
+    public void testDoubleEscapeWithNamedParam() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello ^John", 
+                ResponseBodyInterpolator.interpolate("Hello ^^:name", req));
+    }
+    
+    @Test
+    public void testTripleEscapeWithNamedParam() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello ^:name", 
+                ResponseBodyInterpolator.interpolate("Hello ^^^:name", req));
+    }
+    
+    @Test
+    public void testQuadrupleEscapeWithNamedParam() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello ^^John", 
+                ResponseBodyInterpolator.interpolate("Hello ^^^^:name", req));
+    }
+    
+    @Test
+    public void testEscapeOnItsOwn() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello ^ there", 
+                ResponseBodyInterpolator.interpolate("Hello ^ there", req));
+    }
+    
+    @Test
+    public void testEscapeOnItsOwnWithNamedParam() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello ^ John", 
+                ResponseBodyInterpolator.interpolate("Hello ^ :name", req));
+    }
+    
+    @Test
+    public void testEscapeNextToNonInterpolatedValue() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello ^there", 
+                ResponseBodyInterpolator.interpolate("Hello ^there", req));
+    }
+    
+    @Test
+    public void testEscapeAfterNamedParam() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello John^", 
+                ResponseBodyInterpolator.interpolate("Hello :name^", req));
+    }
+    
+    @Test
+    public void testEscapeIgnoredInsideSessionValue() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
+        Session session = new Session();
+        session.set("^name", "Tim");
+        when(req.getSession()).thenReturn(session);
+        
+        assertEquals("Hello Tim", 
+                ResponseBodyInterpolator.interpolate("Hello {^name}", req));
+    }
+    
+    @Test
+    public void testEscapeWithSingleSessionValueWhichExists() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
+        Session session = new Session();
+        session.set("name", "Tim");
+        when(req.getSession()).thenReturn(session);
+        
+        assertEquals("Hello {name}", 
+                ResponseBodyInterpolator.interpolate("Hello ^{name}", req));
+    }
+    
+    @Test
+    public void testEscapeWithSingleSessionValueWhichDoesNotExist() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
+        Session session = new Session();
+        session.set("id", "Tim");
+        when(req.getSession()).thenReturn(session);
+        
+        assertEquals("Hello {name}", 
+                ResponseBodyInterpolator.interpolate("Hello ^{name}", req));
+    }
+    
+    @Test
+    public void testEscapeWithMultipleSessionValues_OneEscaped() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
+        Session session = new Session();
+        session.set("firstName", "John");
+        session.set("lastName", "Doe");
+        when(req.getSession()).thenReturn(session);
+        
+        assertEquals("Hello {firstName} Doe", 
+                ResponseBodyInterpolator.interpolate("Hello ^{firstName} {lastName}", req));
+    }
+    
+    @Test
+    public void testEscapeWithMultipleSessionValues_MultipleEscaped() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
+        Session session = new Session();
+        session.set("firstName", "John");
+        session.set("lastName", "Doe");
+        when(req.getSession()).thenReturn(session);
+        
+        assertEquals("Hello {firstName} {lastName}", 
+                ResponseBodyInterpolator.interpolate("Hello ^{firstName} ^{lastName}", req));
+    }
+    
+    @Test
+    public void testEscapeWithSingleRequestValueWhichExists() throws Exception {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getRequestParameter("name")).thenReturn("Tim");
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello [request?name]", 
+                ResponseBodyInterpolator.interpolate("Hello ^[request?name]", req));
+    }
+    
+    @Test
+    public void testEscapeWithSingleRequestValueWhichDoesNotExist() throws Exception {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getRequestParameter("id")).thenReturn("Tim");
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello [request?name]", 
+                ResponseBodyInterpolator.interpolate("Hello ^[request?name]", req));
+    }
+    
+    @Test
+    public void testEscapeWithMultipleRequestValues_OneEscaped() throws Exception {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getRequestParameter("name1")).thenReturn("John");
+        when(req.getRequestParameter("name2")).thenReturn("Doe");
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello [request?name1] Doe", 
+                ResponseBodyInterpolator.interpolate("Hello ^[request?name1] [request?name2]", req));
+    }
+    
+    @Test
+    public void testEscapeWithMultipleRequestValues_MultipleEscaped() throws Exception {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getRequestParameter("name1")).thenReturn("John");
+        when(req.getRequestParameter("name2")).thenReturn("Doe");
+        when(req.getUndecodedPath()).thenReturn("/");
+        when(req.getRoute()).thenReturn(new Route("/"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello [request?name1] [request?name2]", 
+                ResponseBodyInterpolator.interpolate("Hello ^[request?name1] ^[request?name2]", req));
+    }
+    
+    @Test
+    public void testEscapeWithSingleSplatParamWhichExists() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/name/Tim");
+        when(req.getRoute()).thenReturn(new Route("/name/*"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello *[0]", 
+                ResponseBodyInterpolator.interpolate("Hello ^*[0]", req));
+    }
+    
+    @Test
+    public void testEscapeWithSingleSplatParamWhichDoesNotExist() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/name/Tim");
+        when(req.getRoute()).thenReturn(new Route("/name/:name"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello *[0]", 
+                ResponseBodyInterpolator.interpolate("Hello ^*[0]", req));
+    }
+    
+    @Test
+    public void testEscapeWithMultipleSplatParams_OneEscaped() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/name/John/Doe");
+        when(req.getRoute()).thenReturn(new Route("/name/*/*"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello *[0] Doe", 
+                ResponseBodyInterpolator.interpolate("Hello ^*[0] *[1]", req));
+    }
+    
+    @Test
+    public void testEscapeWithMultipleSplatParams_MultipleEscaped() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/name/John/Doe");
+        when(req.getRoute()).thenReturn(new Route("/name/*/*"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello *[0] *[1]", 
+                ResponseBodyInterpolator.interpolate("Hello ^*[0] ^*[1]", req));
+    }
+    
+    @Test
+    public void testEscapeSessionValueWithNamedParamName() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        Session session = new Session();
+        session.set("name", ":name");
+        when(req.getSession()).thenReturn(session);
+        
+        assertEquals("Hello {name}", 
+                ResponseBodyInterpolator.interpolate("Hello ^{name}", req));
+    }
+    
+    @Test
+    public void testEscapeNamedParamWithSessionValueName() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/{name}");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        Session session = new Session();
+        session.set("name", "Tim");
+        when(req.getSession()).thenReturn(session);
+        
+        assertEquals("Hello :name", 
+                ResponseBodyInterpolator.interpolate("Hello ^:name", req));
     }
     
     /*------------------------------------------------*/

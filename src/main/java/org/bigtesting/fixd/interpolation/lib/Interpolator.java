@@ -16,9 +16,14 @@
 package org.bigtesting.fixd.interpolation.lib;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import org.bigtesting.fixd.interpolation.lib.core.Escape;
+import org.bigtesting.fixd.interpolation.lib.core.EscapeHandler;
+import org.bigtesting.fixd.interpolation.lib.core.Interpolating;
 import org.bigtesting.fixd.interpolation.lib.core.InterpolationHandlerImpl;
+import org.bigtesting.fixd.interpolation.lib.core.Substitution;
 
 /**
  * 
@@ -26,39 +31,77 @@ import org.bigtesting.fixd.interpolation.lib.core.InterpolationHandlerImpl;
  */
 public class Interpolator {
     
-    private final List<InterpolationHandlerImpl> handlers = new ArrayList<InterpolationHandlerImpl>();
-    
-    /*
-     * TODO implement escape
-     */
-    private String escape;
+    private final List<Interpolating> interpolating = new ArrayList<Interpolating>();
     
     public InterpolationHandler when() {
         
         InterpolationHandlerImpl handler = new InterpolationHandlerImpl();
-        handlers.add(handler);
+        interpolating.add(handler);
         return handler;
     }
     
     public InterpolationHandler when(String characterClass) {
         
         InterpolationHandlerImpl handler = new InterpolationHandlerImpl(characterClass);
-        handlers.add(handler);
+        interpolating.add(handler);
         return handler;
     }
 
     public void escapeWith(String escape) {
         
-        this.escape = escape;
+        interpolating.add(new EscapeHandler(escape));
     }
     
     public String interpolate(String toInterpolate, Object arg) {
         
-        for (InterpolationHandlerImpl handler : handlers) {
+        List<Substitution> substitutions = new ArrayList<Substitution>();
+        for (Interpolating handler : interpolating) {
             
-            toInterpolate = handler.interpolate(toInterpolate, arg);
+            substitutions.addAll(handler.interpolate(toInterpolate, arg));
         }
         
-        return toInterpolate;
+        Collections.sort(substitutions);
+        
+        StringBuilder sb = new StringBuilder(toInterpolate);
+        int diff = 0;
+        int lastEnd = 0;
+        Escape lastEscape = null;
+        for (int i = 0; i < substitutions.size(); i++) {
+            
+            Substitution sub = substitutions.get(i);
+            
+            if (sub.start() < lastEnd) continue;
+            
+            if (sub instanceof Escape) {
+                
+                if (lastEscape != null && sub.start() == lastEscape.end()) {
+                    continue;
+                }
+                
+                if (i+1 < substitutions.size()) {
+                    Substitution nextSub = substitutions.get(i+1);
+                    if (nextSub.start() == sub.end()) {
+                        lastEscape = (Escape)sub;
+                    } else {
+                        continue;
+                    }
+                } else {
+                    continue;
+                }
+                
+            } else if (lastEscape != null) {
+                
+                if (sub.start() == lastEscape.end()) {
+                    continue;
+                }
+            }
+            
+            if (sub.value() == null) continue;
+            
+            sb.replace(sub.start() - diff, sub.end() - diff, sub.value());
+            diff += sub.found().length() - sub.value().length();
+            lastEnd = sub.end();
+        }
+        return sb.toString();
     }
 }

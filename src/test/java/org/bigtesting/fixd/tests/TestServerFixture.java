@@ -460,7 +460,7 @@ public class TestServerFixture {
         
         /* need some time for the above request to complete
          * before the broadcast requests can start */
-        Thread.sleep(50);
+        Thread.sleep(100);
         
         for (int i = 0; i < 2; i++) {
             

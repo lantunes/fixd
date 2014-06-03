@@ -107,6 +107,8 @@ public class ResponseBodyInterpolator {
                 return null;
             }
         });
+        
+        interpolator.escapeWith("^");
     }
 
     public static String interpolate(String body, HttpRequest request) {

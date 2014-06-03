@@ -20,41 +20,29 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bigtesting.fixd.interpolation.lib.SubstitutionHandler;
-import org.bigtesting.fixd.interpolation.lib.Substitutor;
-
 /**
  * 
  * @author Luis Antunes
  */
-public abstract class SubstitutionHandlerImpl implements SubstitutionHandler, Interpolating {
+public class EscapeHandler implements Interpolating {
 
-    protected Substitutor substitutor;
+    private final String escape;
+    private final Pattern pattern;
     
-    public void handleWith(Substitutor substitutor) {
+    public EscapeHandler(String escape) {
         
-        this.substitutor = substitutor;
+        this.escape = escape;
+        this.pattern = Pattern.compile("(" + Pattern.quote(escape) + ")");
     }
 
-    protected abstract Pattern getPattern();
-    
-    protected abstract String getCaptured(String found);
-    
     public List<Substitution> interpolate(String toInterpolate, Object arg) {
         
         List<Substitution> substitutions = new ArrayList<Substitution>(); 
-        if (substitutor != null) {
-            Matcher m = getPattern().matcher(toInterpolate);
-            while (m.find()) {
-                
-                String found = m.group(1);
-                String captured = getCaptured(found);
-                String substitution = substitutor.substitute(captured, arg);
-                
-                substitutions.add(new Substitution(found, substitution, m.start(), m.end()));
-            }
+        Matcher m = pattern.matcher(toInterpolate);
+        while (m.find()) {
+            substitutions.add(new Escape(escape, "", m.start(), m.end()));
         }
-        
+
         return substitutions;
     }
 }
