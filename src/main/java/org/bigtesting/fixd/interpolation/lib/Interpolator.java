@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.bigtesting.fixd.interpolation.lib.core.Escape;
 import org.bigtesting.fixd.interpolation.lib.core.EscapeHandler;
 import org.bigtesting.fixd.interpolation.lib.core.Interpolating;
 import org.bigtesting.fixd.interpolation.lib.core.InterpolationHandlerImpl;
@@ -65,33 +64,34 @@ public class Interpolator {
         StringBuilder sb = new StringBuilder(toInterpolate);
         int diff = 0;
         int lastEnd = 0;
-        Escape lastEscape = null;
+        Substitution lastEscape = null;
         for (int i = 0; i < substitutions.size(); i++) {
             
             Substitution sub = substitutions.get(i);
             
             if (sub.start() < lastEnd) continue;
             
-            if (sub instanceof Escape) {
+            if (sub.isEscape()) {
                 
-                if (lastEscape != null && sub.start() == lastEscape.end()) {
+                if (lastEscape != null && sub.isAfter(lastEscape)) {
                     continue;
                 }
                 
-                if (i+1 < substitutions.size()) {
-                    Substitution nextSub = substitutions.get(i+1);
-                    if (nextSub.start() == sub.end()) {
-                        lastEscape = (Escape)sub;
+                if (hasNext(substitutions, i)) {
+                    
+                    if (isActualEscape(sub, substitutions, i)) {
+                        lastEscape = sub;
                     } else {
                         continue;
                     }
+                    
                 } else {
                     continue;
                 }
                 
             } else if (lastEscape != null) {
                 
-                if (sub.start() == lastEscape.end()) {
+                if (sub.isAfter(lastEscape)) {
                     continue;
                 }
             }
@@ -103,5 +103,29 @@ public class Interpolator {
             lastEnd = sub.end();
         }
         return sb.toString();
+    }
+    
+    private boolean hasNext(List<Substitution> substitutions, int currentIndex) {
+        return (currentIndex + 1) < substitutions.size();
+    }
+    
+    private boolean isActualEscape(Substitution esc, List<Substitution> substitutions, int currentIndex) {
+        
+        Substitution nextSub = getNext(substitutions, currentIndex);
+        
+        if (!nextSub.isAfter(esc)) return false;
+        
+        if (!nextSub.isEscape()) return true;
+        
+        /*
+         * nextSub is an escape immediately after the current escape;
+         * look ahead to see if a non-escape substitution occurs
+         */
+        currentIndex++;
+        return hasNext(substitutions, currentIndex) && isActualEscape(nextSub, substitutions, currentIndex);
+    }
+    
+    private Substitution getNext(List<Substitution> substitutions, int currentIndex) {
+        return substitutions.get(currentIndex + 1);
     }
 }

@@ -40,7 +40,7 @@ public class EscapeHandler implements Interpolating {
         List<Substitution> substitutions = new ArrayList<Substitution>(); 
         Matcher m = pattern.matcher(toInterpolate);
         while (m.find()) {
-            substitutions.add(new Escape(escape, "", m.start(), m.end()));
+            substitutions.add(new Substitution(escape, "", m.start(), m.end(), true));
         }
 
         return substitutions;

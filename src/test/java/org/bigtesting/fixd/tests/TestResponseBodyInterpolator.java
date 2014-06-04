@@ -904,6 +904,42 @@ public class TestResponseBodyInterpolator {
     }
     
     @Test
+    public void testDoubleEscapeOnItsOwn() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello ^^ there", 
+                ResponseBodyInterpolator.interpolate("Hello ^^ there", req));
+    }
+    
+    @Test
+    public void testTripleEscapeOnItsOwn() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello ^^^ there", 
+                ResponseBodyInterpolator.interpolate("Hello ^^^ there", req));
+    }
+    
+    @Test
+    public void testQuadrupleEscapeOnItsOwn() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello ^^^^ there", 
+                ResponseBodyInterpolator.interpolate("Hello ^^^^ there", req));
+    }
+    
+    @Test
     public void testEscapeOnItsOwnWithNamedParam() {
         
         HttpRequest req = mock(HttpRequest.class);
@@ -913,6 +949,42 @@ public class TestResponseBodyInterpolator {
         
         assertEquals("Hello ^ John", 
                 ResponseBodyInterpolator.interpolate("Hello ^ :name", req));
+    }
+    
+    @Test
+    public void testDoubleEscapeOnItsOwnWithNamedParam() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello ^^ John", 
+                ResponseBodyInterpolator.interpolate("Hello ^^ :name", req));
+    }
+    
+    @Test
+    public void testTripleEscapeOnItsOwnWithNamedParam() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello ^^^ John", 
+                ResponseBodyInterpolator.interpolate("Hello ^^^ :name", req));
+    }
+    
+    @Test
+    public void testQuadrupleEscapeOnItsOwnWithNamedParam() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello ^^^^ John", 
+                ResponseBodyInterpolator.interpolate("Hello ^^^^ :name", req));
     }
     
     @Test
@@ -928,6 +1000,42 @@ public class TestResponseBodyInterpolator {
     }
     
     @Test
+    public void testDoubleEscapeNextToNonInterpolatedValue() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello ^^there", 
+                ResponseBodyInterpolator.interpolate("Hello ^^there", req));
+    }
+    
+    @Test
+    public void testTripleEscapeNextToNonInterpolatedValue() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello ^^^there", 
+                ResponseBodyInterpolator.interpolate("Hello ^^^there", req));
+    }
+    
+    @Test
+    public void testQuadrupleEscapeNextToNonInterpolatedValue() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello ^^^^there", 
+                ResponseBodyInterpolator.interpolate("Hello ^^^^there", req));
+    }
+    
+    @Test
     public void testEscapeAfterNamedParam() {
         
         HttpRequest req = mock(HttpRequest.class);
@@ -937,6 +1045,90 @@ public class TestResponseBodyInterpolator {
         
         assertEquals("Hello John^", 
                 ResponseBodyInterpolator.interpolate("Hello :name^", req));
+    }
+    
+    @Test
+    public void testDoubleEscapeAfterNamedParam() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello John^^", 
+                ResponseBodyInterpolator.interpolate("Hello :name^^", req));
+    }
+    
+    @Test
+    public void testTripleEscapeAfterNamedParam() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello John^^^", 
+                ResponseBodyInterpolator.interpolate("Hello :name^^^", req));
+    }
+    
+    @Test
+    public void testQuadrupleEscapeAfterNamedParam() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello John^^^^", 
+                ResponseBodyInterpolator.interpolate("Hello :name^^^^", req));
+    }
+    
+    @Test
+    public void testEscapeAfterNonInterpolatedValue() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello there^", 
+                ResponseBodyInterpolator.interpolate("Hello there^", req));
+    }
+    
+    @Test
+    public void testDoubleEscapeAfterNonInterpolatedValue() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello there^^", 
+                ResponseBodyInterpolator.interpolate("Hello there^^", req));
+    }
+    
+    @Test
+    public void testTripleEscapeAfterNonInterpolatedValue() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello there^^^", 
+                ResponseBodyInterpolator.interpolate("Hello there^^^", req));
+    }
+    
+    @Test
+    public void testQuadrupleEscapeAfterNonInterpolatedValue() {
+        
+        HttpRequest req = mock(HttpRequest.class);
+        when(req.getUndecodedPath()).thenReturn("/John");
+        when(req.getRoute()).thenReturn(new Route("/:name"));
+        when(req.getSession()).thenReturn(null);
+        
+        assertEquals("Hello there^^^^", 
+                ResponseBodyInterpolator.interpolate("Hello there^^^^", req));
     }
     
     @Test
