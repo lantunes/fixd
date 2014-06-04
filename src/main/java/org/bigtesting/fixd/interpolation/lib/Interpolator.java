@@ -76,24 +76,16 @@ public class Interpolator {
                 if (lastEscape != null && sub.isAfter(lastEscape)) {
                     continue;
                 }
-                
-                if (hasNext(substitutions, i)) {
                     
-                    if (isActualEscape(sub, substitutions, i)) {
-                        lastEscape = sub;
-                    } else {
-                        continue;
-                    }
-                    
+                if (isActualEscape(sub, substitutions, i)) {
+                    lastEscape = sub;
                 } else {
                     continue;
                 }
                 
-            } else if (lastEscape != null) {
+            } else if (lastEscape != null && sub.isAfter(lastEscape)) {
                 
-                if (sub.isAfter(lastEscape)) {
-                    continue;
-                }
+                continue;
             }
             
             if (sub.value() == null) continue;
@@ -105,11 +97,9 @@ public class Interpolator {
         return sb.toString();
     }
     
-    private boolean hasNext(List<Substitution> substitutions, int currentIndex) {
-        return (currentIndex + 1) < substitutions.size();
-    }
-    
     private boolean isActualEscape(Substitution esc, List<Substitution> substitutions, int currentIndex) {
+        
+        if (!hasNext(substitutions, currentIndex)) return false;
         
         Substitution nextSub = getNext(substitutions, currentIndex);
         
@@ -121,8 +111,11 @@ public class Interpolator {
          * nextSub is an escape immediately after the current escape;
          * look ahead to see if a non-escape substitution occurs
          */
-        currentIndex++;
-        return hasNext(substitutions, currentIndex) && isActualEscape(nextSub, substitutions, currentIndex);
+        return isActualEscape(nextSub, substitutions, ++currentIndex);
+    }
+    
+    private boolean hasNext(List<Substitution> substitutions, int currentIndex) {
+        return (currentIndex + 1) < substitutions.size();
     }
     
     private Substitution getNext(List<Substitution> substitutions, int currentIndex) {
