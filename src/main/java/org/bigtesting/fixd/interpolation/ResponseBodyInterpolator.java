@@ -43,7 +43,7 @@ public class ResponseBodyInterpolator {
         requestValueProviders.put("request.minor", new RequestMinorValueProvider());
         requestValueProviders.put("request.target", new RequestTargetValueProvider());
         
-        interpolator.when("[a-zA-Z0-9_]").prefixedBy(":").handleWith(new Substitutor() {
+        interpolator.when("[a-zA-Z0-9_]+").prefixedBy(":").handleWith(new Substitutor() {
             public String substitute(String captured, Object arg) {
                 
                 HttpRequest req = (HttpRequest)arg;
@@ -52,7 +52,7 @@ public class ResponseBodyInterpolator {
             }
         });
         
-        interpolator.when("[0-9]").enclosedBy("*[").and("]").handleWith(new Substitutor() {
+        interpolator.when("[0-9]+").enclosedBy("*[").and("]").handleWith(new Substitutor() {
             public String substitute(String captured, Object arg) {
                 
                 HttpRequest req = (HttpRequest)arg;

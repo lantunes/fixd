@@ -36,9 +36,9 @@ public class PrefixHandlerImpl extends SubstitutionHandlerImpl
         
         String quotedPrefix = Pattern.quote(prefix);
         if (characterClass == null) {
-            characterClass = "[^" + quotedPrefix + "\\s]";
+            characterClass = "[^" + quotedPrefix + "\\s]+";
         }
-        this.pattern = Pattern.compile("(" + quotedPrefix + characterClass + "+)");
+        this.pattern = Pattern.compile("(" + quotedPrefix + characterClass + ")");
     }
     
     @Override
