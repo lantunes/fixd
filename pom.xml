@@ -50,6 +50,11 @@
             <artifactId>routd</artifactId>
             <version>1.0.3</version>
         </dependency>
+        <dependency>
+            <groupId>org.bigtesting</groupId>
+            <artifactId>interpolatd</artifactId>
+            <version>1.0.0</version>
+        </dependency>
         <!-- test dependencies -->
         <dependency>
             <groupId>junit</groupId>

@@ -18,9 +18,9 @@ package org.bigtesting.fixd.interpolation;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bigtesting.fixd.interpolation.lib.Interpolator;
-import org.bigtesting.fixd.interpolation.lib.Substitutor;
 import org.bigtesting.fixd.request.HttpRequest;
+import org.bigtesting.interpolatd.Interpolator;
+import org.bigtesting.interpolatd.Substitutor;
 
 /**
  * 
@@ -28,7 +28,7 @@ import org.bigtesting.fixd.request.HttpRequest;
  */
 public class ResponseBodyInterpolator {
     
-    private static final Interpolator interpolator = new Interpolator();
+    private static final Interpolator<HttpRequest> interpolator = new Interpolator<HttpRequest>();
     
     private static final Map<String, RequestValueProvider<?>> requestValueProviders = 
             new HashMap<String, RequestValueProvider<?>>();
@@ -43,70 +43,70 @@ public class ResponseBodyInterpolator {
         requestValueProviders.put("request.minor", new RequestMinorValueProvider());
         requestValueProviders.put("request.target", new RequestTargetValueProvider());
         
-        interpolator.when("[a-zA-Z0-9_]+").prefixedBy(":").handleWith(new Substitutor() {
-            public String substitute(String captured, Object arg) {
-                
-                HttpRequest req = (HttpRequest)arg;
-                String path = req.getUndecodedPath();
-                return req.getRoute().getNamedParameter(captured, path);
-            }
-        });
+        interpolator.when("[a-zA-Z0-9_]+").prefixedBy(":")
+            .handleWith(new Substitutor<HttpRequest>() {
+                public String substitute(String captured, HttpRequest req) {
+                    
+                    String path = req.getUndecodedPath();
+                    return req.getRoute().getNamedParameter(captured, path);
+                }
+            });
         
-        interpolator.when("[0-9]+").enclosedBy("*[").and("]").handleWith(new Substitutor() {
-            public String substitute(String captured, Object arg) {
-                
-                HttpRequest req = (HttpRequest)arg;
-                String path = req.getUndecodedPath();
-                try {
-                    int i = Integer.parseInt(captured);
-                    String[] splat = req.getRoute().splat(path);
-                    //TODO route.getSplatParameter() should return null if index does not exist
-                    if (i > splat.length - 1) {
+        interpolator.when("[0-9]+").enclosedBy("*[").and("]")
+            .handleWith(new Substitutor<HttpRequest>() {
+                public String substitute(String captured, HttpRequest req) {
+                    
+                    String path = req.getUndecodedPath();
+                    try {
+                        int i = Integer.parseInt(captured);
+                        String[] splat = req.getRoute().splat(path);
+                        //TODO route.getSplatParameter() should return null if index does not exist
+                        if (i > splat.length - 1) {
+                            return null;
+                        }
+                        return req.getRoute().splat(path)[i];
+                    } catch (NumberFormatException e) {
                         return null;
                     }
-                    return req.getRoute().splat(path)[i];
-                } catch (NumberFormatException e) {
+                }
+            });
+        
+        interpolator.when().enclosedBy("{").and("}")
+            .handleWith(new Substitutor<HttpRequest>() {
+                public String substitute(String captured, HttpRequest req) {
+                    
+                    if (req.getSession() != null) {
+                        Object val = req.getSession().get(captured);
+                        if (val != null) {
+                            return val.toString();
+                        }
+                    }
                     return null;
                 }
-            }
-        });
+            });
         
-        interpolator.when().enclosedBy("{").and("}").handleWith(new Substitutor() {
-            public String substitute(String captured, Object arg) {
-                
-                HttpRequest req = (HttpRequest)arg;
-                if (req.getSession() != null) {
-                    Object val = req.getSession().get(captured);
-                    if (val != null) {
-                        return val.toString();
+        interpolator.when().enclosedBy("[").and("]")
+            .handleWith(new Substitutor<HttpRequest>() {
+                public String substitute(String captured, HttpRequest req) {
+                    
+                    if (captured.startsWith("request?")) {
+                        return req.getRequestParameter(captured.replaceFirst("request\\?", ""));
                     }
-                }
-                return null;
-            }
-        });
-        
-        interpolator.when().enclosedBy("[").and("]").handleWith(new Substitutor() {
-            public String substitute(String captured, Object arg) {
-                
-                HttpRequest req = (HttpRequest)arg;
-                if (captured.startsWith("request?")) {
-                    return req.getRequestParameter(captured.replaceFirst("request\\?", ""));
-                }
-
-                if (captured.startsWith("request$")) {
-                    return req.getHeaderValue(captured.replaceFirst("request\\$", ""));
-                }
-
-                RequestValueProvider<?> requestValueProvider = requestValueProviders.get(captured);
-                if (requestValueProvider != null) {
-                    Object val = requestValueProvider.getValue(req);
-                    if (val != null) {
-                        return val.toString();
+    
+                    if (captured.startsWith("request$")) {
+                        return req.getHeaderValue(captured.replaceFirst("request\\$", ""));
                     }
+    
+                    RequestValueProvider<?> requestValueProvider = requestValueProviders.get(captured);
+                    if (requestValueProvider != null) {
+                        Object val = requestValueProvider.getValue(req);
+                        if (val != null) {
+                            return val.toString();
+                        }
+                    }
+                    return null;
                 }
-                return null;
-            }
-        });
+            });
         
         interpolator.escapeWith("^");
     }
