@@ -57,17 +57,8 @@ public class ResponseBodyInterpolator {
                 public String substitute(String captured, HttpRequest req) {
                     
                     String path = req.getUndecodedPath();
-                    try {
-                        int i = Integer.parseInt(captured);
-                        String[] splat = req.getRoute().splat(path);
-                        //TODO route.getSplatParameter() should return null if index does not exist
-                        if (i > splat.length - 1) {
-                            return null;
-                        }
-                        return req.getRoute().splat(path)[i];
-                    } catch (NumberFormatException e) {
-                        return null;
-                    }
+                    int index = Integer.parseInt(captured);
+                    return req.getRoute().getSplatParameter(index, path);
                 }
             });
         
