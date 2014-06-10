@@ -1,5 +1,4 @@
 # Fixd
-------
 
 Fixd is an HTTP server fixture for testing web clients. Unlike a mock web server, it 
 is backed by a fully functional HTTP server, bound to a port of your choosing. Its 
@@ -24,7 +23,7 @@ Finally, Fixd is not limited to being used in the context of unit tests. It can 
 used as a standalone HTTP server, in any context. In this sense, it can also be viewed
 as a Java micro web framework.
 
-## Table of Contents
+### Table of Contents
 
 * [Getting Started](#getting-started)
 * [Path Parameters](#path-parameters)
