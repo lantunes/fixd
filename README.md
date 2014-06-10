@@ -25,7 +25,6 @@ used as a standalone HTTP server, in any context. In this sense, it can also be 
 as a Java micro web framework.
 
 ## Table of Contents
---------------------
 
 * [Getting Started](#getting-started)
 * [Path Parameters](#path-parameters)
@@ -42,7 +41,6 @@ as a Java micro web framework.
 * [Tear Down](#tear-down)
 
 ### Getting Started
--------------------
 
 Download [the latest .jar](http://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=org.bigtesting&a=fixd&v=LATEST). It has
 only two dependencies: SLF4J, and the Simple Framework (http://www.simpleframework.org).
