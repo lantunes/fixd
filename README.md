@@ -24,8 +24,25 @@ Finally, Fixd is not limited to being used in the context of unit tests. It can 
 used as a standalone HTTP server, in any context. In this sense, it can also be viewed
 as a Java micro web framework.
 
-## Getting Started
-------------------
+## Table of Contents
+--------------------
+
+* [Getting Started](#getting-started)
+* [Path Parameters](#path-parameters)
+* [Request Values](#request-values)
+* [Capturing Requests](#capturing-requests)
+* [URI Pattern Matching](#uri-pattern-matching)
+* [Sessions for Stateful Requests](#sessions-for-stateful-requests)
+* [Setting Headers in the Response](#setting-headers-in-the-response)
+* [Delaying a Response](#delaying-a-response)
+* [Periodic Asynchronous Responses](#periodic-asynchronous-responses)
+* [Subscribe-Broadcast](#subscribe-broadcast)
+* [Handling Requests By Content Type](#handling-requests-by-content-type)
+* [Custom Request Handling](#custom-request-handling)
+* [Tear Down](#tear-down)
+
+### Getting Started
+-------------------
 
 Download [the latest .jar](http://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=org.bigtesting&a=fixd&v=LATEST). It has
 only two dependencies: SLF4J, and the Simple Framework (http://www.simpleframework.org).
