@@ -227,6 +227,11 @@ public class FixtureContainer implements Container {
             sendAndCommitResponse(response, "text/plain", new StringResponseBody(""));
         }
     }
+    
+    public void stop() {
+        
+        asyncHandler.stop();
+    }
 
     /*----------------------------------------------------------*/
     

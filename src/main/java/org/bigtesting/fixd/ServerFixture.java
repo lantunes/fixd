@@ -65,6 +65,7 @@ public class ServerFixture {
     
     public void stop() throws IOException {
         
+        container.stop();
         connection.close();
         server.stop();
     }

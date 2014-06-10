@@ -63,4 +63,9 @@ public class AsyncHandler {
             }
         }
     }
+    
+    public void stop() {
+        
+        asyncExecutor.shutdown();
+    }
 }
