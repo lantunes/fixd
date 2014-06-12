@@ -22,6 +22,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.bigtesting.fixd.Method;
 import org.bigtesting.fixd.RequestHandler;
+import org.bigtesting.fixd.marshalling.Marshaller;
+import org.bigtesting.fixd.marshalling.MarshallerProvider;
 import org.bigtesting.fixd.request.HttpRequest;
 import org.bigtesting.fixd.request.HttpRequestHandler;
 import org.bigtesting.fixd.response.impl.SimpleHttpResponse;
@@ -161,7 +163,7 @@ public class RequestHandlerImpl implements RequestHandler {
     }
 
     public ResponseBody body(HttpRequest request, Response resp, 
-            RequestMarshallerImpl marshaller) {
+            MarshallerProvider marshallerProvider) {
         
         if (httpHandler != null) {
             
@@ -169,18 +171,19 @@ public class RequestHandlerImpl implements RequestHandler {
             httpHandler.handle(request, response);
             this.contentType = response.getContentType();
             this.statusCode = response.getStatusCode();
-            return response.getBody();
+            return response.getBody(marshallerProvider);
         }
         
         if (hasEntity()) {
             
+            Marshaller marshaller = marshallerProvider.getMarshaller(contentType);
             if (marshaller == null) {
                 throw new RuntimeException("an entity has been set in the " +
                 		"response, but no marshaller exists for " +
                 		"content type: " + contentType);
             }
             
-            return new MarshalledResponseBody(entity, marshaller.getMarshaller());
+            return new MarshalledResponseBody(entity, marshaller);
         }
         
         return new InterpolatedResponseBody(body, request);

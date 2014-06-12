@@ -27,6 +27,8 @@ import org.bigtesting.fixd.core.RequestHandlerImpl;
 import org.bigtesting.fixd.core.RequestMarshallerImpl;
 import org.bigtesting.fixd.core.RequestUnmarshallerImpl;
 import org.bigtesting.fixd.core.ResponseBody;
+import org.bigtesting.fixd.marshalling.Marshaller;
+import org.bigtesting.fixd.marshalling.MarshallerProvider;
 import org.bigtesting.fixd.request.impl.SimpleHttpRequest;
 import org.bigtesting.routd.Route;
 import org.simpleframework.http.Request;
@@ -120,7 +122,11 @@ public class AsyncTask implements Runnable {
                 /* no support for session variables for now */
                 ResponseBody handlerBody = handler.body(
                         new SimpleHttpRequest(request, null, route, unmarshaller), 
-                        response, marshaller);
+                        response, new MarshallerProvider() {
+                            public Marshaller getMarshaller(String contentType) {
+                                return marshaller != null ? marshaller.getMarshaller() : null;
+                            }
+                        });
                 
                 handlerBody.send(response, responseContentType);
                 

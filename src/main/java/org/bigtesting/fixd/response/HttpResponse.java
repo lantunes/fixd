@@ -29,6 +29,8 @@ public interface HttpResponse {
     
     void setBody(String content);
     
+    void setBody(Object entity);
+    
     /**
      * The body content set using this method will
      * be run through the response body interpolater.

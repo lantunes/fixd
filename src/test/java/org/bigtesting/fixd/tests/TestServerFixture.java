@@ -913,6 +913,28 @@ public class TestServerFixture {
     }   
     
     @Test
+    public void testMarshallingWithHandler() throws Exception {
+        
+        server.marshal("application/json")
+              .with(new JSONMarshaller());
+        
+        server.handle(Method.GET, "/marshal")
+              .with(new HttpRequestHandler() {
+                public void handle(HttpRequest request, HttpResponse response) {
+                    response.setStatusCode(200);
+                    response.setContentType("application/json");
+                    response.setBody(new SimplePojo("marshalledJSON"));
+                }
+            });
+        
+        Response resp = new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/marshal")
+                        .execute().get();
+        
+        assertEquals("{\"val\":\"marshalledJSON\"}", resp.getResponseBody().trim());
+    }
+    
+    @Test
     public void testUnmarshalling() throws Exception {
         
         server.unmarshal("application/json")

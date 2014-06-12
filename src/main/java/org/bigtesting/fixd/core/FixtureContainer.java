@@ -28,6 +28,8 @@ import org.bigtesting.fixd.Method;
 import org.bigtesting.fixd.capture.CapturedRequest;
 import org.bigtesting.fixd.capture.impl.SimpleCapturedRequest;
 import org.bigtesting.fixd.core.async.AsyncHandler;
+import org.bigtesting.fixd.marshalling.Marshaller;
+import org.bigtesting.fixd.marshalling.MarshallerProvider;
 import org.bigtesting.fixd.request.impl.SimpleHttpRequest;
 import org.bigtesting.fixd.session.Session;
 import org.bigtesting.fixd.session.SessionHandler;
@@ -185,7 +187,7 @@ public class FixtureContainer implements Container {
                 ResponseBody handlerBody = resolved.handler.body(
                         new SimpleHttpRequest(request, session, resolved.route, 
                                 resolved.unmarshaller()), 
-                        response, resolved.marhsaller());
+                        response, resolved.marshallerProvider());
                 if (handlerBody != null && handlerBody.hasContent()) {
                     responseBody = handlerBody;
                 }
@@ -329,9 +331,13 @@ public class FixtureContainer implements Container {
         HandlerKey key;
         Status errorStatus;
         
-        RequestMarshallerImpl marhsaller() {
-            return handler.hasContentType() ? 
-                    contentMarshallers.get(handler.contentType()) : null;
+        MarshallerProvider marshallerProvider() {
+            return new MarshallerProvider() {
+                public Marshaller getMarshaller(String contentType) {
+                    RequestMarshallerImpl marsh = contentMarshallers.get(contentType);
+                    return marsh != null ? marsh.getMarshaller() : null;
+                }
+            };
         }
         
         RequestUnmarshallerImpl unmarshaller() {

@@ -20,8 +20,11 @@ import java.io.InputStream;
 import org.bigtesting.fixd.core.ByteArrayResponseBody;
 import org.bigtesting.fixd.core.InputStreamResponseBody;
 import org.bigtesting.fixd.core.InterpolatedResponseBody;
+import org.bigtesting.fixd.core.MarshalledResponseBody;
 import org.bigtesting.fixd.core.ResponseBody;
 import org.bigtesting.fixd.core.StringResponseBody;
+import org.bigtesting.fixd.marshalling.Marshaller;
+import org.bigtesting.fixd.marshalling.MarshallerProvider;
 import org.bigtesting.fixd.request.HttpRequest;
 import org.bigtesting.fixd.response.HttpResponse;
 import org.simpleframework.http.Cookie;
@@ -39,6 +42,7 @@ public class SimpleHttpResponse implements HttpResponse {
     private final Response response;
     
     private ResponseBody body;
+    private Object entity;
     private String contentType;
     private int statusCode;
     
@@ -58,12 +62,31 @@ public class SimpleHttpResponse implements HttpResponse {
     public void setBody(String content) {
         this.body = new StringResponseBody(content);
     }
+    
+    public void setBody(Object entity) {
+        this.entity = entity;
+    }
 
     public void setInterpolatedBody(String content) {
         this.body = new InterpolatedResponseBody(content, request);
     }
     
-    public ResponseBody getBody() {
+    public ResponseBody getBody(MarshallerProvider marshallerProvider) {
+        
+        if (entity != null) {
+            if (contentType == null || contentType.trim().length() == 0) {
+                throw new RuntimeException("an entity has been specified " +
+                		"in the response body, but no content type has " +
+                		"been specified");
+            }
+            Marshaller marshaller = marshallerProvider.getMarshaller(contentType);
+            if (marshaller == null) {
+                throw new RuntimeException("an entity has been specified " +
+                        "in the response body, but no marshaller exists for " +
+                        "content type: " + contentType);
+            }
+            this.body = new MarshalledResponseBody(entity, marshaller);
+        }
         return body;
     }
     
