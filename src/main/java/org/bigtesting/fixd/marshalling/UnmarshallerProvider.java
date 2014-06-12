@@ -19,18 +19,18 @@ package org.bigtesting.fixd.marshalling;
  * 
  * @author Luis Antunes
  */
-public interface MarshallerProvider {
+public interface UnmarshallerProvider {
 
     /**
      * 
-     * Returns the Marshaller for the given content-type,
-     * or null if there is no Marshaller for the given
+     * Returns the Unmarshaller for the given content-type,
+     * or null if there is no Unmarshaller for the given
      * content-type.
      * 
      * @param contentType
-     * @return the Marshaller for the given content-type, or
-     *         null if there is no Marshaller for the given
+     * @return the Unmarshaller for the given content-type, or
+     *         null if there is no Unmarshaller for the given
      *         content-type
      */
-    Marshaller getMarshaller(String contentType);
+    Unmarshaller getUnmarshaller(String contentType);
 }

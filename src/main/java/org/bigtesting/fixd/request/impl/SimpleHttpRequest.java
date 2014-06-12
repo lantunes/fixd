@@ -20,7 +20,8 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 
-import org.bigtesting.fixd.core.RequestUnmarshallerImpl;
+import org.bigtesting.fixd.marshalling.Unmarshaller;
+import org.bigtesting.fixd.marshalling.UnmarshallerProvider;
 import org.bigtesting.fixd.request.HttpRequest;
 import org.bigtesting.fixd.session.Session;
 import org.bigtesting.fixd.util.RequestUtils;
@@ -39,15 +40,15 @@ public class SimpleHttpRequest implements HttpRequest {
     
     private final Route route;
     
-    private final RequestUnmarshallerImpl unmarshaller;
+    private final UnmarshallerProvider unmarshallerProvider;
     
     public SimpleHttpRequest(Request request, Session session, Route route, 
-            RequestUnmarshallerImpl unmarshaller) {
+            UnmarshallerProvider unmarshallerProvider) {
         
         this.request = request;
         this.session = session;
         this.route = route;
-        this.unmarshaller = unmarshaller;
+        this.unmarshallerProvider = unmarshallerProvider;
     }
     
     public String getPath() {
@@ -101,12 +102,14 @@ public class SimpleHttpRequest implements HttpRequest {
     
     public <T> T getBody(Class<T> type) {
         
+        Unmarshaller unmarshaller = unmarshallerProvider.getUnmarshaller(getContentType());
         if (unmarshaller == null) {
             throw new RuntimeException("cannot unmarshall body as type " + 
-                    type.getName() + ", as no unmarshaller is available");
+                    type.getName() + ", as no unmarshaller is available for" +
+                    		"content-type: " + getContentType());
         }
         try {
-            return unmarshaller.getUnmarshaller().unmarshal(getBodyAsStream(), type);
+            return unmarshaller.unmarshal(getBodyAsStream(), type);
         } catch (Exception e) {
             throw new RuntimeException("error unmarshalling", e);
         }

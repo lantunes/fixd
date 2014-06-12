@@ -24,11 +24,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.bigtesting.fixd.core.RequestHandlerImpl;
-import org.bigtesting.fixd.core.RequestMarshallerImpl;
-import org.bigtesting.fixd.core.RequestUnmarshallerImpl;
 import org.bigtesting.fixd.core.ResponseBody;
-import org.bigtesting.fixd.marshalling.Marshaller;
 import org.bigtesting.fixd.marshalling.MarshallerProvider;
+import org.bigtesting.fixd.marshalling.UnmarshallerProvider;
 import org.bigtesting.fixd.request.impl.SimpleHttpRequest;
 import org.bigtesting.routd.Route;
 import org.simpleframework.http.Request;
@@ -55,9 +53,9 @@ public class AsyncTask implements Runnable {
     
     private final List<Queue<Broadcast>> subscribers;
     
-    private final RequestMarshallerImpl marshaller;
+    private final MarshallerProvider marshallerProvider;
     
-    private final RequestUnmarshallerImpl unmarshaller;
+    private final UnmarshallerProvider unmarshallerProvider;
     
     private Timer broadcastSubscribeTimeoutTimer;
     
@@ -65,16 +63,16 @@ public class AsyncTask implements Runnable {
             RequestHandlerImpl handler,
             List<Queue<Broadcast>> subscribers,
             String responseContentType, ResponseBody responseBody,
-            RequestMarshallerImpl marshaller,
-            RequestUnmarshallerImpl unmarshaller) {
+            MarshallerProvider marshallerProvider,
+            UnmarshallerProvider unmarshallerProvider) {
         
         this.response = response;
         this.handler = handler;
         this.subscribers = subscribers;
         this.responseContentType = responseContentType;
         this.responseBody = responseBody;
-        this.marshaller = marshaller;
-        this.unmarshaller = unmarshaller;
+        this.marshallerProvider = marshallerProvider;
+        this.unmarshallerProvider = unmarshallerProvider;
     }
 
     public void run() {
@@ -121,12 +119,8 @@ public class AsyncTask implements Runnable {
 
                 /* no support for session variables for now */
                 ResponseBody handlerBody = handler.body(
-                        new SimpleHttpRequest(request, null, route, unmarshaller), 
-                        response, new MarshallerProvider() {
-                            public Marshaller getMarshaller(String contentType) {
-                                return marshaller != null ? marshaller.getMarshaller() : null;
-                            }
-                        });
+                        new SimpleHttpRequest(request, null, route, unmarshallerProvider), 
+                        response, marshallerProvider);
                 
                 handlerBody.send(response, responseContentType);
                 

@@ -30,6 +30,8 @@ import org.bigtesting.fixd.capture.impl.SimpleCapturedRequest;
 import org.bigtesting.fixd.core.async.AsyncHandler;
 import org.bigtesting.fixd.marshalling.Marshaller;
 import org.bigtesting.fixd.marshalling.MarshallerProvider;
+import org.bigtesting.fixd.marshalling.Unmarshaller;
+import org.bigtesting.fixd.marshalling.UnmarshallerProvider;
 import org.bigtesting.fixd.request.impl.SimpleHttpRequest;
 import org.bigtesting.fixd.session.Session;
 import org.bigtesting.fixd.session.SessionHandler;
@@ -178,7 +180,7 @@ public class FixtureContainer implements Container {
             SessionHandler sessionHandler = resolved.handler.sessionHandler();
             if (sessionHandler != null) {
                 createNewSession(request, response, resolved.route, sessionHandler, 
-                        resolved.unmarshaller());
+                        resolved.unmarshallerProvider());
             }
             
             /* set the response body */
@@ -186,7 +188,7 @@ public class FixtureContainer implements Container {
                 Session session = getSessionIfExists(request);
                 ResponseBody handlerBody = resolved.handler.body(
                         new SimpleHttpRequest(request, session, resolved.route, 
-                                resolved.unmarshaller()), 
+                                resolved.unmarshallerProvider()), 
                         response, resolved.marshallerProvider());
                 if (handlerBody != null && handlerBody.hasContent()) {
                     responseBody = handlerBody;
@@ -218,7 +220,7 @@ public class FixtureContainer implements Container {
             /* handle the response */
             if (resolved.handler.isAsync()) {
                 doAsync(response, resolved.handler, responseContentType, responseBody, 
-                        resolved.unmarshaller());
+                        resolved.marshallerProvider(), resolved.unmarshallerProvider());
             } else {
                 sendAndCommitResponse(response, responseContentType, responseBody);
             }
@@ -269,10 +271,11 @@ public class FixtureContainer implements Container {
     
     private void createNewSession(Request request, Response response, 
             Route route, SessionHandler sessionHandler, 
-            RequestUnmarshallerImpl unmarshaller) {
+            UnmarshallerProvider unmarshallerProvider) {
         
         Session session = new Session();
-        sessionHandler.onCreate(new SimpleHttpRequest(request, session, route, unmarshaller));
+        sessionHandler.onCreate(new SimpleHttpRequest(request, session, 
+                route, unmarshallerProvider));
         sessions.put(session.getSessionId(), session);
         
         Cookie cookie = new Cookie(SESSION_COOKIE_NAME, session.getSessionId());
@@ -281,10 +284,11 @@ public class FixtureContainer implements Container {
     
     private void doAsync(Response response, RequestHandlerImpl handler, 
             String responseContentType, ResponseBody responseBody, 
-            RequestUnmarshallerImpl unmarshaller) {
+            MarshallerProvider marshallerProvider, 
+            UnmarshallerProvider unmarshallerProvider) {
         
         asyncHandler.doAsync(response, handler, responseContentType, responseBody,
-                contentMarshallers.get(responseContentType), unmarshaller);
+                marshallerProvider, unmarshallerProvider);
     }
     
     private void sendAndCommitResponse(Response response, 
@@ -340,18 +344,13 @@ public class FixtureContainer implements Container {
             };
         }
         
-        RequestUnmarshallerImpl unmarshaller() {
-            return hasHandledContentType() ? 
-                    contentUnmarshallers.get(handledContentType()) : null;
-        }
-        
-        String handledContentType() {
-            return key.contentType();
-        }
-        
-        boolean hasHandledContentType() {
-            return handledContentType() != null && 
-                    handledContentType().trim().length() > 0;
+        UnmarshallerProvider unmarshallerProvider() {
+            return new UnmarshallerProvider() {
+                public Unmarshaller getUnmarshaller(String contentType) {
+                    RequestUnmarshallerImpl unmarsh = contentUnmarshallers.get(contentType);
+                    return unmarsh != null ? unmarsh.getUnmarshaller() : null;
+                }
+            };
         }
     }
 }

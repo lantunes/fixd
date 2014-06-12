@@ -517,6 +517,53 @@ public class TestServerFixture {
     }
     
     @Test
+    public void testUponAndMarshallingAndUnmarshallingWithHandler() throws Exception {
+        
+        server.marshal("application/json")
+              .with(new JSONMarshaller());
+        
+        server.unmarshal("application/json")
+              .with(new JSONUnmarshaller());
+        
+        server.handle(Method.GET, "/subscribe")
+              .with(new HttpRequestHandler() {
+                  public void handle(HttpRequest request, HttpResponse response) {
+                      response.setStatusCode(200);
+                      response.setContentType("application/json");
+                      SimplePojo entity = request.getBody(SimplePojo.class);
+                      response.setBody(new SimplePojo(entity.getVal()));
+                  }
+              })
+              .upon(Method.PUT, "/broadcast", "application/json");
+        
+        final List<String> broadcasts = new ArrayList<String>();
+        ListenableFuture<Integer> f = new AsyncHttpClient()
+              .prepareGet("http://localhost:8080/subscribe")
+              .execute(new AddToListOnBodyPartReceivedHandler(broadcasts));
+        
+        /* need some time for the above request to complete
+         * before the broadcast requests can start */
+        Thread.sleep(100);
+        
+        for (int i = 0; i < 2; i++) {
+            
+            new AsyncHttpClient()
+                .preparePut("http://localhost:8080/broadcast")
+                .setHeader("Content-Type", "application/json")
+                .setBody("{\"val\":\"hello" + i + "\"}")
+                .execute().get();
+            
+            /* sometimes the last broadcast request is not
+             * finished before f.done() is called */
+            Thread.sleep(50);
+        }
+        
+        f.done(null);
+        assertEquals("[{\"val\":\"hello0\"}, {\"val\":\"hello1\"}]", 
+                broadcasts.toString());
+    }
+    
+    @Test
     public void testUponWithMultipleScubscribers() throws Exception {
         
         server.handle(Method.GET, "/subscribe")

@@ -22,9 +22,9 @@ import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 
 import org.bigtesting.fixd.core.RequestHandlerImpl;
-import org.bigtesting.fixd.core.RequestMarshallerImpl;
-import org.bigtesting.fixd.core.RequestUnmarshallerImpl;
 import org.bigtesting.fixd.core.ResponseBody;
+import org.bigtesting.fixd.marshalling.MarshallerProvider;
+import org.bigtesting.fixd.marshalling.UnmarshallerProvider;
 import org.bigtesting.routd.Route;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
@@ -47,11 +47,12 @@ public class AsyncHandler {
     
     public void doAsync(Response response, RequestHandlerImpl handler, 
             String responseContentType, ResponseBody responseBody,
-            RequestMarshallerImpl marshaller,
-            RequestUnmarshallerImpl unmarshaller) {
+            MarshallerProvider marshallerProvider,
+            UnmarshallerProvider unmarshallerProvider) {
         
         AsyncTask task = new AsyncTask(response, handler, subscribers,
-                responseContentType, responseBody, marshaller, unmarshaller);
+                responseContentType, responseBody, 
+                marshallerProvider, unmarshallerProvider);
         asyncExecutor.execute(task);
     }
     
