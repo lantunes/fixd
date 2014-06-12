@@ -156,6 +156,7 @@ public class FixtureContainer implements Container {
             
             String responseContentType = "text/plain";
             ResponseBody responseBody = new StringResponseBody("");
+            int handlerStatusCode = Status.OK.code;
             
             ResolvedRequest resolved = resolve(request);
             if (resolved.errorStatus != null) {
@@ -188,6 +189,7 @@ public class FixtureContainer implements Container {
                 if (handlerBody != null && handlerBody.hasContent()) {
                     responseBody = handlerBody;
                 }
+                handlerStatusCode = resolved.handler.statusCode();
             }
             
             /* set the content type */
@@ -199,11 +201,10 @@ public class FixtureContainer implements Container {
             }
             
             /* set the response status code */
-            int handlerStatusCode = resolved.handler.statusCode();
             if (handlerStatusCode == -1) {
                 throw new RuntimeException("a response status code must be specified");
             }
-            response.setCode(resolved.handler.statusCode());
+            response.setCode(handlerStatusCode);
             
             /* set any headers */
             Set<SimpleImmutableEntry<String, String>> headers = 

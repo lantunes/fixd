@@ -479,6 +479,44 @@ public class TestServerFixture {
     }
     
     @Test
+    public void testUponWithRequestHandler() throws Exception {
+        
+        server.handle(Method.GET, "/subscribe")
+              .with(new HttpRequestHandler() {
+                   public void handle(HttpRequest request, HttpResponse response) {
+                       response.setStatusCode(200);
+                       response.setContentType("text/plain");
+                       response.setBody("message: " + request.getBody());
+                   }
+              })
+              .upon(Method.PUT, "/broadcast");
+        
+        final List<String> broadcasts = new ArrayList<String>();
+        ListenableFuture<Integer> f = new AsyncHttpClient()
+              .prepareGet("http://localhost:8080/subscribe")
+              .execute(new AddToListOnBodyPartReceivedHandler(broadcasts));
+        
+        /* need some time for the above request to complete
+         * before the broadcast requests can start */
+        Thread.sleep(100);
+        
+        for (int i = 0; i < 2; i++) {
+            
+            new AsyncHttpClient()
+                .preparePut("http://localhost:8080/broadcast")
+                .setBody("hello" + i)
+                .execute().get();
+            
+            /* sometimes the last broadcast request is not
+             * finished before f.done() is called */
+            Thread.sleep(50);
+        }
+        
+        f.done(null);
+        assertEquals("[message: hello0, message: hello1]", broadcasts.toString());
+    }
+    
+    @Test
     public void testUponWithMultipleScubscribers() throws Exception {
         
         server.handle(Method.GET, "/subscribe")
