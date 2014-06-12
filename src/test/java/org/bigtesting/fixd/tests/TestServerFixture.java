@@ -959,6 +959,34 @@ public class TestServerFixture {
     }
     
     @Test
+    public void testMarshallingAndUnmarshallingWithHandler() throws Exception {
+        
+        server.marshal("application/json")
+              .with(new JSONMarshaller());
+        
+        server.unmarshal("application/json")
+              .with(new JSONUnmarshaller());
+        
+        server.handle(Method.PUT, "/marshal-and-unmarshal", "application/json")
+              .with(new HttpRequestHandler() {
+                public void handle(HttpRequest request, HttpResponse response) {
+                    response.setStatusCode(200);
+                    response.setContentType("application/json");
+                    SimplePojo entity = request.getBody(SimplePojo.class);
+                    response.setBody(new SimplePojo(entity.getVal()));
+                }
+            });
+        
+        Response resp = new AsyncHttpClient()
+                        .preparePut("http://localhost:8080/marshal-and-unmarshal")
+                        .setHeader("Content-Type", "application/json")
+                        .setBody("{\"val\":\"someJSON\"}")
+                        .execute().get();
+        
+        assertEquals("{\"val\":\"someJSON\"}", resp.getResponseBody().trim());
+    }
+    
+    @Test
     public void redirects() throws Exception {
         
         server.handle(Method.GET, "/")

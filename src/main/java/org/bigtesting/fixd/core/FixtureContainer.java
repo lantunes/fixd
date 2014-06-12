@@ -313,7 +313,7 @@ public class FixtureContainer implements Container {
         RequestHandlerImpl handler = handlerMap.get(key);
         if (handler == null) {
             logger.error("could not find a handler for " + 
-                    method + " - " + path);
+                    method + " - " + path + " - " + contentType);
             resolved.errorStatus = Status.METHOD_NOT_ALLOWED;
             return resolved;
         }
