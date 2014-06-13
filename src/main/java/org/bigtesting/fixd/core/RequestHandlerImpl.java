@@ -125,14 +125,14 @@ public class RequestHandlerImpl implements RequestHandler {
     
     public RequestHandler upon(Method method, String resource) {
         
-        this.upon = new Upon(method, resource);
+        this.upon = new Upon(method, resource, this);
         container.addUponHandler(this.upon);
         return this;
     }
     
     public RequestHandler upon(Method method, String resource, String contentType) {
         
-        this.upon = new Upon(method, resource, contentType);
+        this.upon = new Upon(method, resource, contentType, this);
         container.addUponHandler(this.upon);
         return this;
     }

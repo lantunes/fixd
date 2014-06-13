@@ -23,19 +23,22 @@ import org.bigtesting.fixd.Method;
  */
 public class Upon {
 
-    private Method method;
-    private String resource;
-    private String contentType;
+    private final Method method;
+    private final String resource;
+    private final String contentType;
+    private final RequestHandlerImpl handler;
     
-    public Upon(Method method, String resource) {
-        this(method, resource, null);
+    public Upon(Method method, String resource, RequestHandlerImpl handler) {
+        this(method, resource, null, handler);
     }
     
-    public Upon(Method method, String resource, String contentType) {
+    public Upon(Method method, String resource, String contentType, 
+            RequestHandlerImpl handler) {
         
         this.method = method;
         this.resource = resource;
         this.contentType = contentType;
+        this.handler = handler;
     }
 
     public Method getMethod() {
@@ -48,5 +51,9 @@ public class Upon {
     
     public String getContentType() {
         return contentType;
+    }
+    
+    public RequestHandlerImpl getHandler() {
+        return handler;
     }
 }

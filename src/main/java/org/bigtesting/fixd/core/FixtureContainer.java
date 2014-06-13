@@ -16,7 +16,6 @@
 package org.bigtesting.fixd.core;
 
 import java.util.AbstractMap.SimpleImmutableEntry;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -61,8 +60,8 @@ public class FixtureContainer implements Container {
     private final Map<HandlerKey, RequestHandlerImpl> handlerMap = 
             new ConcurrentHashMap<HandlerKey, RequestHandlerImpl>();
     
-    private final Set<HandlerKey> uponHandlers = 
-            Collections.newSetFromMap(new ConcurrentHashMap<HandlerKey, Boolean>());
+    private final Map<HandlerKey, Upon> uponHandlers = 
+            new ConcurrentHashMap<HandlerKey, Upon>();
     
     /**
      * TODO issue #9
@@ -124,7 +123,7 @@ public class FixtureContainer implements Container {
                 (RequestHandlerImpl)new RequestHandlerImpl(this).with(200, "text/plain", "");
         HandlerKey uponKey = addHandler(uponHandler, upon.getMethod(), 
                 upon.getResource(), upon.getContentType());
-        uponHandlers.add(uponKey);
+        uponHandlers.put(uponKey, upon);
     }
     
     public Queue<CapturedRequest> getCapturedRequests() {
@@ -171,7 +170,7 @@ public class FixtureContainer implements Container {
             
             if (requestIsForUponHandler(resolved)) {
                 
-                asyncHandler.broadcastToSubscribers(request, resolved.route);
+                asyncHandler.broadcastToSubscribers(request, resolved.route, getUpon(resolved));
                 /* continue handling the request, as it needs to 
                  * return a normal response */
             }
@@ -251,7 +250,12 @@ public class FixtureContainer implements Container {
     
     private boolean requestIsForUponHandler(ResolvedRequest resolved) {
         
-        return uponHandlers.contains(resolved.key);
+        return uponHandlers.containsKey(resolved.key);
+    }
+    
+    private Upon getUpon(ResolvedRequest resolved) {
+        
+        return uponHandlers.get(resolved.key);
     }
     
     private Session getSessionIfExists(Request request) {

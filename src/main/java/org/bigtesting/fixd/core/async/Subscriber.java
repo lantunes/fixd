@@ -15,39 +15,39 @@
  */
 package org.bigtesting.fixd.core.async;
 
-import org.bigtesting.fixd.core.Upon;
-import org.bigtesting.routd.Route;
-import org.simpleframework.http.Request;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import org.bigtesting.fixd.core.RequestHandlerImpl;
 
 /**
  * 
  * @author Luis Antunes
  */
-public class Broadcast {
+public class Subscriber {
     
-    private final Request request;
-    private final Route route;
-    private final Upon upon;
+    private final BlockingQueue<Broadcast> broadcasts = 
+            new LinkedBlockingQueue<Broadcast>();
     
-    public Broadcast(Request request, Route route, Upon upon) {
+    private final RequestHandlerImpl handler;
+    
+    public Subscriber(RequestHandlerImpl handler) {
         
-        this.request = request;
-        this.route = route;
-        this.upon = upon;
+        this.handler = handler;
     }
     
-    public Request getRequest() {
+    public Broadcast getNextBroadcast() throws InterruptedException {
         
-        return request;
+        return broadcasts.take();
     }
     
-    public Route getRoute() {
+    public void addNextBroadcast(Broadcast broadcast) {
         
-        return route;
+        broadcasts.add(broadcast);
     }
     
-    public boolean isFor(Subscriber subscriber) {
+    public RequestHandlerImpl getHandler() {
         
-        return upon.getHandler().equals(subscriber.getHandler());
+        return handler;
     }
 }

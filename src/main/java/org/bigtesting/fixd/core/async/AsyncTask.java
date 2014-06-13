@@ -16,11 +16,8 @@
 package org.bigtesting.fixd.core.async;
 
 import java.util.List;
-import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.bigtesting.fixd.core.RequestHandlerImpl;
@@ -48,10 +45,7 @@ public class AsyncTask implements Runnable {
     private final String responseContentType; 
     private final ResponseBody responseBody;
     
-    private final BlockingQueue<Broadcast> broadcasts = 
-            new LinkedBlockingQueue<Broadcast>();
-    
-    private final List<Queue<Broadcast>> subscribers;
+    private final List<Subscriber> subscribers;
     
     private final MarshallerProvider marshallerProvider;
     
@@ -59,9 +53,11 @@ public class AsyncTask implements Runnable {
     
     private Timer broadcastSubscribeTimeoutTimer;
     
+    private Subscriber subscriber;
+    
     public AsyncTask(Response response, 
             RequestHandlerImpl handler,
-            List<Queue<Broadcast>> subscribers,
+            List<Subscriber> subscribers,
             String responseContentType, ResponseBody responseBody,
             MarshallerProvider marshallerProvider,
             UnmarshallerProvider unmarshallerProvider) {
@@ -96,14 +92,15 @@ public class AsyncTask implements Runnable {
 
     private void handleBroadcasts() {
         
-        subscribers.add(broadcasts);
+        subscriber = new Subscriber(handler);
+        subscribers.add(subscriber);
         
         startTimeoutCountdownIfRequired();
         
         while(true) {
             try {
                 
-                Broadcast broadcast = broadcasts.take();
+                Broadcast broadcast = subscriber.getNextBroadcast();
                 if (broadcast instanceof SubscribeTimeout) {
                     response.setStatus(Status.REQUEST_TIMEOUT);
                     response.getPrintStream().close();
@@ -129,7 +126,7 @@ public class AsyncTask implements Runnable {
             }
         }
         
-        subscribers.remove(broadcasts);
+        subscribers.remove(subscriber);
     }
     
     private void delayIfRequired(RequestHandlerImpl handler) {
@@ -188,7 +185,7 @@ public class AsyncTask implements Runnable {
             broadcastSubscribeTimeoutTimer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    broadcasts.add(new SubscribeTimeout());
+                    subscriber.addNextBroadcast(new SubscribeTimeout());
                     broadcastSubscribeTimeoutTimer.cancel();
                     broadcastSubscribeTimeoutTimer.purge();
                 }

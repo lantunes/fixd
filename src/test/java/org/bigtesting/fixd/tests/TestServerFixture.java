@@ -460,7 +460,7 @@ public class TestServerFixture {
         
         /* need some time for the above request to complete
          * before the broadcast requests can start */
-        Thread.sleep(100);
+        Thread.sleep(200);
         
         for (int i = 0; i < 2; i++) {
             
@@ -471,7 +471,7 @@ public class TestServerFixture {
             
             /* sometimes the last broadcast request is not
              * finished before f.done() is called */
-            Thread.sleep(50);
+            Thread.sleep(200);
         }
         
         f.done(null);
@@ -582,7 +582,7 @@ public class TestServerFixture {
         
         /* need some time for the above requests to complete
          * before the broadcast requests can start */
-        Thread.sleep(50);
+        Thread.sleep(200);
         
         for (int i = 0; i < 2; i++) {
             
@@ -592,7 +592,7 @@ public class TestServerFixture {
             
             /* sometimes the last broadcast request is not
              * finished before f.done() is called */
-            Thread.sleep(50);
+            Thread.sleep(200);
         }
         
         f1.done(null);
@@ -619,6 +619,45 @@ public class TestServerFixture {
          * are being made.
          */
         assertEquals(408, f.get().getStatusCode());
+    }
+    
+    @Test
+    public void testUponHandlesDifferentSubscriptions() throws Exception {
+        
+        server.handle(Method.GET, "/subscr1")
+              .with(200, "text/plain", "message1")
+              .upon(Method.GET, "/broadc1");
+        
+        server.handle(Method.GET, "/subscr2")
+              .with(200, "text/plain", "message2")
+              .upon(Method.GET, "/broadc2");
+        
+        final List<String> broadcasts1 = new ArrayList<String>();
+        ListenableFuture<Integer> f1 = new AsyncHttpClient()
+              .prepareGet("http://localhost:8080/subscr1")
+              .execute(new AddToListOnBodyPartReceivedHandler(broadcasts1));
+        
+        final List<String> broadcasts2 = new ArrayList<String>();
+        ListenableFuture<Integer> f2 = new AsyncHttpClient()
+              .prepareGet("http://localhost:8080/subscr2")
+              .execute(new AddToListOnBodyPartReceivedHandler(broadcasts2));
+        
+        /* need some time for the above request to complete
+         * before the broadcast requests can start */
+        Thread.sleep(50);
+            
+        new AsyncHttpClient()
+            .prepareGet("http://localhost:8080/broadc2")
+            .execute().get();
+        
+        /* sometimes the last broadcast request is not
+         * finished before f.done() is called */
+        Thread.sleep(50);
+        
+        f1.done(null);
+        f2.done(null);
+        assertEquals("[]", broadcasts1.toString());
+        assertEquals("[message2]", broadcasts2.toString());
     }
     
     @Test

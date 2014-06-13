@@ -18,11 +18,11 @@ package org.bigtesting.fixd.core.async;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 
 import org.bigtesting.fixd.core.RequestHandlerImpl;
 import org.bigtesting.fixd.core.ResponseBody;
+import org.bigtesting.fixd.core.Upon;
 import org.bigtesting.fixd.marshalling.MarshallerProvider;
 import org.bigtesting.fixd.marshalling.UnmarshallerProvider;
 import org.bigtesting.routd.Route;
@@ -35,8 +35,8 @@ import org.simpleframework.http.Response;
  */
 public class AsyncHandler {
 
-    private final List<Queue<Broadcast>> subscribers = 
-            Collections.synchronizedList(new ArrayList<Queue<Broadcast>>());
+    private final List<Subscriber> subscribers = 
+            Collections.synchronizedList(new ArrayList<Subscriber>());
     
     private final ExecutorService asyncExecutor;
     
@@ -56,11 +56,14 @@ public class AsyncHandler {
         asyncExecutor.execute(task);
     }
     
-    public void broadcastToSubscribers(Request request, Route route) {
+    public void broadcastToSubscribers(Request request, Route route, Upon upon) {
         
         synchronized (subscribers) {
-            for (Queue<Broadcast> broadcasts : subscribers) {
-                broadcasts.add(new Broadcast(request, route));
+            Broadcast broadcast = new Broadcast(request, route, upon);
+            for (Subscriber subscriber : subscribers) {
+                if (broadcast.isFor(subscriber)) {
+                    subscriber.addNextBroadcast(broadcast);
+                }
             }
         }
     }
