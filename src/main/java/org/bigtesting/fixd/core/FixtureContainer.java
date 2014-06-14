@@ -155,7 +155,8 @@ public class FixtureContainer implements Container {
 
         try {
             
-            addCapturedRequest(request);
+            SimpleCapturedRequest captured = new SimpleCapturedRequest(request);
+            addCapturedRequest(captured);
             
             String responseContentType = "text/plain";
             ResponseBody responseBody = new StringResponseBody("");
@@ -170,7 +171,8 @@ public class FixtureContainer implements Container {
             
             if (requestIsForUponHandler(resolved)) {
                 
-                asyncHandler.broadcastToSubscribers(request, resolved.route, getUpon(resolved));
+                asyncHandler.broadcastToSubscribers(request, resolved.route, 
+                        getUpon(resolved), captured);
                 /* continue handling the request, as it needs to 
                  * return a normal response */
             }
@@ -239,9 +241,9 @@ public class FixtureContainer implements Container {
 
     /*----------------------------------------------------------*/
     
-    private void addCapturedRequest(Request request) {
+    private void addCapturedRequest(SimpleCapturedRequest captured) {
         
-        capturedRequests.add(new SimpleCapturedRequest(request));
+        capturedRequests.add(captured);
         
         if (capturedRequestLimit > -1) {
             while(capturedRequests.size() > capturedRequestLimit) capturedRequests.remove();

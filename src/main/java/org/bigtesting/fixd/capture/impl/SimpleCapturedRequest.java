@@ -32,6 +32,8 @@ public class SimpleCapturedRequest implements CapturedRequest {
 
     private final Request request;
     
+    private boolean broadcast = false;
+    
     public SimpleCapturedRequest(Request request) {
         this.request = request;
     }
@@ -86,5 +88,15 @@ public class SimpleCapturedRequest implements CapturedRequest {
         
         String header = request.getHeader().toString();
         return header.split("\\r?\\n");
+    }
+    
+    public void setBroadcast(boolean broadcast) {
+        
+        this.broadcast = broadcast;
+    }
+    
+    public boolean isBroadcast() {
+        
+        return broadcast;
     }
 }

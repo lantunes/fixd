@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
+import org.bigtesting.fixd.capture.impl.SimpleCapturedRequest;
 import org.bigtesting.fixd.core.RequestHandlerImpl;
 import org.bigtesting.fixd.core.ResponseBody;
 import org.bigtesting.fixd.core.Upon;
@@ -56,13 +57,15 @@ public class AsyncHandler {
         asyncExecutor.execute(task);
     }
     
-    public void broadcastToSubscribers(Request request, Route route, Upon upon) {
+    public void broadcastToSubscribers(Request request, Route route, Upon upon, 
+            SimpleCapturedRequest captured) {
         
         synchronized (subscribers) {
             Broadcast broadcast = new Broadcast(request, route, upon);
             for (Subscriber subscriber : subscribers) {
                 if (broadcast.isFor(subscriber)) {
                     subscriber.addNextBroadcast(broadcast);
+                    captured.setBroadcast(true);
                 }
             }
         }

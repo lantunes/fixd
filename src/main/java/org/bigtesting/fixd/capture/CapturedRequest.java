@@ -34,4 +34,9 @@ public interface CapturedRequest {
     byte[] getBody();
     
     String getBody(String encoding);
+    
+    /**
+     * Returns true if this request was broadcast to any subscribers.
+     */
+    boolean isBroadcast();
 }

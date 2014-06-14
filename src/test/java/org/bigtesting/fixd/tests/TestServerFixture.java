@@ -479,6 +479,63 @@ public class TestServerFixture {
     }
     
     @Test
+    public void testUponRemovesSubscriberWhenSubscribingClientDisconnects() throws Exception {
+        
+        server.handle(Method.GET, "/subscribe")
+              .with(200, "text/plain", "message: [request.body]")
+              .upon(Method.PUT, "/broadcast");
+        
+        final List<String> broadcasts = new ArrayList<String>();
+        AsyncHttpClient subscribingClient = new AsyncHttpClient();
+        ListenableFuture<Integer> f = subscribingClient
+              .prepareGet("http://localhost:8080/subscribe")
+              .execute(new AddToListOnBodyPartReceivedHandler(broadcasts));
+        
+        /* need some time for the above request to complete
+         * before the broadcast requests can start */
+        Thread.sleep(200);
+            
+        new AsyncHttpClient()
+            .preparePut("http://localhost:8080/broadcast")
+            .setBody("hello1")
+            .execute().get();
+        
+        /* sometimes the last broadcast request is not
+         * finished before f.done() is called */
+        Thread.sleep(200);
+        
+        f.done(null);
+        subscribingClient.close();
+        
+        new AsyncHttpClient()
+            .preparePut("http://localhost:8080/broadcast")
+            .setBody("hello2")
+            .execute().get();
+        
+        assertEquals("[message: hello1]", broadcasts.toString());
+        assertEquals(3, server.capturedRequests().size());
+        
+        CapturedRequest firstRequest = server.request();
+        assertNotNull(firstRequest);
+        assertEquals("GET /subscribe HTTP/1.1", firstRequest.getRequestLine());
+        
+        CapturedRequest secondRequest = server.request();
+        assertNotNull(secondRequest);
+        assertEquals("PUT /broadcast HTTP/1.1", secondRequest.getRequestLine());
+        assertTrue(secondRequest.isBroadcast());
+        
+        /*
+         * the second /broadcast request should not be broadcast because
+         * the subscriber should have been removed when the subscribing 
+         * client disconnected
+         */
+        CapturedRequest thirdRequest = server.request();
+        assertNotNull(thirdRequest);
+        assertEquals("PUT /broadcast HTTP/1.1", thirdRequest.getRequestLine());
+        assertFalse(thirdRequest.isBroadcast());
+    }
+    
+    @Test
     public void testUponWithRequestHandler() throws Exception {
         
         server.handle(Method.GET, "/subscribe")
