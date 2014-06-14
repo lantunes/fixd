@@ -325,6 +325,10 @@ The call to **upon()** in the snippet above means: upon receiving a GET request
 for "/broadcast/:message", send a response to the suspended client which contains
 the value of the *message* path parameter in the body.
 
+*NOTE: The implementation of the subscribe-broadcast feature is currently meant for use
+in unit test contexts only. It is not currently meant for production-scale use. This will
+hopefully change over time.*
+
 ### Handling Requests By Content Type
 
 You can handle requests differently based on the request content type:
