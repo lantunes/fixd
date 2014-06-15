@@ -37,6 +37,7 @@ as a Java micro web framework.
 * [Subscribe-Broadcast](#subscribe-broadcast)
 * [Handling Requests By Content Type](#handling-requests-by-content-type)
 * [Custom Request Handling](#custom-request-handling)
+* [Convenient Redirects](#convenient-redirects)
 * [Tear Down](#tear-down)
 
 ### Getting Started
@@ -373,6 +374,30 @@ server.handle(Method.GET, "/name/:name")
 
 By providing an **HttpRequestHandler**, you have more control over how a 
 request is handled.
+
+### Convenient Redirects
+
+You can send redirects conveniently:
+
+```java
+server.handle(Method.GET, "/")
+      .withRedirect("http://localhost:8080/new-location");
+```
+
+...and you can do the same in a custom handler:
+
+```java
+server.handle(Method.GET, "/")
+        .with(new HttpRequestHandler() {
+          public void handle(HttpRequest request, HttpResponse response) {
+              
+              response.redirect("http://localhost:8080/new-location");
+          }
+      });
+```
+
+Each of the redirect methods above have signatures that allow you to specify 
+a custom status code as well.
 
 ### Tear Down
 
