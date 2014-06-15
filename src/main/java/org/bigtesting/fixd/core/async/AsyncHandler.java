@@ -46,12 +46,12 @@ public class AsyncHandler {
         this.asyncExecutor = asyncExecutor;
     }
     
-    public void doAsync(Response response, RequestHandlerImpl handler, 
+    public void doAsync(Request request, Response response, RequestHandlerImpl handler, 
             String responseContentType, ResponseBody responseBody,
             MarshallerProvider marshallerProvider,
             UnmarshallerProvider unmarshallerProvider) {
         
-        AsyncTask task = new AsyncTask(response, handler, subscribers,
+        AsyncTask task = new AsyncTask(request, response, handler, subscribers,
                 responseContentType, responseBody, 
                 marshallerProvider, unmarshallerProvider);
         asyncExecutor.execute(task);
@@ -61,11 +61,10 @@ public class AsyncHandler {
             SimpleCapturedRequest captured) {
         
         synchronized (subscribers) {
-            Broadcast broadcast = new Broadcast(request, route, upon);
+            Broadcast broadcast = new Broadcast(request, route, upon, captured);
             for (Subscriber subscriber : subscribers) {
                 if (broadcast.isFor(subscriber)) {
                     subscriber.addNextBroadcast(broadcast);
-                    captured.setBroadcast(true);
                 }
             }
         }

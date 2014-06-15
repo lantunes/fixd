@@ -15,6 +15,7 @@
  */
 package org.bigtesting.fixd.core.async;
 
+import org.bigtesting.fixd.capture.impl.SimpleCapturedRequest;
 import org.bigtesting.fixd.core.Upon;
 import org.bigtesting.routd.Route;
 import org.simpleframework.http.Request;
@@ -28,12 +29,15 @@ public class Broadcast {
     private final Request request;
     private final Route route;
     private final Upon upon;
+    private final SimpleCapturedRequest captured;
     
-    public Broadcast(Request request, Route route, Upon upon) {
+    public Broadcast(Request request, Route route, Upon upon, 
+            SimpleCapturedRequest captured) {
         
         this.request = request;
         this.route = route;
         this.upon = upon;
+        this.captured = captured;
     }
     
     public Request getRequest() {
@@ -48,6 +52,16 @@ public class Broadcast {
     
     public boolean isFor(Subscriber subscriber) {
         
-        return upon.getHandler().equals(subscriber.getHandler());
+        if (upon != null) {
+            return upon.getHandler().equals(subscriber.getHandler());
+        }
+        return false;
+    }
+    
+    public void sent(boolean sent) {
+        
+        if (captured != null) {
+            captured.setBroadcast(sent);
+        }
     }
 }

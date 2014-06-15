@@ -15,6 +15,7 @@
  */
 package org.bigtesting.fixd.core.async;
 
+import java.nio.channels.SocketChannel;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -40,7 +41,8 @@ public class AsyncTask implements Runnable {
     
     private static final Logger logger = LoggerFactory.getLogger(AsyncTask.class);
 
-    private final Response response;
+    private final Response subscriberResponse;
+    private final Request subscriberRequest;
     private final RequestHandlerImpl handler;
     private final String responseContentType; 
     private final ResponseBody responseBody;
@@ -55,14 +57,15 @@ public class AsyncTask implements Runnable {
     
     private Subscriber subscriber;
     
-    public AsyncTask(Response response, 
+    public AsyncTask(Request request, Response response, 
             RequestHandlerImpl handler,
             List<Subscriber> subscribers,
             String responseContentType, ResponseBody responseBody,
             MarshallerProvider marshallerProvider,
             UnmarshallerProvider unmarshallerProvider) {
         
-        this.response = response;
+        this.subscriberRequest = request;
+        this.subscriberResponse = response;
         this.handler = handler;
         this.subscribers = subscribers;
         this.responseContentType = responseContentType;
@@ -85,7 +88,7 @@ public class AsyncTask implements Runnable {
             if (period > -1) {
                 respondPeriodically(period);
             } else {
-                responseBody.sendAndCommit(response, responseContentType);
+                responseBody.sendAndCommit(subscriberResponse, responseContentType);
             }
         }
     }
@@ -94,16 +97,22 @@ public class AsyncTask implements Runnable {
         
         subscriber = new Subscriber(handler);
         subscribers.add(subscriber);
-        
+
         startTimeoutCountdownIfRequired();
         
         while(true) {
             try {
                 
                 Broadcast broadcast = subscriber.getNextBroadcast();
+                broadcast.sent(false);
+                
+                if (!subscriberClientStillConnected()) {
+                    break;
+                }
+                
                 if (broadcast instanceof SubscribeTimeout) {
-                    response.setStatus(Status.REQUEST_TIMEOUT);
-                    response.getPrintStream().close();
+                    subscriberResponse.setStatus(Status.REQUEST_TIMEOUT);
+                    subscriberResponse.getPrintStream().close();
                     break;
                 }
                 
@@ -117,9 +126,11 @@ public class AsyncTask implements Runnable {
                 /* no support for session variables for now */
                 ResponseBody handlerBody = handler.body(
                         new SimpleHttpRequest(request, null, route, unmarshallerProvider), 
-                        response, marshallerProvider);
+                        subscriberResponse, marshallerProvider);
                 
-                handlerBody.send(response, responseContentType);
+                handlerBody.send(subscriberResponse, responseContentType);
+                
+                broadcast.sent(true);
                 
             } catch (Exception e) {
                 logger.error("error waiting for, or handling, a broadcast", e);
@@ -127,6 +138,11 @@ public class AsyncTask implements Runnable {
         }
         
         subscribers.remove(subscriber);
+    }
+    
+    private boolean subscriberClientStillConnected() {
+        
+        return ((SocketChannel)subscriberRequest.getAttribute("fixd-socket")).isOpen();
     }
     
     private void delayIfRequired(RequestHandlerImpl handler) {
@@ -163,11 +179,11 @@ public class AsyncTask implements Runnable {
                     if (times > -1 && count >= times) {
                         timer.cancel();
                         timer.purge();
-                        response.getPrintStream().close();
+                        subscriberResponse.getPrintStream().close();
                         return;
                     }
                     
-                    responseBody.send(response, responseContentType);
+                    responseBody.send(subscriberResponse, responseContentType);
                     
                     count++;
                     

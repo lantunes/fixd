@@ -220,7 +220,7 @@ public class FixtureContainer implements Container {
             
             /* handle the response */
             if (resolved.handler.isAsync()) {
-                doAsync(response, resolved.handler, responseContentType, responseBody, 
+                doAsync(request, response, resolved.handler, responseContentType, responseBody, 
                         resolved.marshallerProvider(), resolved.unmarshallerProvider());
             } else {
                 sendAndCommitResponse(response, responseContentType, responseBody);
@@ -288,12 +288,13 @@ public class FixtureContainer implements Container {
         response.setCookie(cookie);
     }
     
-    private void doAsync(Response response, RequestHandlerImpl handler, 
+    private void doAsync(Request request, Response response, 
+            RequestHandlerImpl handler, 
             String responseContentType, ResponseBody responseBody, 
             MarshallerProvider marshallerProvider, 
             UnmarshallerProvider unmarshallerProvider) {
         
-        asyncHandler.doAsync(response, handler, responseContentType, responseBody,
+        asyncHandler.doAsync(request, response, handler, responseContentType, responseBody,
                 marshallerProvider, unmarshallerProvider);
     }
     

@@ -22,6 +22,6 @@ package org.bigtesting.fixd.core.async;
 public class SubscribeTimeout extends Broadcast {
     
     public SubscribeTimeout() {
-        super(null, null, null);
+        super(null, null, null, null);
     }
 }

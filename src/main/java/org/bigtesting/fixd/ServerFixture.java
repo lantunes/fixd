@@ -21,6 +21,7 @@ import java.net.SocketAddress;
 import java.util.Collection;
 
 import org.bigtesting.fixd.capture.CapturedRequest;
+import org.bigtesting.fixd.core.FixdServer;
 import org.bigtesting.fixd.core.FixtureContainer;
 import org.bigtesting.fixd.core.RequestHandlerImpl;
 import org.bigtesting.fixd.core.RequestMarshallerImpl;
@@ -57,7 +58,7 @@ public class ServerFixture {
     
     public void start() throws IOException {
         
-        server = new ContainerServer(container);
+        server = new FixdServer(new ContainerServer(container));
         connection = new SocketConnection(server, new LoggingAgent());
         SocketAddress address = new InetSocketAddress(port);
         connection.connect(address);

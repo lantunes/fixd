@@ -512,6 +512,10 @@ public class TestServerFixture {
             .setBody("hello2")
             .execute().get();
         
+        /* allow some time for the last broadcast to be processed
+         * before going on to the assertions */
+        Thread.sleep(200);
+        
         assertEquals("[message: hello1]", broadcasts.toString());
         assertEquals(3, server.capturedRequests().size());
         
