@@ -38,6 +38,7 @@ as a Java micro web framework.
 * [Subscribe-Broadcast](#subscribe-broadcast)
 * [Handling Requests By Content Type](#handling-requests-by-content-type)
 * [Custom Request Handling](#custom-request-handling)
+* [Content Marshalling](#content-marshalling)
 * [Convenient Redirects](#convenient-redirects)
 * [Escaping Interpolated Values](#escaping-interpolated-values)
 * [Tear Down](#tear-down)
@@ -396,6 +397,62 @@ server.handle(Method.GET, "/name/:name")
 
 By providing an **HttpRequestHandler**, you have more control over how a 
 request is handled.
+
+### Content Marshalling
+
+You can automatically marshal and unmarshal content using the content-type of
+the request and response.
+
+The following illustrates marshalling:
+
+```java
+server.marshal("application/json")
+      .with(new JSONMarshaller());
+
+server.handle(Method.GET, "/marshal")
+      .with(200, "application/json", new SimplePojo("marshalledJSON"));
+
+Response resp = new AsyncHttpClient()
+                .prepareGet("http://localhost:8080/marshal")
+                .execute().get();
+
+assertEquals("{\"val\":\"marshalledJSON\"}", resp.getResponseBody().trim());
+```
+
+In the example above, we register a Marshaller with the server, indicating
+the content-type. Then, we return a custom entity that our Marshaller will
+know how to convert. In this case, the SimplePojo has a single field called
+*val*, and the entity is converted into JSON in the response to the client.
+
+The following illustrates unmarshalling:
+
+```java
+server.unmarshal("application/json")
+      .with(new JSONUnmarshaller());
+
+server.handle(Method.PUT, "/unmarshal", "application/json")
+      .with(new HttpRequestHandler() {
+        public void handle(HttpRequest request, HttpResponse response) {
+            response.setStatusCode(200);
+            response.setContentType("text/plain");
+            SimplePojo entity = request.getBody(SimplePojo.class);
+            response.setBody(entity != null ? entity.getVal() : "error");
+        }
+    });
+
+Response resp = new AsyncHttpClient()
+                .preparePut("http://localhost:8080/unmarshal")
+                .setHeader("Content-Type", "application/json")
+                .setBody("{\"val\":\"unmarshalledJSON\"}")
+                .execute().get();
+assertEquals("unmarshalledJSON", resp.getResponseBody().trim());
+```
+
+In the example above, we register an Unmarshaller with the server, indicating
+the content-type. Then, we call the **request.getBody()** method that accepts
+the type the content should be unmarshalled to. In this case, the SimplePojo
+has a single field called *val*, and the request content is converted from
+JSON into a new instance of the entity.
 
 ### Convenient Redirects
 
