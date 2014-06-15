@@ -49,7 +49,7 @@ Or, add the following dependency to your pom.xml:
 <dependency>
     <groupId>org.bigtesting</groupId>
     <artifactId>fixd</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 
