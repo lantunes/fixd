@@ -38,6 +38,7 @@ as a Java micro web framework.
 * [Handling Requests By Content Type](#handling-requests-by-content-type)
 * [Custom Request Handling](#custom-request-handling)
 * [Convenient Redirects](#convenient-redirects)
+* [Escaping Interpolated Values](#escaping-interpolated-values)
 * [Tear Down](#tear-down)
 
 ### Getting Started
@@ -398,6 +399,27 @@ server.handle(Method.GET, "/")
 
 Each of the redirect methods above have signatures that allow you to specify 
 a custom status code as well.
+
+### Escaping Interpolated Values
+
+You can escape interpolated values if you need to, using the *^* character:
+
+```java
+server.handle(Method.GET, "/name/:name")
+      .with(200, "text/plain", "Hello ^:name :name");
+       
+Response resp = new AsyncHttpClient()
+                .prepareGet("http://localhost:8080/name/Tim")
+                .execute()
+                .get();
+       
+assertEquals("Hello :name Tim", resp.getResponseBody().trim());
+```
+
+In the example above, the first occurrence of *:name* is prefixed by *^*,
+indicating that the value should not be interpolated. You don't need to
+escape *^* characters on their own, however, unless they occur next
+to a value that would otherwise be interpolated.
 
 ### Tear Down
 
