@@ -15,6 +15,8 @@
  */
 package org.bigtesting.fixd.core.async;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.List;
 import java.util.Timer;
@@ -56,6 +58,7 @@ public class AsyncTask implements Runnable {
     private Timer broadcastSubscribeTimeoutTimer;
     
     private Subscriber subscriber;
+    private final ByteBuffer subscriberConnectedReadBuffer = ByteBuffer.allocate(8192);
     
     public AsyncTask(Request request, Response response, 
             RequestHandlerImpl handler,
@@ -80,7 +83,7 @@ public class AsyncTask implements Runnable {
         
         if (handler.isSuspend()) {
             
-            handleBroadcasts();
+            subscribe();
             
         } else {
         
@@ -93,7 +96,7 @@ public class AsyncTask implements Runnable {
         }
     }
 
-    private void handleBroadcasts() {
+    private void subscribe() {
         
         subscriber = new Subscriber(handler);
         subscribers.add(subscriber);
@@ -142,7 +145,15 @@ public class AsyncTask implements Runnable {
     
     private boolean subscriberClientStillConnected() {
         
-        return ((SocketChannel)subscriberRequest.getAttribute("fixd-socket")).isOpen();
+        try {
+            subscriberConnectedReadBuffer.clear();
+            int read =((SocketChannel)subscriberRequest.getAttribute("fixd-socket"))
+                    .read(subscriberConnectedReadBuffer);
+            if (read == -1) return false;
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
     }
     
     private void delayIfRequired(RequestHandlerImpl handler) {
