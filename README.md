@@ -41,8 +41,8 @@ as a Java micro web framework.
 
 ### Getting Started
 
-Download [the latest .jar](http://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=org.bigtesting&a=fixd&v=LATEST). It has
-only two dependencies: SLF4J, and the Simple Framework (http://www.simpleframework.org).
+Download [the latest .jar](http://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=org.bigtesting&a=fixd&v=LATEST). 
+It depends on SLF4J, and the Simple Framework (http://www.simpleframework.org), amongst others.
 Or, add the following dependency to your pom.xml:
 
 ```xml
