@@ -625,6 +625,42 @@ public class TestServerFixture {
     }
     
     @Test
+    public void testUponAndMarshallingWithoutHandler() throws Exception {
+        
+        server.marshal("application/json")
+              .with(new JSONMarshaller());
+        
+        server.handle(Method.GET, "/subscribe")
+              .with(200, "application/json", new SimplePojo("marshalledJSON"))
+              .upon(Method.PUT, "/broadcast");
+      
+        final List<String> broadcasts = new ArrayList<String>();
+        AsyncHttpClient subscribingClient = new AsyncHttpClient();
+        ListenableFuture<Integer> f = subscribingClient
+              .prepareGet("http://localhost:8080/subscribe")
+              .execute(new AddToListOnBodyPartReceivedHandler(broadcasts));
+        
+        /* need some time for the above request to complete
+         * before the broadcast requests can start */
+        Thread.sleep(100);
+        
+        for (int i = 0; i < 2; i++) {
+            
+            new AsyncHttpClient()
+                .preparePut("http://localhost:8080/broadcast")
+                .execute().get();
+            
+            /* sometimes the last broadcast request is not
+             * finished before f.done() is called */
+            Thread.sleep(50);
+        }
+        
+        f.done(null);
+        assertEquals("[{\"val\":\"marshalledJSON\"}, {\"val\":\"marshalledJSON\"}]", 
+                broadcasts.toString());
+    }
+    
+    @Test
     public void testUponWithMultipleScubscribers() throws Exception {
         
         server.handle(Method.GET, "/subscribe")
