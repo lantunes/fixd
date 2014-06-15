@@ -27,6 +27,7 @@ as a Java micro web framework.
 
 * [Getting Started](#getting-started)
 * [Path Parameters](#path-parameters)
+* [Splat Parameters](#splat-parameters)
 * [Request Values](#request-values)
 * [Capturing Requests](#capturing-requests)
 * [URI Pattern Matching](#uri-pattern-matching)
@@ -102,6 +103,26 @@ Response resp = new AsyncHttpClient()
        
 assertEquals("Hello Tim", resp.getResponseBody().trim());
 ```
+
+### Splat Parameters
+
+You can use splat parameters as part of your request, and access them in the
+body of your response:
+
+```java
+server.handle(Method.GET, "/firstName/*/lastName/*")
+      .with(200, "text/plain", "Hello *[0] *[1]");
+       
+Response resp = new AsyncHttpClient()
+                .prepareGet("http://localhost:8080/firstName/John/lastName/Doe")
+                .execute()
+                .get();
+       
+assertEquals("Hello John Doe", resp.getResponseBody().trim());
+```
+
+In the example above, the *0* and *1* represent the indices of the splat
+parameters in the request path.
 
 ### Request Values
 
