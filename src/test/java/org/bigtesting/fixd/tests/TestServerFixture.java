@@ -429,7 +429,7 @@ public class TestServerFixture {
         
         /* need some time for the above request to complete
          * before the broadcast requests can start */
-        Thread.sleep(50);
+        Thread.sleep(200);
         
         for (int i = 0; i < 2; i++) {
             
@@ -439,11 +439,27 @@ public class TestServerFixture {
             
             /* sometimes the last broadcast request is not
              * finished before f.done() is called */
-            Thread.sleep(50);
+            Thread.sleep(200);
         }
         
         f.done(null);
         assertEquals("[message: hello0, message: hello1]", broadcasts.toString());
+    }
+    
+    @Test
+    public void testUponwithNoSubscribers() throws Exception {
+        
+        server.handle(Method.GET, "/subscribe")
+              .with(200, "text/plain", "message: :message")
+              .upon(Method.GET, "/broadcast/:message");
+        
+        Response resp = new AsyncHttpClient()
+                .prepareGet("http://localhost:8080/broadcast/hello")
+                .execute()
+                .get();
+        
+        assertEquals(200, resp.getStatusCode());
+        assertEquals("", resp.getResponseBody().trim());
     }
     
     @Test
@@ -570,7 +586,7 @@ public class TestServerFixture {
             
             /* sometimes the last broadcast request is not
              * finished before f.done() is called */
-            Thread.sleep(50);
+            Thread.sleep(200);
         }
         
         f.done(null);
@@ -616,7 +632,7 @@ public class TestServerFixture {
             
             /* sometimes the last broadcast request is not
              * finished before f.done() is called */
-            Thread.sleep(50);
+            Thread.sleep(200);
         }
         
         f.done(null);
@@ -652,7 +668,7 @@ public class TestServerFixture {
             
             /* sometimes the last broadcast request is not
              * finished before f.done() is called */
-            Thread.sleep(50);
+            Thread.sleep(200);
         }
         
         f.done(null);
@@ -741,7 +757,7 @@ public class TestServerFixture {
         
         /* need some time for the above request to complete
          * before the broadcast requests can start */
-        Thread.sleep(50);
+        Thread.sleep(200);
             
         new AsyncHttpClient()
             .prepareGet("http://localhost:8080/broadc2")
@@ -749,7 +765,7 @@ public class TestServerFixture {
         
         /* sometimes the last broadcast request is not
          * finished before f.done() is called */
-        Thread.sleep(50);
+        Thread.sleep(200);
         
         f1.done(null);
         f2.done(null);
