@@ -48,6 +48,7 @@ import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.HttpResponseBodyPart;
 import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.Response;
+import com.ning.http.multipart.StringPart;
 
 /**
  * 
@@ -979,6 +980,21 @@ public class TestServerFixture {
                         .setHeader("Content-Type", "application/json")
                         .execute().get();
         assertEquals("Received application/json content", resp.getResponseBody().trim());
+    }
+    
+    @Test
+    public void testMultipartContentTypeIsSupported() throws Exception {
+        
+        server.handle(Method.POST, "/resource", "multipart/form-data")
+              .with(200, "text/palin", "Success!");
+        
+        Response resp = new AsyncHttpClient()
+                .preparePost("http://localhost:8080/resource")
+                .addBodyPart(new StringPart("name", "value"))
+                .execute()
+                .get();
+        
+        assertEquals("Success!", resp.getResponseBody().trim());
     }
     
     @Test

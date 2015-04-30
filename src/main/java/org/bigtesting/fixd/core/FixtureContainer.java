@@ -319,7 +319,7 @@ public class FixtureContainer implements Container {
             return resolved;
         }
         String contentType = requestContentType != null ? 
-                requestContentType.toString() : null;
+                requestContentType.getType() : null;
         HandlerKey key = new HandlerKey(method, route, contentType);
         RequestHandlerImpl handler = handlerMap.get(key);
         if (handler == null) {
