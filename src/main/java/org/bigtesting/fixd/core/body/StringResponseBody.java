@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bigtesting.fixd.core;
+package org.bigtesting.fixd.core.body;
 
 import java.io.IOException;
 import java.io.PrintStream;

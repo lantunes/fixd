@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bigtesting.fixd.core;
+package org.bigtesting.fixd.core.container;
 
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Queue;
@@ -23,7 +23,13 @@ import java.util.concurrent.Executors;
 import org.bigtesting.fixd.Method;
 import org.bigtesting.fixd.capture.CapturedRequest;
 import org.bigtesting.fixd.capture.impl.SimpleCapturedRequest;
+import org.bigtesting.fixd.core.RequestHandlerImpl;
+import org.bigtesting.fixd.core.RequestMarshallerImpl;
+import org.bigtesting.fixd.core.RequestUnmarshallerImpl;
+import org.bigtesting.fixd.core.Upon;
 import org.bigtesting.fixd.core.async.AsyncHandler;
+import org.bigtesting.fixd.core.body.ResponseBody;
+import org.bigtesting.fixd.core.body.StringResponseBody;
 import org.bigtesting.fixd.request.impl.SimpleHttpRequest;
 import org.bigtesting.fixd.session.Session;
 import org.bigtesting.fixd.session.SessionHandler;

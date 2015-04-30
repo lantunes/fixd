@@ -22,6 +22,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.bigtesting.fixd.Method;
 import org.bigtesting.fixd.RequestHandler;
+import org.bigtesting.fixd.core.body.InterpolatedResponseBody;
+import org.bigtesting.fixd.core.body.MarshalledResponseBody;
+import org.bigtesting.fixd.core.body.ResponseBody;
+import org.bigtesting.fixd.core.container.FixtureContainer;
 import org.bigtesting.fixd.marshalling.Marshaller;
 import org.bigtesting.fixd.marshalling.MarshallerProvider;
 import org.bigtesting.fixd.request.HttpRequest;

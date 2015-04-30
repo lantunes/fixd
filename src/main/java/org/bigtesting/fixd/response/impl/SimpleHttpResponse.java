@@ -17,12 +17,12 @@ package org.bigtesting.fixd.response.impl;
 
 import java.io.InputStream;
 
-import org.bigtesting.fixd.core.ByteArrayResponseBody;
-import org.bigtesting.fixd.core.InputStreamResponseBody;
-import org.bigtesting.fixd.core.InterpolatedResponseBody;
-import org.bigtesting.fixd.core.MarshalledResponseBody;
-import org.bigtesting.fixd.core.ResponseBody;
-import org.bigtesting.fixd.core.StringResponseBody;
+import org.bigtesting.fixd.core.body.ByteArrayResponseBody;
+import org.bigtesting.fixd.core.body.InputStreamResponseBody;
+import org.bigtesting.fixd.core.body.InterpolatedResponseBody;
+import org.bigtesting.fixd.core.body.MarshalledResponseBody;
+import org.bigtesting.fixd.core.body.ResponseBody;
+import org.bigtesting.fixd.core.body.StringResponseBody;
 import org.bigtesting.fixd.marshalling.Marshaller;
 import org.bigtesting.fixd.marshalling.MarshallerProvider;
 import org.bigtesting.fixd.request.HttpRequest;

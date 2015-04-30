@@ -22,8 +22,8 @@ import java.util.concurrent.ExecutorService;
 
 import org.bigtesting.fixd.capture.impl.SimpleCapturedRequest;
 import org.bigtesting.fixd.core.RequestHandlerImpl;
-import org.bigtesting.fixd.core.ResponseBody;
 import org.bigtesting.fixd.core.Upon;
+import org.bigtesting.fixd.core.body.ResponseBody;
 import org.bigtesting.fixd.marshalling.MarshallerProvider;
 import org.bigtesting.fixd.marshalling.UnmarshallerProvider;
 import org.bigtesting.routd.Route;

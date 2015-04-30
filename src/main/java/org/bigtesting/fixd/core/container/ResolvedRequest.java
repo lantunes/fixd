@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bigtesting.fixd.core;
+package org.bigtesting.fixd.core.container;
 
-import org.bigtesting.fixd.interpolation.ResponseBodyInterpolator;
-import org.bigtesting.fixd.request.HttpRequest;
+import org.bigtesting.fixd.core.RequestHandlerImpl;
+import org.bigtesting.routd.Route;
+import org.simpleframework.http.Status;
 
 /**
  * 
  * @author Luis Antunes
  */
-public class InterpolatedResponseBody extends StringResponseBody {
+class ResolvedRequest {
 
-    public InterpolatedResponseBody(String body, HttpRequest req) {
-        super(ResponseBodyInterpolator.interpolate(body, req));
-    }
+    public Route route;
+    public RequestHandlerImpl handler;
+    public HandlerKey key;
+    public Status errorStatus;
 }

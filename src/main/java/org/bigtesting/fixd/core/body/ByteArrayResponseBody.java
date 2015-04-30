@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bigtesting.fixd.core;
+package org.bigtesting.fixd.core.body;
 
-import org.bigtesting.routd.Route;
-import org.simpleframework.http.Status;
+import java.io.ByteArrayInputStream;
 
 /**
  * 
  * @author Luis Antunes
  */
-class ResolvedRequest {
+public class ByteArrayResponseBody extends InputStreamResponseBody {
 
-    public Route route;
-    public RequestHandlerImpl handler;
-    public HandlerKey key;
-    public Status errorStatus;
+    public ByteArrayResponseBody(byte[] content) {
+        super(new ByteArrayInputStream(content));
+    }
 }

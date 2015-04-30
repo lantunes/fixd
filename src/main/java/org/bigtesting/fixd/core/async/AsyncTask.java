@@ -24,7 +24,7 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import org.bigtesting.fixd.core.RequestHandlerImpl;
-import org.bigtesting.fixd.core.ResponseBody;
+import org.bigtesting.fixd.core.body.ResponseBody;
 import org.bigtesting.fixd.marshalling.MarshallerProvider;
 import org.bigtesting.fixd.marshalling.UnmarshallerProvider;
 import org.bigtesting.fixd.request.impl.SimpleHttpRequest;

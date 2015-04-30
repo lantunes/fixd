@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bigtesting.fixd.core;
+package org.bigtesting.fixd.core.container;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.bigtesting.fixd.Method;
+import org.bigtesting.fixd.core.RequestHandlerImpl;
+import org.bigtesting.fixd.core.Upon;
 import org.bigtesting.fixd.util.RequestUtils;
 import org.bigtesting.routd.Route;
 import org.bigtesting.routd.Router;

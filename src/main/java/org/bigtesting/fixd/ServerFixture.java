@@ -22,10 +22,10 @@ import java.util.Collection;
 
 import org.bigtesting.fixd.capture.CapturedRequest;
 import org.bigtesting.fixd.core.FixdServer;
-import org.bigtesting.fixd.core.FixtureContainer;
 import org.bigtesting.fixd.core.RequestHandlerImpl;
 import org.bigtesting.fixd.core.RequestMarshallerImpl;
 import org.bigtesting.fixd.core.RequestUnmarshallerImpl;
+import org.bigtesting.fixd.core.container.FixtureContainer;
 import org.bigtesting.fixd.util.LoggingAgent;
 import org.simpleframework.http.core.ContainerServer;
 import org.simpleframework.transport.Server;

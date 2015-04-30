@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.bigtesting.fixd.core;
+package org.bigtesting.fixd.core.body;
 
-import org.bigtesting.fixd.marshalling.Marshaller;
+import org.bigtesting.fixd.interpolation.ResponseBodyInterpolator;
+import org.bigtesting.fixd.request.HttpRequest;
 
 /**
  * 
  * @author Luis Antunes
  */
-public class MarshalledResponseBody extends InputStreamResponseBody {
+public class InterpolatedResponseBody extends StringResponseBody {
 
-    public MarshalledResponseBody(Object entity, Marshaller marshaller) {
-        
-        super(marshaller.marshal(entity));
+    public InterpolatedResponseBody(String body, HttpRequest req) {
+        super(ResponseBodyInterpolator.interpolate(body, req));
     }
 }
