@@ -21,7 +21,7 @@ import org.bigtesting.fixd.request.HttpRequest;
  * 
  * @author Luis Antunes
  */
-public class RequestMinorValueProvider implements RequestValueProvider<Integer> {
+class RequestMinorValueProvider implements RequestValueProvider<Integer> {
 
     public Integer getValue(HttpRequest request) {
         

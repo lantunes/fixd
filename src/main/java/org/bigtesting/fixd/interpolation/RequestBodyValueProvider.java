@@ -24,7 +24,7 @@ import org.bigtesting.fixd.util.RequestUtils;
  * 
  * @author Luis Antunes
  */
-public class RequestBodyValueProvider implements RequestValueProvider<String> {
+class RequestBodyValueProvider implements RequestValueProvider<String> {
 
     public String getValue(HttpRequest request) {
         

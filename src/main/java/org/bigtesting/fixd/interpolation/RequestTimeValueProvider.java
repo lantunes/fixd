@@ -21,7 +21,7 @@ import org.bigtesting.fixd.request.HttpRequest;
  * 
  * @author Luis Antunes
  */
-public class RequestTimeValueProvider implements RequestValueProvider<Long> {
+class RequestTimeValueProvider implements RequestValueProvider<Long> {
 
     public Long getValue(HttpRequest request) {
         
