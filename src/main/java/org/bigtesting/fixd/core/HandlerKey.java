@@ -21,7 +21,7 @@ import org.bigtesting.routd.Route;
  * 
  * @author Luis Antunes
  */
-public class HandlerKey {
+class HandlerKey {
 
     private final String method;
     private final Route route;
