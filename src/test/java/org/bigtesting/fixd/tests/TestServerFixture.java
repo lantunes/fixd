@@ -1371,6 +1371,48 @@ public class TestServerFixture {
         assertEquals("foo+bar", resp.getResponseBody().trim());
     }
     
+    @Test
+    public void testGetPort() {
+        
+        assertEquals(8080, server.getPort());
+    }
+    
+    @Test
+    public void testGetPortAfterPortChosenAutomatically() throws Exception {
+        
+        ServerFixture fixture = new ServerFixture();
+        fixture.start();
+        
+        try {
+            
+            assertTrue(fixture.getPort() >= 1);
+            
+        } finally {
+            fixture.stop();
+        }
+    }
+    
+    @Test
+    public void testSimpleRequestAfterPortChosenAutomatically() throws Exception {
+        
+        ServerFixture fixture = new ServerFixture();
+        fixture.start();
+        fixture.handle(Method.GET, "/")
+               .with(200, "text/plain", "Hello");
+        
+        try {            
+          
+            Response resp = new AsyncHttpClient()
+                          .prepareGet("http://localhost:" + fixture.getPort() + "/")
+                          .execute().get();
+         
+            assertEquals("Hello", resp.getResponseBody().trim());
+            
+        } finally {
+            fixture.stop();
+        }
+    }
+    
     @After
     public void afterEachTest() throws Exception {
         server.stop();

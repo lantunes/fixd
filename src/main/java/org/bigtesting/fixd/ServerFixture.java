@@ -43,6 +43,15 @@ public class ServerFixture {
     
     private Server server;
     private Connection connection;
+    private InetSocketAddress actualConnectionAddress;
+    
+    /**
+     * Constructs a ServerFixture with the port chosen automatically.
+     * The actual port used can be obtained from the {@link #getPort() getPort} method.
+     */
+    public ServerFixture() {
+        this(0);
+    }
     
     public ServerFixture(int port) {
         
@@ -61,14 +70,26 @@ public class ServerFixture {
         server = new FixdServer(new ContainerServer(container));
         connection = new SocketConnection(server, new LoggingAgent());
         SocketAddress address = new InetSocketAddress(port);
-        connection.connect(address);
+        
+        actualConnectionAddress = (InetSocketAddress)connection.connect(address);
     }
     
     public void stop() throws IOException {
         
+        if (connection == null || server == null) {
+            throw new IllegalStateException("server has not been started");
+        }
         container.stop();
         connection.close();
         server.stop();
+    }
+    
+    public int getPort() {
+        
+        if (actualConnectionAddress == null) {
+            throw new IllegalStateException("server has not been started");
+        }
+        return actualConnectionAddress.getPort();
     }
     
     public RequestHandler handle(Method method, String resource) {
