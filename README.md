@@ -73,6 +73,8 @@ public void beforeEachTest() throws Exception {
   server.start();
 }
 ```
+You can also use the **ServerFixture** no-arg constructor, and bind to an automatically chosen port. You
+can then get the actual port number by calling **ServerFixture.getPort()**.
 
 Then, we can write some tests. Here's a test demonstrating a simple GET:
 
