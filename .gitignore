@@ -3,4 +3,8 @@ dist/
 target/
 .idea/
 *.iml
+.settings/
+.project
+.classpath
 atlassian-ide-plugin.xml
+
