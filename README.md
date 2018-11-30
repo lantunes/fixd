@@ -53,8 +53,14 @@ Or, add the following dependency to your pom.xml:
 <dependency>
     <groupId>org.bigtesting</groupId>
     <artifactId>fixd</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
 </dependency>
+```
+Or, if you are using Gradle:
+```
+dependencies {
+    compile "org.bigtesting:fixd:1.0.4"
+}
 ```
 
 Next, you should declare an **org.bigtesting.fixd.ServerFixture** field, like "server", and 
