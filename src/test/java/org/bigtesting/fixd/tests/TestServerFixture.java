@@ -57,6 +57,8 @@ import com.ning.http.multipart.StringPart;
 public class TestServerFixture {
 
     private ServerFixture server;
+
+    private AsyncHttpClient client;
     
     @Before
     public void beforeEachTest() throws Exception {
@@ -68,8 +70,9 @@ public class TestServerFixture {
          */
         server = new ServerFixture(8080);
         server.start();
+        client = new AsyncHttpClient();
     }
-    
+
     @Test
     public void testSimpleGet() throws Exception {
 
@@ -80,10 +83,7 @@ public class TestServerFixture {
          * we're using the ning.com AsyncHttpClient, check it out: 
          * https://github.com/AsyncHttpClient/async-http-client 
          */
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/")
-                        .execute()
-                        .get();
+        Response resp = client.prepareGet("http://localhost:8080/").execute().get();
        
         assertEquals("Hello", resp.getResponseBody().trim());
     }
@@ -94,10 +94,7 @@ public class TestServerFixture {
         server.handle(Method.GET, "/name/:name")
               .with(200, "text/plain", "Hello :name");
        
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/name/Tim")
-                        .execute()
-                        .get();
+        Response resp = client.prepareGet("http://localhost:8080/name/Tim").execute().get();
        
         assertEquals("Hello Tim", resp.getResponseBody().trim());
     }
@@ -108,17 +105,16 @@ public class TestServerFixture {
         server.handle(Method.GET, "/name/:name<[A-Za-z]+>")
               .with(200, "text/plain", "Hello :name");
        
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/name/Tim")
-                        .execute()
-                        .get();
+        Response resp = client.prepareGet("http://localhost:8080/name/Tim").execute().get();
         assertEquals("Hello Tim", resp.getResponseBody().trim());
-        
-        resp          = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/name/123")
-                        .execute()
-                        .get();
-        assertEquals(404, resp.getStatusCode());
+
+        AsyncHttpClient otherClient = new AsyncHttpClient();
+        try {
+            resp = otherClient.prepareGet("http://localhost:8080/name/123").execute().get();
+            assertEquals(404, resp.getStatusCode());
+        } finally {
+            otherClient.close();
+        }
     }
     
     @Test
@@ -127,11 +123,9 @@ public class TestServerFixture {
         server.handle(Method.PUT, "/name")
               .with(200, "text/plain", "Hello [request.body]");
        
-        Response resp = new AsyncHttpClient()
-                        .preparePut("http://localhost:8080/name")
+        Response resp = client.preparePut("http://localhost:8080/name")
                         .setBody("Tim")
-                        .execute()
-                        .get();
+                        .execute().get();
        
         assertEquals("Hello Tim", resp.getResponseBody().trim());
     }
@@ -142,10 +136,7 @@ public class TestServerFixture {
         server.handle(Method.GET, "/say-method")
               .with(200, "text/plain", "Value: [request.method]");
        
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/say-method")
-                        .execute()
-                        .get();
+        Response resp = client.prepareGet("http://localhost:8080/say-method").execute().get();
        
         assertEquals("Value: GET", resp.getResponseBody().trim());
     }
@@ -156,8 +147,7 @@ public class TestServerFixture {
         server.handle(Method.GET, "/say-path")
               .with(200, "text/plain", "Value: [request.path]");
        
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/say-path")
+        Response resp = client.prepareGet("http://localhost:8080/say-path")
                         .execute()
                         .get();
        
@@ -170,10 +160,7 @@ public class TestServerFixture {
         server.handle(Method.GET, "/say-query")
               .with(200, "text/plain", "Value: [request.query]");
        
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/say-query?a=b")
-                        .execute()
-                        .get();
+        Response resp = client.prepareGet("http://localhost:8080/say-query?a=b").execute().get();
        
         assertEquals("Value: a=b", resp.getResponseBody().trim());
     }
@@ -184,10 +171,7 @@ public class TestServerFixture {
         server.handle(Method.GET, "/say-time")
               .with(200, "text/plain", "Value: [request.time]");
        
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/say-time")
-                        .execute()
-                        .get();
+        Response resp = client.prepareGet("http://localhost:8080/say-time").execute().get();
      
         assertTrue(resp.getResponseBody().trim().matches("Value: [0-9]*"));
     }
@@ -198,10 +182,7 @@ public class TestServerFixture {
         server.handle(Method.GET, "/say-major")
               .with(200, "text/plain", "Value: [request.major]");
        
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/say-major")
-                        .execute()
-                        .get();
+        Response resp = client.prepareGet("http://localhost:8080/say-major").execute().get();
        
         assertEquals("Value: 1", resp.getResponseBody().trim());
     }
@@ -212,10 +193,7 @@ public class TestServerFixture {
         server.handle(Method.GET, "/say-minor")
               .with(200, "text/plain", "Value: [request.minor]");
        
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/say-minor")
-                        .execute()
-                        .get();
+        Response resp = client.prepareGet("http://localhost:8080/say-minor").execute().get();
        
         assertEquals("Value: 1", resp.getResponseBody().trim());
     }
@@ -226,10 +204,7 @@ public class TestServerFixture {
         server.handle(Method.GET, "/say-target")
               .with(200, "text/plain", "Value: [request.target]");
        
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/say-target")
-                        .execute()
-                        .get();
+        Response resp = client.prepareGet("http://localhost:8080/say-target").execute().get();
        
         assertEquals("Value: /say-target", resp.getResponseBody().trim());
     }
@@ -240,10 +215,7 @@ public class TestServerFixture {
         server.handle(Method.GET, "/greeting")
               .with(200, "text/plain", "Hello [request?name]");
        
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/greeting?name=Tim")
-                        .execute()
-                        .get();
+        Response resp = client.prepareGet("http://localhost:8080/greeting?name=Tim").execute().get();
        
         assertEquals("Hello Tim", resp.getResponseBody().trim());
     }
@@ -254,11 +226,9 @@ public class TestServerFixture {
         server.handle(Method.POST, "/greeting", "application/x-www-form-urlencoded")
               .with(200, "text/plain", "Hello [request?name]");
        
-        Response resp = new AsyncHttpClient()
-                        .preparePost("http://localhost:8080/greeting")
+        Response resp = client.preparePost("http://localhost:8080/greeting")
                         .addParameter("name", "Tim")
-                        .execute()
-                        .get();
+                        .execute().get();
        
         assertEquals("Hello Tim", resp.getResponseBody().trim());
     }
@@ -269,10 +239,7 @@ public class TestServerFixture {
         server.handle(Method.GET, "/say-user-agent")
               .with(200, "text/plain", "Value: [request$User-Agent]");
        
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/say-user-agent")
-                        .execute()
-                        .get();
+        Response resp = client.prepareGet("http://localhost:8080/say-user-agent").execute().get();
        
         assertEquals("Value: NING/1.0", resp.getResponseBody().trim());
     }
@@ -283,10 +250,7 @@ public class TestServerFixture {
         server.handle(Method.GET, "/name/*")
               .with(200, "text/plain", "Hello *[0]");
        
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/name/Tim")
-                        .execute()
-                        .get();
+        Response resp = client.prepareGet("http://localhost:8080/name/Tim").execute().get();
        
         assertEquals("Hello Tim", resp.getResponseBody().trim());
     }
@@ -390,8 +354,7 @@ public class TestServerFixture {
 
         try {
             
-            new AsyncHttpClient()
-                .prepareGet("http://localhost:8080/suspend")
+            client.prepareGet("http://localhost:8080/suspend")
                 .execute()
                 .get(1, TimeUnit.SECONDS);
             
@@ -408,8 +371,7 @@ public class TestServerFixture {
               .every(200, TimeUnit.MILLISECONDS, 2);
         
         final List<String> chunks = new ArrayList<String>();
-        ListenableFuture<Integer> f = new AsyncHttpClient()
-              .prepareGet("http://localhost:8080/echo/hello")
+        ListenableFuture<Integer> f = client.prepareGet("http://localhost:8080/echo/hello")
               .execute(new AddToListOnBodyPartReceivedHandler(chunks));
         
         assertEquals(200, (int)f.get());
@@ -424,8 +386,7 @@ public class TestServerFixture {
               .upon(Method.GET, "/broadcast/:message");
         
         final List<String> broadcasts = new ArrayList<String>();
-        ListenableFuture<Integer> f = new AsyncHttpClient()
-              .prepareGet("http://localhost:8080/subscribe")
+        ListenableFuture<Integer> f = client.prepareGet("http://localhost:8080/subscribe")
               .execute(new AddToListOnBodyPartReceivedHandler(broadcasts));
         
         /* need some time for the above request to complete
@@ -433,14 +394,17 @@ public class TestServerFixture {
         Thread.sleep(200);
         
         for (int i = 0; i < 2; i++) {
-            
-            new AsyncHttpClient()
-                .prepareGet("http://localhost:8080/broadcast/hello" + i)
-                .execute().get();
-            
-            /* sometimes the last broadcast request is not
-             * finished before f.done() is called */
-            Thread.sleep(200);
+
+            AsyncHttpClient otherClient = new AsyncHttpClient();
+            try {
+                otherClient.prepareGet("http://localhost:8080/broadcast/hello" + i).execute().get();
+
+                /* sometimes the last broadcast request is not
+                 * finished before f.done() is called */
+                Thread.sleep(200);
+            } finally {
+                otherClient.close();
+            }
         }
         
         f.done(null);
@@ -454,8 +418,7 @@ public class TestServerFixture {
               .with(200, "text/plain", "message: :message")
               .upon(Method.GET, "/broadcast/:message");
         
-        Response resp = new AsyncHttpClient()
-                .prepareGet("http://localhost:8080/broadcast/hello")
+        Response resp = client.prepareGet("http://localhost:8080/broadcast/hello")
                 .execute()
                 .get();
         
@@ -471,8 +434,7 @@ public class TestServerFixture {
               .upon(Method.PUT, "/broadcast");
         
         final List<String> broadcasts = new ArrayList<String>();
-        ListenableFuture<Integer> f = new AsyncHttpClient()
-              .prepareGet("http://localhost:8080/subscribe")
+        ListenableFuture<Integer> f = client.prepareGet("http://localhost:8080/subscribe")
               .execute(new AddToListOnBodyPartReceivedHandler(broadcasts));
         
         /* need some time for the above request to complete
@@ -480,15 +442,19 @@ public class TestServerFixture {
         Thread.sleep(200);
         
         for (int i = 0; i < 2; i++) {
-            
-            new AsyncHttpClient()
-                .preparePut("http://localhost:8080/broadcast")
-                .setBody("hello" + i)
-                .execute().get();
+
+            AsyncHttpClient otherClient = new AsyncHttpClient();
+            try {
+                otherClient.preparePut("http://localhost:8080/broadcast")
+                        .setBody("hello" + i)
+                        .execute().get();
             
             /* sometimes the last broadcast request is not
              * finished before f.done() is called */
-            Thread.sleep(200);
+                Thread.sleep(200);
+            } finally {
+                otherClient.close();
+            }
         }
         
         f.done(null);
@@ -511,23 +477,31 @@ public class TestServerFixture {
         /* need some time for the above request to complete
          * before the broadcast requests can start */
         Thread.sleep(200);
-            
-        new AsyncHttpClient()
-            .preparePut("http://localhost:8080/broadcast")
-            .setBody("hello1")
-            .execute().get();
+
+        AsyncHttpClient otherClient = new AsyncHttpClient();
+        try {
+            otherClient.preparePut("http://localhost:8080/broadcast")
+                    .setBody("hello1")
+                    .execute().get();
         
-        /* sometimes the last broadcast request is not
-         * finished before f.done() is called */
-        Thread.sleep(200);
+            /* sometimes the last broadcast request is not
+             * finished before f.done() is called */
+            Thread.sleep(200);
+        } finally {
+            otherClient.close();
+        }
         
         f.done(null);
         subscribingClient.close();
-        
-        new AsyncHttpClient()
-            .preparePut("http://localhost:8080/broadcast")
-            .setBody("hello2")
-            .execute().get();
+
+        otherClient = new AsyncHttpClient();
+        try {
+            otherClient.preparePut("http://localhost:8080/broadcast")
+                    .setBody("hello2")
+                    .execute().get();
+        } finally {
+            otherClient.close();
+        }
         
         /* allow some time for the last broadcast to be processed
          * before going on to the assertions */
@@ -570,8 +544,7 @@ public class TestServerFixture {
               .upon(Method.PUT, "/broadcast");
         
         final List<String> broadcasts = new ArrayList<String>();
-        ListenableFuture<Integer> f = new AsyncHttpClient()
-              .prepareGet("http://localhost:8080/subscribe")
+        ListenableFuture<Integer> f = client.prepareGet("http://localhost:8080/subscribe")
               .execute(new AddToListOnBodyPartReceivedHandler(broadcasts));
         
         /* need some time for the above request to complete
@@ -579,15 +552,19 @@ public class TestServerFixture {
         Thread.sleep(100);
         
         for (int i = 0; i < 2; i++) {
+
+            AsyncHttpClient otherClient = new AsyncHttpClient();
+            try {
+                otherClient.preparePut("http://localhost:8080/broadcast")
+                        .setBody("hello" + i)
+                        .execute().get();
             
-            new AsyncHttpClient()
-                .preparePut("http://localhost:8080/broadcast")
-                .setBody("hello" + i)
-                .execute().get();
-            
-            /* sometimes the last broadcast request is not
-             * finished before f.done() is called */
-            Thread.sleep(200);
+                /* sometimes the last broadcast request is not
+                 * finished before f.done() is called */
+                Thread.sleep(200);
+            } finally {
+                otherClient.close();
+            }
         }
         
         f.done(null);
@@ -615,8 +592,7 @@ public class TestServerFixture {
               .upon(Method.PUT, "/broadcast", "application/json");
         
         final List<String> broadcasts = new ArrayList<String>();
-        ListenableFuture<Integer> f = new AsyncHttpClient()
-              .prepareGet("http://localhost:8080/subscribe")
+        ListenableFuture<Integer> f = client.prepareGet("http://localhost:8080/subscribe")
               .execute(new AddToListOnBodyPartReceivedHandler(broadcasts));
         
         /* need some time for the above request to complete
@@ -624,16 +600,20 @@ public class TestServerFixture {
         Thread.sleep(100);
         
         for (int i = 0; i < 2; i++) {
+
+            AsyncHttpClient otherClient = new AsyncHttpClient();
+            try {
+                otherClient.preparePut("http://localhost:8080/broadcast")
+                        .setHeader("Content-Type", "application/json")
+                        .setBody("{\"val\":\"hello" + i + "\"}")
+                        .execute().get();
             
-            new AsyncHttpClient()
-                .preparePut("http://localhost:8080/broadcast")
-                .setHeader("Content-Type", "application/json")
-                .setBody("{\"val\":\"hello" + i + "\"}")
-                .execute().get();
-            
-            /* sometimes the last broadcast request is not
-             * finished before f.done() is called */
-            Thread.sleep(200);
+                /* sometimes the last broadcast request is not
+                 * finished before f.done() is called */
+                Thread.sleep(200);
+            } finally {
+                otherClient.close();
+            }
         }
         
         f.done(null);
@@ -652,9 +632,7 @@ public class TestServerFixture {
               .upon(Method.PUT, "/broadcast");
       
         final List<String> broadcasts = new ArrayList<String>();
-        AsyncHttpClient subscribingClient = new AsyncHttpClient();
-        ListenableFuture<Integer> f = subscribingClient
-              .prepareGet("http://localhost:8080/subscribe")
+        ListenableFuture<Integer> f = client.prepareGet("http://localhost:8080/subscribe")
               .execute(new AddToListOnBodyPartReceivedHandler(broadcasts));
         
         /* need some time for the above request to complete
@@ -662,14 +640,17 @@ public class TestServerFixture {
         Thread.sleep(100);
         
         for (int i = 0; i < 2; i++) {
+
+            AsyncHttpClient otherClient = new AsyncHttpClient();
+            try {
+                otherClient.preparePut("http://localhost:8080/broadcast").execute().get();
             
-            new AsyncHttpClient()
-                .preparePut("http://localhost:8080/broadcast")
-                .execute().get();
-            
-            /* sometimes the last broadcast request is not
-             * finished before f.done() is called */
-            Thread.sleep(200);
+                /* sometimes the last broadcast request is not
+                 * finished before f.done() is called */
+                Thread.sleep(200);
+            } finally {
+                otherClient.close();
+            }
         }
         
         f.done(null);
@@ -683,36 +664,45 @@ public class TestServerFixture {
         server.handle(Method.GET, "/subscribe")
               .with(200, "text/plain", "message: :message")
               .upon(Method.GET, "/broadcast/:message");
+
+        AsyncHttpClient client1 = new AsyncHttpClient();
+        AsyncHttpClient client2 = new AsyncHttpClient();
+
+        try {
+            final List<String> client1Broadcasts = new ArrayList<String>();
+            ListenableFuture<Integer> f1 = client1.prepareGet("http://localhost:8080/subscribe")
+                    .execute(new AddToListOnBodyPartReceivedHandler(client1Broadcasts));
+
+            final List<String> client2Broadcasts = new ArrayList<String>();
+            ListenableFuture<Integer> f2 = client2.prepareGet("http://localhost:8080/subscribe")
+                    .execute(new AddToListOnBodyPartReceivedHandler(client2Broadcasts));
         
-        final List<String> client1Broadcasts = new ArrayList<String>();
-        ListenableFuture<Integer> f1 = new AsyncHttpClient()
-              .prepareGet("http://localhost:8080/subscribe")
-              .execute(new AddToListOnBodyPartReceivedHandler(client1Broadcasts));
-        
-        final List<String> client2Broadcasts = new ArrayList<String>();
-        ListenableFuture<Integer> f2 = new AsyncHttpClient()
-              .prepareGet("http://localhost:8080/subscribe")
-              .execute(new AddToListOnBodyPartReceivedHandler(client2Broadcasts));
-        
-        /* need some time for the above requests to complete
-         * before the broadcast requests can start */
-        Thread.sleep(200);
-        
-        for (int i = 0; i < 2; i++) {
-            
-            new AsyncHttpClient()
-                .prepareGet("http://localhost:8080/broadcast/hello" + i)
-                .execute().get();
-            
-            /* sometimes the last broadcast request is not
-             * finished before f.done() is called */
+            /* need some time for the above requests to complete
+             * before the broadcast requests can start */
             Thread.sleep(200);
+
+            for (int i = 0; i < 2; i++) {
+
+                AsyncHttpClient otherClient = new AsyncHttpClient();
+                try {
+                    otherClient.prepareGet("http://localhost:8080/broadcast/hello" + i).execute().get();
+            
+                /* sometimes the last broadcast request is not
+                 * finished before f.done() is called */
+                    Thread.sleep(200);
+                } finally {
+                    otherClient.close();
+                }
+            }
+
+            f1.done(null);
+            f2.done(null);
+            assertEquals("[message: hello0, message: hello1]", client1Broadcasts.toString());
+            assertEquals("[message: hello0, message: hello1]", client2Broadcasts.toString());
+        } finally {
+            client1.close();
+            client2.close();
         }
-        
-        f1.done(null);
-        f2.done(null);
-        assertEquals("[message: hello0, message: hello1]", client1Broadcasts.toString());
-        assertEquals("[message: hello0, message: hello1]", client2Broadcasts.toString());
     }
     
     @Test
@@ -723,9 +713,7 @@ public class TestServerFixture {
               .upon(Method.GET, "/broadcast/:message")
               .withTimeout(100, TimeUnit.MILLISECONDS);
         
-        ListenableFuture<Response> f = new AsyncHttpClient()
-              .prepareGet("http://localhost:8080/subscribe")
-              .execute();
+        ListenableFuture<Response> f = client.prepareGet("http://localhost:8080/subscribe").execute();
         
         /*
          * If the process didn't timeout, the subscribe request
@@ -745,33 +733,44 @@ public class TestServerFixture {
         server.handle(Method.GET, "/subscr2")
               .with(200, "text/plain", "message2")
               .upon(Method.GET, "/broadc2");
+
+        AsyncHttpClient client1 = new AsyncHttpClient();
+        AsyncHttpClient client2 = new AsyncHttpClient();
+
+        try {
+            final List<String> broadcasts1 = new ArrayList<String>();
+            ListenableFuture<Integer> f1 = client1.prepareGet("http://localhost:8080/subscr1")
+                    .execute(new AddToListOnBodyPartReceivedHandler(broadcasts1));
+
+            final List<String> broadcasts2 = new ArrayList<String>();
+            ListenableFuture<Integer> f2 = client2.prepareGet("http://localhost:8080/subscr2")
+                    .execute(new AddToListOnBodyPartReceivedHandler(broadcasts2));
         
-        final List<String> broadcasts1 = new ArrayList<String>();
-        ListenableFuture<Integer> f1 = new AsyncHttpClient()
-              .prepareGet("http://localhost:8080/subscr1")
-              .execute(new AddToListOnBodyPartReceivedHandler(broadcasts1));
+            /* need some time for the above request to complete
+             * before the broadcast requests can start */
+            Thread.sleep(200);
+
+            AsyncHttpClient otherClient = new AsyncHttpClient();
+            try {
+                new AsyncHttpClient()
+                        .prepareGet("http://localhost:8080/broadc2")
+                        .execute().get();
         
-        final List<String> broadcasts2 = new ArrayList<String>();
-        ListenableFuture<Integer> f2 = new AsyncHttpClient()
-              .prepareGet("http://localhost:8080/subscr2")
-              .execute(new AddToListOnBodyPartReceivedHandler(broadcasts2));
-        
-        /* need some time for the above request to complete
-         * before the broadcast requests can start */
-        Thread.sleep(200);
-            
-        new AsyncHttpClient()
-            .prepareGet("http://localhost:8080/broadc2")
-            .execute().get();
-        
-        /* sometimes the last broadcast request is not
-         * finished before f.done() is called */
-        Thread.sleep(200);
-        
-        f1.done(null);
-        f2.done(null);
-        assertEquals("[]", broadcasts1.toString());
-        assertEquals("[message2]", broadcasts2.toString());
+                /* sometimes the last broadcast request is not
+                 * finished before f.done() is called */
+                Thread.sleep(200);
+            } finally {
+                otherClient.close();
+            }
+
+            f1.done(null);
+            f2.done(null);
+            assertEquals("[]", broadcasts1.toString());
+            assertEquals("[message2]", broadcasts2.toString());
+        } finally {
+            client1.close();
+            client2.close();
+        }
     }
     
     @Test
@@ -784,24 +783,30 @@ public class TestServerFixture {
               .with(200, "text/plain", "OK");
         
         assertEquals(0, server.capturedRequests().size());
-        
-        new AsyncHttpClient()
-            .prepareGet("http://localhost:8080/say-hello")
-            .execute().get();
-        
-        new AsyncHttpClient()
-            .preparePut("http://localhost:8080/name/Tim")
-            .execute().get();
-        
-        assertEquals(2, server.capturedRequests().size());
-        
-        CapturedRequest firstRequest = server.request();
-        assertNotNull(firstRequest);
-        assertEquals("GET /say-hello HTTP/1.1", firstRequest.getRequestLine());
-        
-        CapturedRequest secondRequest = server.request();
-        assertNotNull(secondRequest);
-        assertEquals("PUT /name/Tim HTTP/1.1", secondRequest.getRequestLine());
+
+        AsyncHttpClient client1 = new AsyncHttpClient();
+        AsyncHttpClient client2 = new AsyncHttpClient();
+
+        try {
+            client1.prepareGet("http://localhost:8080/say-hello")
+                    .execute().get();
+
+            client2.preparePut("http://localhost:8080/name/Tim")
+                    .execute().get();
+
+            assertEquals(2, server.capturedRequests().size());
+
+            CapturedRequest firstRequest = server.request();
+            assertNotNull(firstRequest);
+            assertEquals("GET /say-hello HTTP/1.1", firstRequest.getRequestLine());
+
+            CapturedRequest secondRequest = server.request();
+            assertNotNull(secondRequest);
+            assertEquals("PUT /name/Tim HTTP/1.1", secondRequest.getRequestLine());
+        } finally {
+            client1.close();
+            client2.close();
+        }
     }
     
     @Test
@@ -811,24 +816,30 @@ public class TestServerFixture {
               .with(200, "text/plain", "Hello :name!");
         
         assertEquals(0, server.capturedRequests().size());
-        
-        new AsyncHttpClient()
-            .prepareGet("http://localhost:8080/say-hello/John")
-            .execute().get();
-        
-        new AsyncHttpClient()
-            .prepareGet("http://localhost:8080/say-hello/Tim")
-            .execute().get();
-        
-        assertEquals(2, server.capturedRequests().size());
-        
-        CapturedRequest firstRequest = server.request();
-        assertNotNull(firstRequest);
-        assertEquals("GET /say-hello/John HTTP/1.1", firstRequest.getRequestLine());
-        
-        CapturedRequest secondRequest = server.request();
-        assertNotNull(secondRequest);
-        assertEquals("GET /say-hello/Tim HTTP/1.1", secondRequest.getRequestLine());
+
+        AsyncHttpClient client1 = new AsyncHttpClient();
+        AsyncHttpClient client2 = new AsyncHttpClient();
+
+        try {
+            client1.prepareGet("http://localhost:8080/say-hello/John")
+                    .execute().get();
+
+            client2.prepareGet("http://localhost:8080/say-hello/Tim")
+                    .execute().get();
+
+            assertEquals(2, server.capturedRequests().size());
+
+            CapturedRequest firstRequest = server.request();
+            assertNotNull(firstRequest);
+            assertEquals("GET /say-hello/John HTTP/1.1", firstRequest.getRequestLine());
+
+            CapturedRequest secondRequest = server.request();
+            assertNotNull(secondRequest);
+            assertEquals("GET /say-hello/Tim HTTP/1.1", secondRequest.getRequestLine());
+        } finally {
+            client1.close();
+            client2.close();
+        }
     }
     
     @Test
@@ -841,8 +852,7 @@ public class TestServerFixture {
         server.handle(Method.GET, "/new-location")
               .with(200, "text/plain", "OK");
         
-        new AsyncHttpClient()
-            .prepareGet("http://localhost:8080/")
+        client.prepareGet("http://localhost:8080/")
             .setFollowRedirects(true)
             .execute().get();
         
@@ -870,10 +880,7 @@ public class TestServerFixture {
                 }
             });
        
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/name/Tim")
-                        .execute()
-                        .get();
+        Response resp = client.prepareGet("http://localhost:8080/name/Tim").execute().get();
        
         assertEquals("Hello Tim", resp.getResponseBody().trim());
     }
@@ -891,10 +898,7 @@ public class TestServerFixture {
                 }
             });
        
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/name/Tim")
-                        .execute()
-                        .get();
+        Response resp = client.prepareGet("http://localhost:8080/name/Tim").execute().get();
        
         assertEquals("Hello Tim", resp.getResponseBody().trim());
     }
@@ -912,10 +916,7 @@ public class TestServerFixture {
                 }
             });
        
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/name")
-                        .execute()
-                        .get();
+        Response resp = client.prepareGet("http://localhost:8080/name").execute().get();
        
         assertEquals("Hello Tim", resp.getResponseBody().trim());
     }
@@ -933,10 +934,7 @@ public class TestServerFixture {
                 }
             });
        
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/name")
-                        .execute()
-                        .get();
+        Response resp = client.prepareGet("http://localhost:8080/name").execute().get();
        
         assertEquals("Hello Tim", resp.getResponseBody().trim());
     }
@@ -946,18 +944,28 @@ public class TestServerFixture {
         
         server.handle(Method.GET, "/:id").with(200, "text/plain", ":id");
         server.setMaxCapturedRequests(2);
-        
-        new AsyncHttpClient().prepareGet("http://localhost:8080/1").execute().get();
-        new AsyncHttpClient().prepareGet("http://localhost:8080/2").execute().get();
-        new AsyncHttpClient().prepareGet("http://localhost:8080/3").execute().get();
-        
-        assertEquals(2, server.capturedRequests().size());
-        
-        CapturedRequest captured = server.request();
-        assertEquals("GET /2 HTTP/1.1", captured.getRequestLine());
-        
-        captured = server.request();
-        assertEquals("GET /3 HTTP/1.1", captured.getRequestLine());
+
+        AsyncHttpClient client1 = new AsyncHttpClient();
+        AsyncHttpClient client2 = new AsyncHttpClient();
+        AsyncHttpClient client3 = new AsyncHttpClient();
+
+        try {
+            client1.prepareGet("http://localhost:8080/1").execute().get();
+            client2.prepareGet("http://localhost:8080/2").execute().get();
+            client3.prepareGet("http://localhost:8080/3").execute().get();
+
+            assertEquals(2, server.capturedRequests().size());
+
+            CapturedRequest captured = server.request();
+            assertEquals("GET /2 HTTP/1.1", captured.getRequestLine());
+
+            captured = server.request();
+            assertEquals("GET /3 HTTP/1.1", captured.getRequestLine());
+        } finally {
+            client1.close();
+            client2.close();
+            client3.close();
+        }
     }
     
     @Test
@@ -968,18 +976,26 @@ public class TestServerFixture {
         
         server.handle(Method.GET, "/resource", "application/json")
               .with(200, "text/plain", "Received application/json content");
-        
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/resource")
-                        .setHeader("Content-Type", "text/plain")
-                        .execute().get();
-        assertEquals("Received text/plain content", resp.getResponseBody().trim());
-        
-        resp          = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/resource")
-                        .setHeader("Content-Type", "application/json")
-                        .execute().get();
-        assertEquals("Received application/json content", resp.getResponseBody().trim());
+
+        AsyncHttpClient client1 = new AsyncHttpClient();
+        try {
+            Response resp = client1.prepareGet("http://localhost:8080/resource")
+                    .setHeader("Content-Type", "text/plain")
+                    .execute().get();
+            assertEquals("Received text/plain content", resp.getResponseBody().trim());
+        } finally {
+            client1.close();
+        }
+
+        AsyncHttpClient client2 = new AsyncHttpClient();
+        try {
+            Response resp = client2.prepareGet("http://localhost:8080/resource")
+                    .setHeader("Content-Type", "application/json")
+                    .execute().get();
+            assertEquals("Received application/json content", resp.getResponseBody().trim());
+        } finally {
+            client2.close();
+        }
     }
     
     @Test
@@ -988,11 +1004,9 @@ public class TestServerFixture {
         server.handle(Method.POST, "/resource", "multipart/form-data")
               .with(200, "text/palin", "Success!");
         
-        Response resp = new AsyncHttpClient()
-                .preparePost("http://localhost:8080/resource")
+        Response resp = client.preparePost("http://localhost:8080/resource")
                 .addBodyPart(new StringPart("name", "value"))
-                .execute()
-                .get();
+                .execute().get();
         
         assertEquals("Success!", resp.getResponseBody().trim());
     }
@@ -1002,17 +1016,22 @@ public class TestServerFixture {
         
         server.handle(Method.GET, "/*")
               .with(200, "text/plain", "[request.path]");
-        
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/1")
-                        .execute().get();
-        assertEquals("/1", resp.getResponseBody().trim());
-        
-        resp = new AsyncHttpClient()
-               .prepareGet("http://localhost:8080/2")
-               .execute().get();
-        assertEquals("/2", resp.getResponseBody().trim());
-        
+
+        AsyncHttpClient client1 = new AsyncHttpClient();
+        try {
+            Response resp = client1.prepareGet("http://localhost:8080/1").execute().get();
+            assertEquals("/1", resp.getResponseBody().trim());
+        } finally {
+            client1.close();
+        }
+
+        AsyncHttpClient client2 = new AsyncHttpClient();
+        try {
+            Response resp = client2.prepareGet("http://localhost:8080/2").execute().get();
+            assertEquals("/2", resp.getResponseBody().trim());
+        } finally {
+            client2.close();
+        }
     }
     
     @Test
@@ -1020,17 +1039,22 @@ public class TestServerFixture {
         
         server.handle(Method.GET, "/protected/*")
               .with(200, "text/plain", "[request.path]");
-        
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/hello")
-                        .execute().get();
-        assertEquals(404, resp.getStatusCode());
-        
-        resp = new AsyncHttpClient()
-               .prepareGet("http://localhost:8080/protected/content")
-               .execute().get();
-        assertEquals("/protected/content", resp.getResponseBody().trim());
-        
+
+        AsyncHttpClient client1 = new AsyncHttpClient();
+        try {
+            Response resp = client1.prepareGet("http://localhost:8080/hello").execute().get();
+            assertEquals(404, resp.getStatusCode());
+        } finally {
+            client1.close();
+        }
+
+        AsyncHttpClient client2 = new AsyncHttpClient();
+        try {
+            Response resp = client2.prepareGet("http://localhost:8080/protected/content").execute().get();
+            assertEquals("/protected/content", resp.getResponseBody().trim());
+        } finally {
+            client2.close();
+        }
     }
     
     @Test
@@ -1038,27 +1062,30 @@ public class TestServerFixture {
         
         server.handle(Method.GET, "/protected/*/content")
               .with(200, "text/plain", "[request.path]");
-        
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/hello")
-                        .execute().get();
-        assertEquals(404, resp.getStatusCode());
-        
-        resp = new AsyncHttpClient()
-               .prepareGet("http://localhost:8080/protected/1/content")
-               .execute().get();
-        assertEquals("/protected/1/content", resp.getResponseBody().trim());
-        
-        resp = new AsyncHttpClient()
-               .prepareGet("http://localhost:8080/protected/blah/content")
-               .execute().get();
-        assertEquals("/protected/blah/content", resp.getResponseBody().trim());
-        
-        resp = new AsyncHttpClient()
-                .prepareGet("http://localhost:8080/protected/1/blah/content")
-                .execute().get();
-        assertEquals(404, resp.getStatusCode());
-        
+
+        AsyncHttpClient client1 = new AsyncHttpClient();
+        AsyncHttpClient client2 = new AsyncHttpClient();
+        AsyncHttpClient client3 = new AsyncHttpClient();
+        AsyncHttpClient client4 = new AsyncHttpClient();
+
+        try {
+            Response resp = client1.prepareGet("http://localhost:8080/hello").execute().get( );
+            assertEquals(404, resp.getStatusCode());
+
+            resp = client2.prepareGet("http://localhost:8080/protected/1/content").execute().get();
+            assertEquals("/protected/1/content", resp.getResponseBody().trim());
+
+            resp = client3.prepareGet("http://localhost:8080/protected/blah/content").execute().get();
+            assertEquals("/protected/blah/content", resp.getResponseBody().trim());
+
+            resp = client4.prepareGet("http://localhost:8080/protected/1/blah/content").execute().get();
+            assertEquals(404, resp.getStatusCode());
+        } finally {
+            client1.close();
+            client2.close();
+            client3.close();
+            client4.close();
+        }
     }
     
     @Test
@@ -1066,22 +1093,25 @@ public class TestServerFixture {
         
         server.handle(Method.GET, "/say/*/to/*")
               .with(200, "text/plain", "[request.path]");
-        
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/hello")
-                        .execute().get();
-        assertEquals(404, resp.getStatusCode());
-        
-        resp = new AsyncHttpClient()
-               .prepareGet("http://localhost:8080/say/hello/to/world")
-               .execute().get();
-        assertEquals("/say/hello/to/world", resp.getResponseBody().trim());
-        
-        resp = new AsyncHttpClient()
-               .prepareGet("http://localhost:8080/say/bye/to/Tim")
-               .execute().get();
-        assertEquals("/say/bye/to/Tim", resp.getResponseBody().trim());
-        
+
+        AsyncHttpClient client1 = new AsyncHttpClient();
+        AsyncHttpClient client2 = new AsyncHttpClient();
+        AsyncHttpClient client3 = new AsyncHttpClient();
+
+        try {
+            Response resp = client1.prepareGet("http://localhost:8080/hello").execute().get();
+            assertEquals(404, resp.getStatusCode());
+
+            resp = client2.prepareGet("http://localhost:8080/say/hello/to/world").execute().get();
+            assertEquals("/say/hello/to/world", resp.getResponseBody().trim());
+
+            resp = client3.prepareGet("http://localhost:8080/say/bye/to/Tim").execute().get();
+            assertEquals("/say/bye/to/Tim", resp.getResponseBody().trim());
+        } finally {
+            client1.close();
+            client2.close();
+            client3.close();
+        }
     }
     
     @Test
@@ -1089,26 +1119,30 @@ public class TestServerFixture {
         
         server.handle(Method.GET, "/say/*/to/:name/:times<[0-9]+>/*")
               .with(200, "text/plain", "[request.path] :name :times");
-        
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/hello")
-                        .execute().get();
-        assertEquals(404, resp.getStatusCode());
-        
-        resp = new AsyncHttpClient()
-               .prepareGet("http://localhost:8080/say/hello/to/John")
-               .execute().get();
-        assertEquals(404, resp.getStatusCode());
-        
-        resp = new AsyncHttpClient()
-               .prepareGet("http://localhost:8080/say/hello/to/John/1/")
-               .execute().get();
-        assertEquals("/say/hello/to/John/1/ John 1", resp.getResponseBody().trim());
-        
-        resp = new AsyncHttpClient()
-                .prepareGet("http://localhost:8080/say/hello/to/Tim/1/time")
-                .execute().get();
-         assertEquals("/say/hello/to/Tim/1/time Tim 1", resp.getResponseBody().trim());
+
+        AsyncHttpClient client1 = new AsyncHttpClient();
+        AsyncHttpClient client2 = new AsyncHttpClient();
+        AsyncHttpClient client3 = new AsyncHttpClient();
+        AsyncHttpClient client4 = new AsyncHttpClient();
+
+        try {
+            Response resp = client1.prepareGet("http://localhost:8080/hello").execute().get();
+            assertEquals(404, resp.getStatusCode());
+
+            resp = client2.prepareGet("http://localhost:8080/say/hello/to/John").execute().get();
+            assertEquals(404, resp.getStatusCode());
+
+            resp = client3.prepareGet("http://localhost:8080/say/hello/to/John/1/").execute().get();
+            assertEquals("/say/hello/to/John/1/ John 1", resp.getResponseBody().trim());
+
+            resp = client4.prepareGet("http://localhost:8080/say/hello/to/Tim/1/time").execute().get();
+            assertEquals("/say/hello/to/Tim/1/time Tim 1", resp.getResponseBody().trim());
+        } finally {
+            client1.close();
+            client2.close();
+            client3.close();
+            client4.close();
+        }
     }
     
     @Test
@@ -1120,9 +1154,7 @@ public class TestServerFixture {
         server.handle(Method.GET, "/marshal")
               .with(200, "application/json", new SimplePojo("marshalledJSON"));
         
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/marshal")
-                        .execute().get();
+        Response resp = client.prepareGet("http://localhost:8080/marshal").execute().get();
         
         assertEquals("{\"val\":\"marshalledJSON\"}", resp.getResponseBody().trim());
     }   
@@ -1142,9 +1174,7 @@ public class TestServerFixture {
                 }
             });
         
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/marshal")
-                        .execute().get();
+        Response resp = client.prepareGet("http://localhost:8080/marshal").execute().get();
         
         assertEquals("{\"val\":\"marshalledJSON\"}", resp.getResponseBody().trim());
     }
@@ -1165,8 +1195,7 @@ public class TestServerFixture {
                 }
             });
         
-        Response resp = new AsyncHttpClient()
-                        .preparePut("http://localhost:8080/unmarshal")
+        Response resp = client.preparePut("http://localhost:8080/unmarshal")
                         .setHeader("Content-Type", "application/json")
                         .setBody("{\"val\":\"unmarshalledJSON\"}")
                         .execute().get();
@@ -1192,8 +1221,7 @@ public class TestServerFixture {
                 }
             });
         
-        Response resp = new AsyncHttpClient()
-                        .preparePut("http://localhost:8080/marshal-and-unmarshal")
+        Response resp = client.preparePut("http://localhost:8080/marshal-and-unmarshal")
                         .setHeader("Content-Type", "application/json")
                         .setBody("{\"val\":\"someJSON\"}")
                         .execute().get();
@@ -1210,8 +1238,7 @@ public class TestServerFixture {
         server.handle(Method.GET, "/new-location")
               .with(200, "text/plain", "OK");
         
-        new AsyncHttpClient()
-            .prepareGet("http://localhost:8080/")
+        client.prepareGet("http://localhost:8080/")
             .setFollowRedirects(true)
             .execute().get();
         
@@ -1232,8 +1259,7 @@ public class TestServerFixture {
         server.handle(Method.GET, "/")
               .withRedirect("http://localhost:8080/new-location");
         
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/")
+        Response resp = client.prepareGet("http://localhost:8080/")
                         .setFollowRedirects(false)
                         .execute().get();
         
@@ -1247,8 +1273,7 @@ public class TestServerFixture {
         server.handle(Method.GET, "/")
               .withRedirect("http://localhost:8080/new-location", 301);
         
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/")
+        Response resp = client.prepareGet("http://localhost:8080/")
                         .setFollowRedirects(false)
                         .execute().get();
         
@@ -1270,8 +1295,7 @@ public class TestServerFixture {
         server.handle(Method.GET, "/new-location")
               .with(200, "text/plain", "OK");
        
-        new AsyncHttpClient()
-            .prepareGet("http://localhost:8080/")
+        client.prepareGet("http://localhost:8080/")
             .setFollowRedirects(true)
             .execute().get();
         
@@ -1297,8 +1321,7 @@ public class TestServerFixture {
                 }
             });
         
-        Response resp = new AsyncHttpClient()
-                        .prepareGet("http://localhost:8080/")
+        Response resp = client.prepareGet("http://localhost:8080/")
                         .setFollowRedirects(false)
                         .execute().get();
         
@@ -1312,9 +1335,7 @@ public class TestServerFixture {
         server.handle(Method.GET, "/foo+bar")
               .with(200, "text/plain", "ok");
         
-        Response resp = new AsyncHttpClient()
-                .prepareGet("http://localhost:8080/foo%2Bbar")
-                .execute().get();
+        Response resp = client.prepareGet("http://localhost:8080/foo%2Bbar").execute().get();
         
         assertEquals("ok", resp.getResponseBody().trim());
     }
@@ -1325,9 +1346,7 @@ public class TestServerFixture {
         server.handle(Method.GET, "/foo/bar")
               .with(200, "text/plain", "ok");
         
-        Response resp = new AsyncHttpClient()
-                .prepareGet("http://localhost:8080/foo%2Fbar")
-                .execute().get();
+        Response resp = client.prepareGet("http://localhost:8080/foo%2Fbar").execute().get();
         
         assertEquals(404, resp.getStatusCode());
     }
@@ -1338,9 +1357,7 @@ public class TestServerFixture {
         server.handle(Method.GET, "/:name")
               .with(200, "text/plain", ":name");
         
-        Response resp = new AsyncHttpClient()
-                .prepareGet("http://localhost:8080/foo%2Fbar")
-                .execute().get();
+        Response resp = client.prepareGet("http://localhost:8080/foo%2Fbar").execute().get();
         
         assertEquals("foo/bar", resp.getResponseBody().trim());
     }
@@ -1351,9 +1368,7 @@ public class TestServerFixture {
         server.handle(Method.GET, "/:name")
               .with(200, "text/plain", ":name");
         
-        Response resp = new AsyncHttpClient()
-                .prepareGet("http://localhost:8080/foo%2Bbar")
-                .execute().get();
+        Response resp = client.prepareGet("http://localhost:8080/foo%2Bbar").execute().get();
         
         assertEquals("foo+bar", resp.getResponseBody().trim());
     }
@@ -1364,9 +1379,7 @@ public class TestServerFixture {
         server.handle(Method.GET, "/:name")
               .with(200, "text/plain", ":name");
         
-        Response resp = new AsyncHttpClient()
-                .prepareGet("http://localhost:8080/foo+bar")
-                .execute().get();
+        Response resp = client.prepareGet("http://localhost:8080/foo+bar").execute().get();
         
         assertEquals("foo+bar", resp.getResponseBody().trim());
     }
@@ -1402,9 +1415,7 @@ public class TestServerFixture {
         
         try {            
           
-            Response resp = new AsyncHttpClient()
-                          .prepareGet("http://localhost:" + fixture.getPort() + "/")
-                          .execute().get();
+            Response resp = client.prepareGet("http://localhost:" + fixture.getPort() + "/").execute().get();
          
             assertEquals("Hello", resp.getResponseBody().trim());
             
@@ -1416,6 +1427,7 @@ public class TestServerFixture {
     @After
     public void afterEachTest() throws Exception {
         server.stop();
+        client.close();
     }
     
     /*--------------------------------------------*/

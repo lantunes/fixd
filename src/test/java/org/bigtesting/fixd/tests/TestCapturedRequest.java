@@ -33,11 +33,14 @@ import com.ning.http.client.AsyncHttpClient;
 public class TestCapturedRequest {
 
     private ServerFixture server;
+
+    private AsyncHttpClient client;
     
     @Before
     public void beforeEachTest() throws Exception {
         server = new ServerFixture(8080);
         server.start();
+        client = new AsyncHttpClient();
     }
     
     @Test
@@ -46,10 +49,7 @@ public class TestCapturedRequest {
         server.handle(Method.GET, "/")
               .with(200, "text/plain", "Hello");
   
-        new AsyncHttpClient()
-              .prepareGet("http://localhost:8080/")
-              .execute()
-              .get();
+        client.prepareGet("http://localhost:8080/").execute().get();
         
         CapturedRequest captured = server.request();
         assertEquals("/", captured.getPath());
@@ -61,10 +61,7 @@ public class TestCapturedRequest {
         server.handle(Method.GET, "/some/path")
               .with(200, "text/plain", "Hello");
   
-        new AsyncHttpClient()
-              .prepareGet("http://localhost:8080/some/path")
-              .execute()
-              .get();
+        client.prepareGet("http://localhost:8080/some/path").execute().get();
         
         CapturedRequest captured = server.request();
         assertEquals("/some/path", captured.getPath());
@@ -75,11 +72,8 @@ public class TestCapturedRequest {
     
         server.handle(Method.GET, "/some/path/:param")
               .with(200, "text/plain", "Hello");
-  
-        new AsyncHttpClient()
-              .prepareGet("http://localhost:8080/some/path/123")
-              .execute()
-              .get();
+
+        client.prepareGet("http://localhost:8080/some/path/123").execute().get();
         
         CapturedRequest captured = server.request();
         assertEquals("/some/path/123", captured.getPath());
@@ -91,10 +85,7 @@ public class TestCapturedRequest {
         server.handle(Method.GET, "/")
               .with(200, "text/plain", "Hello");
 
-        new AsyncHttpClient()
-              .prepareGet("http://localhost:8080/")
-              .execute()
-              .get();
+        client.prepareGet("http://localhost:8080/").execute().get();
 
         CapturedRequest captured = server.request();
         assertEquals("GET / HTTP/1.1", captured.getRequestLine());
@@ -106,10 +97,7 @@ public class TestCapturedRequest {
         server.handle(Method.GET, "/")
               .with(200, "text/plain", "Hello");
 
-        new AsyncHttpClient()
-              .prepareGet("http://localhost:8080/")
-              .execute()
-              .get();
+        client.prepareGet("http://localhost:8080/").execute().get();
 
         CapturedRequest captured = server.request();
         assertEquals("GET", captured.getMethod());    
@@ -121,10 +109,7 @@ public class TestCapturedRequest {
         server.handle(Method.GET, "/")
               .with(200, "text/plain", "Hello");
 
-        new AsyncHttpClient()
-              .prepareGet("http://localhost:8080/")
-              .execute()
-              .get();
+        client.prepareGet("http://localhost:8080/").execute().get();
 
         CapturedRequest captured = server.request();
         assertEquals("[Host: localhost:8080, " +
@@ -141,12 +126,10 @@ public class TestCapturedRequest {
               .with(200, "text/plain", "Hello");
 
         byte[] body = "Hello".getBytes();
-        
-        new AsyncHttpClient()
-              .preparePut("http://localhost:8080/")
+
+        client.preparePut("http://localhost:8080/")
               .setBody(body)
-              .execute()
-              .get();
+              .execute().get();
 
         CapturedRequest captured = server.request();
         assertArrayEquals(body, captured.getBody());    
@@ -159,12 +142,10 @@ public class TestCapturedRequest {
               .with(200, "text/plain", "Hello");
 
         String unicodeContainingBody = "A\u00ea\u00f1\u00fC";
-        
-        new AsyncHttpClient()
-              .preparePut("http://localhost:8080/")
+
+        client.preparePut("http://localhost:8080/")
               .setBody(unicodeContainingBody)
-              .execute()
-              .get();
+              .execute().get();
 
         CapturedRequest captured = server.request();
         assertEquals(
@@ -175,5 +156,6 @@ public class TestCapturedRequest {
     @After
     public void afterEachTest() throws Exception {
         server.stop();
+        client.close();
     }
 }
