@@ -48,7 +48,7 @@
         <dependency>
             <groupId>org.bigtesting</groupId>
             <artifactId>routd</artifactId>
-            <version>1.0.6</version>
+            <version>1.0.7</version>
         </dependency>
         <dependency>
             <groupId>org.bigtesting</groupId>
