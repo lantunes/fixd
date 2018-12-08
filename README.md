@@ -53,13 +53,13 @@ Or, add the following dependency to your pom.xml:
 <dependency>
     <groupId>org.bigtesting</groupId>
     <artifactId>fixd</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
 </dependency>
 ```
 Or, if you are using Gradle:
 ```
 dependencies {
-    compile "org.bigtesting:fixd:1.0.4"
+    compile "org.bigtesting:fixd:1.0.5"
 }
 ```
 
